@@ -13,7 +13,7 @@ module DigiToRaw = SiStripDigiToRawModule
 }
 
 #provide a scheduler path
-path p1 = { prod }      
+path p1 = { DigiToRaw }      
 
 }
 

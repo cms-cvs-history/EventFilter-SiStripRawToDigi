@@ -1,10 +1,10 @@
 #!/bin/tcsh
 
-echo "stdout will be piped to stdout.RawToDigi "
+echo "stdout will be piped to log.RawToDigi "
 eval `scramv1 runtime -csh`
 rehash
-if ( -e "stdout.RawToDigi" ) then
-  mv stdout.RawToDigi stdout.RawToDigi.bak
+if ( -e "log.RawToDigi" ) then
+  mv log.RawToDigi log.RawToDigi.bak
 endif
-cmsRun --parameter-set RawToDigi.txt > & stdout.RawToDigi &
+cmsRun --parameter-set RawToDigi.txt > & log.RawToDigi &
 
