@@ -1,15 +1,18 @@
 process RawToDigiTest = {
 
 # input service 
-#source = EmptyInputService {untracked int32 maxEvents = 2}
-source = DAQFileInputService{ string fileName = "/afs/cern.ch/user/b/bainbrid/scratch0/data/output.zs"}
+source = DAQFileInputService
+{ 
+       string fileName = "/afs/cern.ch/user/b/bainbrid/scratch0/data/output.zs"
+}
 
 # define modules to be used 
 module RawToDigi = SiStripRawToDigiModule 
 {
-       string FedReadoutMode = "VIRGIN_RAW"
+       string FedReadoutMode = "ZERO_SUPPRESSED"
        string FedReadoutPath = "SLINK"
-       int32  Verbosity = 3
+       int32  Verbosity = 1
+       string EDProductLabel = "DaqRawData"
 }
 
 #provide a scheduler path
