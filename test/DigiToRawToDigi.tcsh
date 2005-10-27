@@ -6,5 +6,5 @@ rehash
 if ( -e "log.DigiToRawToDigi" ) then
  mv log.DigiToRawToDigi log.DigiToRawToDigi.bak
 endif
-cmsRun --parameter-set DigiToRawToDigi.txt > & log.DigiToRawToDigi &
+cmsRun --parameter-set DigiToRawToDigi.cfg > & log.DigiToRawToDigi &
 
