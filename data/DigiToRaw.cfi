@@ -1,0 +1,10 @@
+module DigiToRaw = SiStripDigiToRawModule 
+{
+	          string InputModuleLabel = "source"
+	untracked string FedReadoutMode   = "VIRGIN_RAW"
+//	untracked  int32 AppendedBytes    = 0 //@@ should be commented
+}
+
+// string InputModuleLabel: 		[no default]		label of the input source (which is always "source")
+// untracked string FedReadoutMode:	[default=VIRGIN_RAW]	FED readout mode (packs digi information accordingly in payload)
+// untracked int32 AppendedBytes:	[default=0]		appends bytes prior to FED buffer (legacy, to be deprecated)
