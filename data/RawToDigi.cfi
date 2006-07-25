@@ -1,18 +1,17 @@
 module RawToDigi = SiStripRawToDigiModule 
 {
 	          string InputModuleLabel  = "source"
-	untracked  int32 AppendedBytes     = 0
+	untracked   bool CreateDigis       = true
        	untracked  int32 FedBufferDumpFreq = 0
-	untracked   bool UseFedKey         = false
 	untracked  int32 TriggerFedId      = 1023
+	untracked   bool UseFedKey         = false
 }
 
 // string InputModuleLabel: 		[no default]		label of the input source (which is always "source")
+// untracked bool CreateDigis		[true]			specifies whether the "real" digis are created, or just the "pseudo" digis 
 // untracked int32 AppendedBytes:	[default=0]		removes appended bytes prior to FED buffer, if any (legacy, to be deprecated)
 // untracked int32 FedBufferDumpFreq:	[default=0]		freq with which FED buffers are dumped (only if LogDebug is enabled!)
 // untracked bool UseFedKey:		[default=false]		use FedKey to index digi collections, instead of DetId	
 // untracked int32 TriggerFedId:	[default=1023]		source id for "trigger FED" (commissioning-related) information
 
 // NOTA BENE: the FED buffer dump only works if LogDebug is enabled!
-
-
