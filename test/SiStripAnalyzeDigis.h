@@ -2,13 +2,12 @@
 #define EventFilter_SiStripRawToDigi_test_SiStripAnalyzeDigis_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <boost/cstdint.hpp>
+#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
 #include <string>
-#include <vector>
-#include <map>
 
 /**
-   @class SiStripAnalyzeDigis
+   @class SiStripAnalyzeDigis 
+   @brief Simple class that analyzes Digis produced by RawToDigi unpacker
 */
 class SiStripAnalyzeDigis : public edm::EDAnalyzer {
 
@@ -17,21 +16,6 @@ class SiStripAnalyzeDigis : public edm::EDAnalyzer {
   SiStripAnalyzeDigis( const edm::ParameterSet& );
   ~SiStripAnalyzeDigis();
   
-  /** Simple container class. */
-  class TrivialAnalysis {
-  public:
-    TrivialAnalysis() : 
-      events_(0), feds_(0), channels_(0), strips_(0),
-      digis_(0), pos_(1024,0), adc_(1024,0) {;}
-    uint32_t events_;
-    uint32_t feds_;
-    uint32_t channels_;
-    uint32_t strips_;
-    uint32_t digis_;
-    std::vector<uint16_t> pos_;
-    std::vector<uint16_t> adc_;
-  };
-  
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob();
@@ -39,8 +23,21 @@ class SiStripAnalyzeDigis : public edm::EDAnalyzer {
  private:
 
   std::string inputModuleLabel_;
-  TrivialAnalysis anal_;
 
+  bool createDigis_;
+
+  SiStripTrivialDigiAnalysis anal_;
+
+  SiStripTrivialDigiAnalysis vr_p;
+  SiStripTrivialDigiAnalysis pr_p;
+  SiStripTrivialDigiAnalysis sm_p;
+  SiStripTrivialDigiAnalysis zs_p;
+
+  SiStripTrivialDigiAnalysis vr_r;
+  SiStripTrivialDigiAnalysis pr_r;
+  SiStripTrivialDigiAnalysis sm_r;
+  SiStripTrivialDigiAnalysis zs_r;
+  
 };
 
 #endif // EventFilter_SiStripRawToDigi_test_SiStripAnalyzeDigis_H
