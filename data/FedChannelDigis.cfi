@@ -1,10 +1,10 @@
-module RawToDigi = SiStripRawToDigiModule 
+module FedChannelDigis = SiStripRawToDigiModule 
 {
 	          string InputModuleLabel  = "source"
 	untracked   bool CreateDigis       = true
        	untracked  int32 AppendedBytes     = 0
        	untracked  int32 FedBufferDumpFreq = 0
-	untracked   bool UseFedKey         = false
+	untracked   bool UseFedKey         = true
 	untracked  int32 TriggerFedId      = 1023
 }
 
