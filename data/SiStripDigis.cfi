@@ -5,7 +5,7 @@ module SiStripDigis = SiStripRawToDigiModule
        	untracked  int32 AppendedBytes     = 0
        	untracked  int32 FedBufferDumpFreq = 0
 	untracked   bool UseFedKey         = false
-	untracked  int32 TriggerFedId      = 1023
+	untracked  int32 TriggerFedId      = 0
 }
 
 // string InputModuleLabel: 		[no default]		label of the input source (should always be "source")
