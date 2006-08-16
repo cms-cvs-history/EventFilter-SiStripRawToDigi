@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
@@ -89,8 +89,8 @@ void SiStripAnalyzeDigis::analyze( const edm::Event& event,
   setup.get<SiStripFedCablingRcd>().get( fed_cabling ); 
 
   // Retrieve "pseudo" digis
-  edm::Handle< SiStripDigiCollection > pseudo;
-  event.getByLabel( inputModuleLabel_, "SiStripDigiCollection", pseudo );
+  //edm::Handle< SiStripDigiCollection > pseudo;
+  //event.getByLabel( inputModuleLabel_, "SiStripDigiCollection", pseudo );
 
   // Retrieve "real" digis
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > vr;
@@ -128,16 +128,16 @@ void SiStripAnalyzeDigis::analyze( const edm::Event& event,
 
       if ( !createDigis_ ) { // Analyse "pseudo" digis
 	
-	if ( pseudo.product() ) {
-	  for ( uint16_t istrip = 0; istrip < sistrip::STRIPS_PER_FEDCH; istrip++ ) { 
-	    if ( pseudo->adc( *ifed, ichan, istrip ) > 0 &&
-		 pseudo->adc( *ifed, ichan, istrip ) < SiStripDigiCollection::invalid_ ) { 
-	      anal_.strips_++;
-	      anal_.pos(istrip);
-	      anal_.adc( pseudo->adc( *ifed, ichan, istrip ) );
-	    }
-	  }
-	}
+// 	if ( pseudo.product() ) {
+// 	  for ( uint16_t istrip = 0; istrip < sistrip::STRIPS_PER_FEDCH; istrip++ ) { 
+// 	    if ( pseudo->adc( *ifed, ichan, istrip ) > 0 &&
+// 		 pseudo->adc( *ifed, ichan, istrip ) < SiStripDigiCollection::invalid_ ) { 
+// 	      anal_.strips_++;
+// 	      anal_.pos(istrip);
+// 	      anal_.adc( pseudo->adc( *ifed, ichan, istrip ) );
+// 	    }
+// 	  }
+// 	}
 
       } else { // Analyse "real" digis
 	
