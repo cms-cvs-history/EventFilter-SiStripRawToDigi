@@ -14,7 +14,7 @@
   <use name=EventFilter/SiStripRawToDigi>
   <use name=boost>
 
-  <library name=testEventFilterSiStripRawToDigi file=*.cc>
+  <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
     <flags SEAL_PLUGIN_NAME="testEventFilterSiStripRawToDigi">
   </library>
 
