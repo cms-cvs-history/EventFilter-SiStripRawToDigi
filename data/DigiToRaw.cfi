@@ -1,8 +1,8 @@
 module DigiToRaw = SiStripDigiToRawModule 
 {
-	          string InputModuleLabel = "source"
-	untracked string FedReadoutMode   = "VIRGIN_RAW"
-//	untracked  int32 AppendedBytes    = 0 //@@ should be commented
+    string InputModuleLabel = "source"
+    untracked string FedReadoutMode = "VIRGIN_RAW"
+    // untracked  int32 AppendedBytes = 0 //@@ should be commented
 }
 
 // string InputModuleLabel: 		[no default]		label of the input source (which is always "source")
