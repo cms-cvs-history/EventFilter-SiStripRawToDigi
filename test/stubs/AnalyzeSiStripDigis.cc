@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripAnalyzeDigis.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/AnalyzeSiStripDigis.h"
 //
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -13,7 +13,7 @@
 //
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 //#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -27,33 +27,33 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 //
-SiStripAnalyzeDigis::SiStripAnalyzeDigis( const edm::ParameterSet& pset ) :
+AnalyzeSiStripDigis::AnalyzeSiStripDigis( const edm::ParameterSet& pset ) :
   inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
   createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
 {
-  edm::LogVerbatim("SiStripAnalyzeDigis")
-    << "[SiStripAnalyzeDigis::SiStripAnalyzeDigis]"
+  LogDebug("AnalyzeSiStripDigis")
+    << "[AnalyzeSiStripDigis::AnalyzeSiStripDigis]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-SiStripAnalyzeDigis::~SiStripAnalyzeDigis() {
-  edm::LogVerbatim("SiStripAnalyzeDigis")
-    << "[SiStripAnalyzeDigis::~SiStripAnalyzeDigis]"
+AnalyzeSiStripDigis::~AnalyzeSiStripDigis() {
+  LogDebug("AnalyzeSiStripDigis")
+    << "[AnalyzeSiStripDigis::~AnalyzeSiStripDigis]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripAnalyzeDigis::beginJob( const edm::EventSetup& setup ) {
-  edm::LogVerbatim("SiStripAnalyzeDigis")
-    << "[SiStripAnalyzeDigis::beginJob]";
+void AnalyzeSiStripDigis::beginJob( const edm::EventSetup& setup ) {
+  LogDebug("AnalyzeSiStripDigis")
+    << "[AnalyzeSiStripDigis::beginJob]";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripAnalyzeDigis::endJob() {
+void AnalyzeSiStripDigis::endJob() {
   stringstream ss;
   ss << "PSEUDO DIGI ANALYSIS:" << "\n";
   anal_.print(ss);
@@ -70,16 +70,16 @@ void SiStripAnalyzeDigis::endJob() {
   ss << "REAL DIGI (ZERO SUPPR) ANALYSIS:" << "\n";
   zs_r.print(ss);
   ss << "\n";
-  edm::LogVerbatim("SiStripAnalyzeDigis") << ss.str();
+  LogDebug("AnalyzeSiStripDigis") << ss.str();
 
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripAnalyzeDigis::analyze( const edm::Event& event, 
+void AnalyzeSiStripDigis::analyze( const edm::Event& event, 
 				   const edm::EventSetup& setup ) {
 
-  edm::LogVerbatim("SiStripAnalyzeDigis")
+  LogDebug("AnalyzeSiStripDigis")
     << "["<<__PRETTY_FUNCTION__<<"]" 
     << " Analyzing run " << event.id().run() 
     << " and event " << event.id().event();
@@ -141,7 +141,7 @@ void SiStripAnalyzeDigis::analyze( const edm::Event& event,
 
       } else { // Analyse "real" digis
 	
-	uint32_t key = SiStripReadoutKey::key( *ifed, ichan );
+	uint32_t key = SiStripFedKey::key( *ifed, ichan );
 	vector< edm::DetSet<SiStripRawDigi> >::const_iterator raw;
 	vector< edm::DetSet<SiStripDigi> >::const_iterator digis;
 

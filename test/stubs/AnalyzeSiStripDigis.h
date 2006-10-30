@@ -1,20 +1,20 @@
-#ifndef EventFilter_SiStripRawToDigi_test_SiStripAnalyzeDigis_H
-#define EventFilter_SiStripRawToDigi_test_SiStripAnalyzeDigis_H
+#ifndef EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
+#define EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
 #include <string>
 
 /**
-   @class SiStripAnalyzeDigis 
+   @class AnalyzeSiStripDigis 
    @brief Simple class that analyzes Digis produced by RawToDigi unpacker
 */
-class SiStripAnalyzeDigis : public edm::EDAnalyzer {
+class AnalyzeSiStripDigis : public edm::EDAnalyzer {
 
  public:
   
-  SiStripAnalyzeDigis( const edm::ParameterSet& );
-  ~SiStripAnalyzeDigis();
+  AnalyzeSiStripDigis( const edm::ParameterSet& );
+  ~AnalyzeSiStripDigis();
   
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
@@ -40,5 +40,5 @@ class SiStripAnalyzeDigis : public edm::EDAnalyzer {
   
 };
 
-#endif // EventFilter_SiStripRawToDigi_test_SiStripAnalyzeDigis_H
+#endif // EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
 
