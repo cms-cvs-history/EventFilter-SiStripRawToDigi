@@ -1,18 +1,17 @@
 module FedChannelDigis = SiStripRawToDigiModule 
 {
-    string InputModuleLabel = "source"
     untracked bool CreateDigis = true
     untracked int32 AppendedBytes = 0
     untracked int32 FedBufferDumpFreq = 0
+    untracked int32 FedEventDumpFreq = 0
     untracked bool UseFedKey = true
     untracked int32 TriggerFedId = -1
 }
 
-// string InputModuleLabel: 		[no default]		label of the input source (should always be "source")
-// untracked bool CreateDigis		[default=true]		specifies whether "real" or "pseudo" digis are created
-// untracked int32 AppendedBytes:	[default=0]		removes appended bytes prior to FED buffer, if any (negative value triggers "search mode")
-// untracked int32 FedBufferDumpFreq:	[default=0]		freq with which FED buffers are dumped (only if LogDebug is enabled!)
-// untracked bool UseFedKey:		[default=false]		use FedKey to index digi collections, instead of DetId	
-// untracked int32 TriggerFedId:	[default=0]		source id for "trigger FED" (commissioning-related) information (zero value means "ignore", negative value triggers "search mode")
 
-// NOTA BENE: the FED buffer dump only works if LogDebug is enabled!
+// CreateDigis: specifies whether "real" or "pseudo" digis are created
+// AppendedBytes: removes bytes appended prior to FED buffer (negative value triggers "search mode")
+// FedBufferDumpFreq: event frequency with which raw FED data are dumped
+// FedEventDumpFreq: event frequency with which Fed9UEvent::dump() is used
+// UseFedKey: specifies whether FedKey or DetId is used to index digi collections
+// TriggerFedId: "fed id" for "trigger FED" information (0="ignore", negative value triggers "search mode")
