@@ -1,5 +1,7 @@
 module FedChannelDigis = SiStripRawToDigiModule 
 {
+    untracked string ProductLabel = "source"
+    untracked string ProductInstance = ""
     untracked bool CreateDigis = true
     untracked int32 AppendedBytes = 0
     untracked int32 FedBufferDumpFreq = 0
@@ -7,7 +9,6 @@ module FedChannelDigis = SiStripRawToDigiModule
     untracked bool UseFedKey = true
     untracked int32 TriggerFedId = -1
 }
-
 
 // CreateDigis: specifies whether "real" or "pseudo" digis are created
 // AppendedBytes: removes bytes appended prior to FED buffer (negative value triggers "search mode")
