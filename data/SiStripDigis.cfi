@@ -1,5 +1,6 @@
 module SiStripDigis = SiStripRawToDigiModule 
 {
+    untracked string ProductLabel = "source"
     untracked bool CreateDigis = true
     untracked int32 AppendedBytes = 0
     untracked int32 FedBufferDumpFreq = 0
