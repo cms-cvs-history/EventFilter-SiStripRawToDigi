@@ -1,0 +1,49 @@
+#include SiStripNoiseService parameters to be used in case UseCalibDataFromDB=false
+include "CommonTools/SiStripZeroSuppression/data/SiStripNoiseService.cfi"
+
+module SiStripRawToClusters =  SiStripRawToClustersModule {
+	
+    // Removes appended bytes prior to FED buffer (negative value triggers "search mode") [default=0]
+    
+    untracked int32 AppendedBytes = 0 
+    
+    // Freq with which FED buffers are dumped (only if LogDebug is enabled!) [default=0]
+    
+    untracked int32 FedBufferDumpFreq = 0
+    
+    // Use FedKey to index digi collections, instead of DetId  [default=false]
+    
+    untracked bool UseFedKey = false
+    
+    // TriggerFedId [default=0]        
+    
+    untracked int32 TriggerFedId = 0
+    
+    // Parameters to configure SiStripClusterizerFactory
+    
+    untracked string ClusterizerAlgorithm = "ThreeThreshold"
+    untracked double ChannelThreshold = 2.0
+    untracked double SeedThreshold = 3.0
+    untracked double ClusterThreshold = 5.0
+    untracked uint32 MaxHolesInCluster = 0
+
+    using SiStripNoiseServiceParameters
+}
+
+replace SiStripRawToClusters.UseCalibDataFromDB  = false
+#NB: in case there is NOT DataBase access, please uncomment the following line
+#replace siStripRawToClusters.UseCalibDataFromDB = false
+
+
+// untracked int32 AppendedBytes:       
+// untracked int32 FedBufferDumpFreq:   
+// untracked bool UseFedKey:            
+// 
+
+
+
+
+
+
+
+
