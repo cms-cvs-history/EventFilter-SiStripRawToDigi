@@ -13,6 +13,10 @@
   <use name=EventFilter/SiStripRawToDigi>
   <use name=boost>
 
+  <use name=root>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DQM/HLTEvF>
+
   <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
     <flags SEAL_PLUGIN_NAME="testEventFilterSiStripRawToDigi">
   </library>
