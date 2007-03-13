@@ -1,8 +1,7 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/SiStripPerformanceRecordModule.h"
 
 //edm
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
