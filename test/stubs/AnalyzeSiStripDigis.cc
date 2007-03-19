@@ -141,7 +141,10 @@ void AnalyzeSiStripDigis::analyze( const edm::Event& event,
 
       } else { // Analyse "real" digis
 	
-	uint32_t key = SiStripFedKey::key( *ifed, ichan );
+	uint32_t key = SiStripFedKey( *ifed, 
+				      SiStripFedKey::feUnit(ichan),
+				      SiStripFedKey::feChan(ichan) ).key();
+
 	vector< edm::DetSet<SiStripRawDigi> >::const_iterator raw;
 	vector< edm::DetSet<SiStripDigi> >::const_iterator digis;
 
