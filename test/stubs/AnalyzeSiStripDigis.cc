@@ -14,10 +14,9 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 //
 //#include <boost/cstdint.hpp>
 #include <sstream>
@@ -88,10 +87,6 @@ void AnalyzeSiStripDigis::analyze( const edm::Event& event,
   edm::ESHandle<SiStripFedCabling> fed_cabling;
   setup.get<SiStripFedCablingRcd>().get( fed_cabling ); 
 
-  // Retrieve "pseudo" digis
-  //edm::Handle< SiStripDigiCollection > pseudo;
-  //event.getByLabel( inputModuleLabel_, "SiStripDigiCollection", pseudo );
-
   // Retrieve "real" digis
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > vr;
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > pr;
@@ -126,76 +121,61 @@ void AnalyzeSiStripDigis::analyze( const edm::Event& event,
       sm_r.channels_++;
       zs_r.channels_++;
 
-      if ( !createDigis_ ) { // Analyse "pseudo" digis
+      // Analyse digis
 	
-// 	if ( pseudo.product() ) {
-// 	  for ( uint16_t istrip = 0; istrip < sistrip::STRIPS_PER_FEDCH; istrip++ ) { 
-// 	    if ( pseudo->adc( *ifed, ichan, istrip ) > 0 &&
-// 		 pseudo->adc( *ifed, ichan, istrip ) < SiStripDigiCollection::invalid_ ) { 
-// 	      anal_.strips_++;
-// 	      anal_.pos(istrip);
-// 	      anal_.adc( pseudo->adc( *ifed, ichan, istrip ) );
-// 	    }
-// 	  }
-// 	}
+      uint32_t key = SiStripFedKey( *ifed, 
+				    SiStripFedKey::feUnit(ichan),
+				    SiStripFedKey::feChan(ichan) ).key();
 
-      } else { // Analyse "real" digis
-	
-	uint32_t key = SiStripFedKey( *ifed, 
-				      SiStripFedKey::feUnit(ichan),
-				      SiStripFedKey::feChan(ichan) ).key();
+      vector< edm::DetSet<SiStripRawDigi> >::const_iterator raw;
+      vector< edm::DetSet<SiStripDigi> >::const_iterator digis;
 
-	vector< edm::DetSet<SiStripRawDigi> >::const_iterator raw;
-	vector< edm::DetSet<SiStripDigi> >::const_iterator digis;
-
-	// virgin raw
-	raw = vr->find( key );
-	if ( raw != vr->end() ) { 
-	  for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
-	    if ( raw->data[istrip].adc() ) {
-	      vr_r.strips_++;
-	      vr_r.pos(istrip);
-	      vr_r.adc( raw->data[istrip].adc() );
-	    }
+      // virgin raw
+      raw = vr->find( key );
+      if ( raw != vr->end() ) { 
+	for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
+	  if ( raw->data[istrip].adc() ) {
+	    vr_r.strips_++;
+	    vr_r.pos(istrip);
+	    vr_r.adc( raw->data[istrip].adc() );
 	  }
 	}
+      }
 
-	// processed raw
-	raw = pr->find( key );
-	if ( raw != pr->end() ) { 
-	  for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
-	    if ( raw->data[istrip].adc() ) {
-	      pr_r.strips_++;
-	      pr_r.pos(istrip);
-	      pr_r.adc( raw->data[istrip].adc() );
-	    }
+      // processed raw
+      raw = pr->find( key );
+      if ( raw != pr->end() ) { 
+	for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
+	  if ( raw->data[istrip].adc() ) {
+	    pr_r.strips_++;
+	    pr_r.pos(istrip);
+	    pr_r.adc( raw->data[istrip].adc() );
 	  }
 	}
+      }
 
-	// scope mode
-	raw = sm->find( key );
-	if ( raw != sm->end() ) { 
-	  for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
-	    if ( raw->data[istrip].adc() ) {
-	      sm_r.strips_++;
-	      sm_r.pos(istrip);
-	      sm_r.adc( raw->data[istrip].adc() );
-	    }
+      // scope mode
+      raw = sm->find( key );
+      if ( raw != sm->end() ) { 
+	for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
+	  if ( raw->data[istrip].adc() ) {
+	    sm_r.strips_++;
+	    sm_r.pos(istrip);
+	    sm_r.adc( raw->data[istrip].adc() );
 	  }
 	}
+      }
 
-	// scope mode
-	digis = zs->find( key );
-	if ( digis != zs->end() ) { 
-	  for ( uint16_t iadc = 0; iadc < digis->size(); iadc++ ) { 
-	    if ( digis->data[iadc].adc() ) {
-	      zs_r.strips_++;
-	      zs_r.pos( digis->data[iadc].strip() );
-	      zs_r.adc( digis->data[iadc].adc() );
-	    }
+      // scope mode
+      digis = zs->find( key );
+      if ( digis != zs->end() ) { 
+	for ( uint16_t iadc = 0; iadc < digis->size(); iadc++ ) { 
+	  if ( digis->data[iadc].adc() ) {
+	    zs_r.strips_++;
+	    zs_r.pos( digis->data[iadc].strip() );
+	    zs_r.adc( digis->data[iadc].adc() );
 	  }
 	}
-
       }
       
     } // channel loop

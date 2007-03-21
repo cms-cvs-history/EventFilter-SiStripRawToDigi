@@ -1,24 +1,23 @@
 <environment>
 
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/Utilities> 
-  <use name=FWCore/MessageLogger> 
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/SiStripCommon>
-  <use name=DataFormats/SiStripDigi>
-  <use name=EventFilter/SiStripRawToDigi>
-  <use name=boost>
+ <use name=CalibFormats/SiStripObjects>
+ <use name=CondFormats/DataRecord>
+ <use name=CondFormats/SiStripObjects>
+ <use name=DataFormats/Common>
+ <use name=DataFormats/SiStripCommon>
+ <use name=DataFormats/SiStripDigi>
+ <use name=DataFormats/SiStripCluster>
+ <use name=DQM/HLTEvF>
+ <use name=EventFilter/SiStripRawToDigi>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Utilities> 
+ <use name=FWCore/MessageLogger> 
+ <use name=boost>
+ <use name=root>
 
-  <use name=root>
-  <use name=DataFormats/SiStripCluster>
-  <use name=DQM/HLTEvF>
-
-  <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
-    <flags SEAL_PLUGIN_NAME="testEventFilterSiStripRawToDigi">
-  </library>
+ <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
+  <flags SEAL_PLUGIN_NAME="testEventFilterSiStripRawToDigi">
+ </library>
 
 </environment>

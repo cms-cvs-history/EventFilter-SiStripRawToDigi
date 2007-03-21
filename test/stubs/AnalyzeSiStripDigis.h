@@ -2,7 +2,7 @@
 #define EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiAnalysis.h"
 #include <string>
 
 /**

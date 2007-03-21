@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialDigiAnalysis_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiAnalysis_H
 
@@ -6,7 +8,7 @@
 #include <vector>
 
 /**
-   @file EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h
+   @file EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiAnalysis.h
    @class SiStripTrivialDigiAnalysis 
    @brief Very simple utility class for analyzing Digis 
 */

@@ -1,12 +1,14 @@
+// Last commit: $Id: $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiAnalysis.h"
 #include "boost/cstdint.hpp"
 
  /**
-    @file EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiSource.h
+    @file EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiSource.h
     @class SiStripTrivialDigiSource
 
     @brief Creates a DetSetVector of SiStripDigis created using random

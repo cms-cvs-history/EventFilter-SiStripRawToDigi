@@ -1,4 +1,6 @@
-#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiSource.h"
+// Last commit: $Id: $
+
+#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiSource.h"
 // edm 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

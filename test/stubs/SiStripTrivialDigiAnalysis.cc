@@ -1,4 +1,6 @@
-#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
+// Last commit: $Id: $
+
+#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiAnalysis.h"
 #include <iomanip>
 
 using namespace std;
