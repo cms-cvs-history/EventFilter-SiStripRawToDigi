@@ -1,8 +1,0 @@
-service = AdaptorConfig {} 
-
-source = PoolSource { 
-    untracked int32 maxEvents = -1
-    untracked vstring fileNames = {
-	'rfio:/castor/cern.ch/cms/store/mc/2006/12/22/mc-physval-120-BBbar170to230-LowLumiPU/0002/00550394-A09F-DB11-8583-00304885AD4E.root'	
-    }
-}	  
