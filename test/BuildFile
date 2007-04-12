@@ -17,7 +17,7 @@
  <use name=root>
 
  <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
-  <flags SEAL_PLUGIN_NAME="testEventFilterSiStripRawToDigi">
+  <flags EDM_PLUGIN=1>
  </library>
 
 </environment>
