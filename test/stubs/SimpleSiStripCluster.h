@@ -13,9 +13,10 @@ class SimpleSiStripCluster : public TObject {
 
   unsigned int detId_;
   unsigned short firstStrip_;
-  std::vector<double> amplitudes_;
+  unsigned short amplitudes_;
+  double baryCenter_;
 
-  ClassDef(SimpleSiStripCluster,1)
+  ClassDef(SimpleSiStripCluster,2)
 };
 
 #endif

@@ -1,31 +1,40 @@
-#ifndef EventFilter_SiStripRawToDigi_test_stubs_SiStripPerformanceRecordModule_H
-#define EventFilter_SiStripRawToDigi_test_stubs_SiStripPerformanceRecordModule_H
+#ifndef EventFilter_SiStripRawToDigi_SiStripPerformanceRecordModule_H
+#define EventFilter_SiStripRawToDigi_SiStripPerformanceRecordModule_H
 
-// edm
+// FWCore
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// cabling
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+// Data Formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripCommon/test/SiStripLazyGetter.h"
+#include "DataFormats/SiStripCommon/test/SiStripRefGetter.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
-//root
+//Calib Formats
+#include "CalibTracker/SiStripConnectivity/test/SiStripRegionCabling.h"
+
+// Root
 #include "TFile.h"
 #include "TTree.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleSiStripCollection.h"
 #include <string>
 #include <vector>
 
-//std
+// stl
 #include <iostream>
 
 class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
   public:
+
+  typedef edm::DetSet<SiStripCluster> DetSet;
+  typedef std::vector< edm::DetSet<SiStripCluster> > DSV;
+  typedef edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > RefGetter;
 
   SiStripPerformanceRecordModule(const edm::ParameterSet&);
   ~SiStripPerformanceRecordModule();
@@ -36,19 +45,21 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
  private:
 
+  void clusters(const RefGetter&);
+  void clusters(const DSV&);
+  void convert(const SiStripCluster&,SimpleSiStripCluster&);
   void reset();
-  void print();
 
   //Configurations
+  bool demand_;
   std::string inputModuleLabel_;
   std::string inputProductLabel_;
   std::vector< std::string > unpackingModuleLabels_;
-  bool verbose_;
   std::string filename_;
   std::string treename_;
 
   //Cabling
-  edm::ESHandle<SiStripFedCabling> fedcabling_;
+  edm::ESHandle<SiStripRegionCabling> cabling_;
 
   //Debug
   double meantime_;
@@ -59,8 +70,8 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   SimpleSiStripCollection* clusts_;
   unsigned int event_;
   double time_;
-  unsigned int nchannels_;
-  unsigned int nunpacked_;
+  unsigned int nchans_;
+  unsigned int nunpackedchans_;
 };
 
 #endif
