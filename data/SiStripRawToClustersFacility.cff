@@ -1,0 +1,11 @@
+include "CommonTools/SiStripClusterization/data/SiStripClusterization.cfi"
+
+module SiStripRawToClustersFacility = SiStripRawToClusters {
+
+    untracked string ProductLabel = "source"
+    untracked string ProductInstance = ""
+    using SiStripClusterization
+
+}
+
+replace SiStripRawToClustersFacility.UseCalibDataFromDB  = false
