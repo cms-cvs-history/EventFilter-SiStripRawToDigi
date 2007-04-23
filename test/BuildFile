@@ -1,20 +1,21 @@
 <environment>
 
- <use name=CalibFormats/SiStripObjects>
- <use name=CondFormats/DataRecord>
- <use name=CondFormats/SiStripObjects>
- <use name=DataFormats/Common>
- <use name=DataFormats/SiStripCommon>
- <use name=DataFormats/SiStripDigi>
- <use name=DataFormats/SiStripCluster>
- <use name=DQM/HLTEvF>
- <use name=EventFilter/SiStripRawToDigi>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/Utilities> 
- <use name=FWCore/MessageLogger> 
- <use name=boost>
- <use name=root>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/Utilities> 
+  <use name=FWCore/MessageLogger> 
+  <use name=CondFormats/DataRecord>
+  <use name=CondFormats/SiStripObjects>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/SiStripCommon>
+  <use name=DataFormats/SiStripDigi>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DQM/HLTEvF>
+  <use name=EventFilter/SiStripRawToDigi>
+  <use name=boost>
+  <use name=root>
+  <lib name=testSiStripRegionConnectivity>
 
  <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
   <flags EDM_PLUGIN=1>
