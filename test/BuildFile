@@ -1,24 +1,32 @@
 <environment>
-
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/Utilities> 
-  <use name=FWCore/MessageLogger> 
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/SiStripCommon>
-  <use name=DataFormats/SiStripDigi>
-  <use name=DataFormats/SiStripCluster>
-  <use name=DQM/HLTEvF>
-  <use name=EventFilter/SiStripRawToDigi>
   <use name=boost>
   <use name=root>
-  <lib name=testSiStripRegionConnectivity>
-
- <library name=testEventFilterSiStripRawToDigi file=stubs/*.cc>
-  <flags EDM_PLUGIN=1>
- </library>
-
+  <library file=stubs/*.cc name=testEventFilterSiStripRawToDigi>
+  </library>
 </environment>
+
+<environment>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=CommonTools/SiStripClusterization>
+  <use name=CondFormats/DataRecord>
+  <use name=CondFormats/SiStripObjects>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/SiStripCommon>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DataFormats/SiStripDigi>
+  <use name=DQM/HLTEvF>
+  <use name=EventFilter/SiStripRawToDigi>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger> 
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/Utilities> 
+  <lib name=testCalibTrackerSiStripConnectivity>
+  <lib name=testEventFilterSiStripRawToDigi>
+  <use name=TkOnlineSw>
+  <use name=clhep>
+  <use name=root>
+  <library file=plugins/*.cc name=testEventFilterSiStripRawToDigiPlugins>
+    <flags EDM_PLUGIN=1>
+  </library>
+</environment>
+

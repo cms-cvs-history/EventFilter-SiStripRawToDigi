@@ -1,11 +1,11 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripRawToClustersDummyUnpacker.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyUnpacker.h"
 
 //FWCore
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Data Formats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/test/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
 using namespace std;

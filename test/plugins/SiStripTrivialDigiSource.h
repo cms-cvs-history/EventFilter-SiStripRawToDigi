@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripTrivialDigiSource.h,v 1.1 2007/03/21 16:38:16 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H

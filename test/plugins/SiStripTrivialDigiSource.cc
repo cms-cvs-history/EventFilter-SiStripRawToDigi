@@ -1,6 +1,6 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.1 2007/03/21 16:38:16 bainbrid Exp $
 
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiSource.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 // edm 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

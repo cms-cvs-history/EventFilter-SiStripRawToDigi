@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/AnalyzeSiStripDigis.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/AnalyzeSiStripDigis.h"
 //
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"

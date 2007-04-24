@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripRawToClusters.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClusters.h"
 
 //FWCore
 #include "FWCore/Framework/interface/Event.h"

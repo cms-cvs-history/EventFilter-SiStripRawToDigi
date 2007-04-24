@@ -9,12 +9,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //Data Formats
-#include "DataFormats/SiStripCommon/test/SiStripLazyGetter.h"
-#include "DataFormats/SiStripCommon/test/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 //Calib Formats
-#include "CalibTracker/SiStripConnectivity/test/SiStripRegionCabling.h"
+#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCabling.h"
 
 //stl
 #include <string>

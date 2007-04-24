@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripRawToClustersLazyUnpacker.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersLazyUnpacker.h"
 
 //Data Formats
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"

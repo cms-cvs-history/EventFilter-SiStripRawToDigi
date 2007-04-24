@@ -1,23 +1,25 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripRawToClustersLazyUnpacker.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersLazyUnpacker.h"
 
 //FWCore
 #include "FWCore/Framework/interface/EDProducer.h"
 
 //Data Formats
-#include "DataFormats/SiStripCommon/test/SiStripLazyGetter.h"
-#include "DataFormats/SiStripCommon/test/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
 
 //Calib Tracker
-#include "CalibTracker/SiStripConnectivity/test/SiStripRegionCabling.h"
-#include "CalibTracker/SiStripConnectivity/test/SiStripRegionCablingRcd.h"
+#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCabling.h"
+#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCablingRcd.h"
 
 //stl
 #include <string>
 #include <memory>
 #include "boost/bind.hpp"
+
+class SiStripClusterizerFactory;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToClusters.h

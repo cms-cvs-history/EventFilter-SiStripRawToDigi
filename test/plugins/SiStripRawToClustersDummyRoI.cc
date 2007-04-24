@@ -1,14 +1,14 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripRawToClustersDummyRoI.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyRoI.h"
 
 //FWCore
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Data Formats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/test/SiStripLazyGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
 
 //CalibFormats
-#include "CalibTracker/SiStripConnectivity/test/SiStripRegionCablingRcd.h"
+#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCablingRcd.h"
 
 //CLHEP
 #include "CLHEP/Random/RandFlat.h"

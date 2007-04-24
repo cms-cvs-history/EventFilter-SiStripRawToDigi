@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialClusterSource.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialClusterSource.h"
 // edm 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

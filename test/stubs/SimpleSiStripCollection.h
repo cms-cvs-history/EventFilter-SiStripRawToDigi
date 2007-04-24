@@ -1,10 +1,10 @@
 #ifndef EventFilter_SiStripRawToDigi_test_stubs_SimpleSiStripCollection_H
 #define EventFilter_SiStripRawToDigi_test_stubs_SimpleSiStripCollection_H
 
+#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleSiStripCluster.h"
 #include "TObject.h"
 #include <vector>
 #include <string>
-#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleSiStripCluster.h"
 
 class SimpleSiStripCollection : public TObject {
 

@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripPerformanceRecordModule.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformanceRecordModule.h"
 
 //edm
 #include "DataFormats/Common/interface/Handle.h"
@@ -6,7 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //Calib Tracker
-#include "CalibTracker/SiStripConnectivity/test/SiStripRegionCablingRcd.h"
+#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCablingRcd.h"
 
 //std
 #include <cstdlib>
