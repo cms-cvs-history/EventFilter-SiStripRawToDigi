@@ -1,0 +1,20 @@
+include "CondCore/DBCommon/data/CondDBSetup.cfi"
+
+# cabling
+es_source pool1 = PoolDBESSource { 
+    VPSet toGet = {
+	{ string record = "SiStripFedCablingRcd"
+	    string tag = "SiStripFedCabling_v1"
+	} 
+    }
+    bool loadAll = true
+    string connect = "sqlite_file:sistripfedcabling.db"
+    untracked string catalog = "file:SiStripFedCablingCatalog.xml"
+    string timetype = "runnumber"
+    untracked uint32 authenticationMethod = 1
+    untracked uint32 messagelevel = 10
+    using CondDBSetup
+}
+
+# build cabling objects of det and fec views
+es_module = SiStripConnectivity {}
