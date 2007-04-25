@@ -1,0 +1,18 @@
+include "CondCore/DBCommon/data/CondDBSetup.cfi"
+
+# noise
+es_source pool2 = PoolDBESSource {
+    VPSet toGet = {
+	{string record = "SiStripNoisesRcd"
+	    string tag = "mytest_n"
+	} 
+    }
+    string connect = "sqlite_file:noise_0.0.db"
+    string timetype = "runnumber" 
+    untracked string catalog = "file:noise_0.0.xml"
+    PSet DBParameters = {
+	untracked string authenticationPath="/afs/cern.ch/cms/DB/conddb"
+	untracked int32 messageLevel=0
+	untracked bool loadBlobStreamer = true
+    }
+}
