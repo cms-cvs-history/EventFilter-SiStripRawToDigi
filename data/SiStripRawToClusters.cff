@@ -2,16 +2,8 @@ include "CommonTools/SiStripClusterization/data/SiStripClusterization.cfi"
 
 module SiStripRawToClusters =  SiStripRawToClustersModule {
 	
-<<<<<<< SiStripRawToClusters.cff
     untracked string ProductLabel = "source"
     untracked string ProductInstance = ""
-=======
-    untracked string ProductLabel = "source"
-    untracked string ProductInstance = ""
-    
-    // Removes appended bytes prior to FED buffer (negative value triggers "search mode") [default=0]
-    
->>>>>>> 1.2
     untracked int32 AppendedBytes = 0 
     untracked int32 FedBufferDumpFreq = 0  
     untracked bool UseFedKey = false
