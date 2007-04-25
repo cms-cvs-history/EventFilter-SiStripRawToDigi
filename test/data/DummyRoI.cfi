@@ -1,0 +1,5 @@
+module DummyRoI = SiStripRawToClustersDummyRoI {
+
+    untracked string InputModuleLabel = "SiStripRawToClustersFacility"
+    untracked uint32 period = 10
+}
