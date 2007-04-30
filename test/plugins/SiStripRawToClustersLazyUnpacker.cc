@@ -51,7 +51,7 @@ void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
   for (;idet!=rmap.end();idet++) {
 
   //If det id is null or invalid continue.
-  if ( !(idet->first) || (idet->first == sistrip::invalid_) ) { continue; }
+  if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) { continue; }
 
   //Retrieve relevent detset from record
   rrecord.push_back(DetSet(idet->first));
