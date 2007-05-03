@@ -85,8 +85,7 @@ void SiStripRawToClustersDummyRoI::produce( edm::Event& event,
 void SiStripRawToClustersDummyRoI::interest(uint32_t event, std::vector<uint32_t>& regions) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
-  uint32_t required = total;//(uint32_t)(RandFlat::shoot()*(total+1));
-
+  uint32_t required = (uint32_t)(RandFlat::shoot()*(total+1));
   for (uint32_t iregion = 0; iregion < required; iregion++) {
 	regions.push_back(iregion);
   }
