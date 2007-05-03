@@ -82,7 +82,7 @@ void SiStripRawToClusters::produce( edm::Event& event,
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( productLabel_, productInstance_, buffers ); 
   
-  //Construct LazyGetter.
+  //Construct.
   boost::shared_ptr<SiStripRawToClustersLazyUnpacker> getter(new SiStripRawToClustersLazyUnpacker(*cabling_,*clusterizer_,*buffers));
 
   //Store SiStripLazyGetter in event.
