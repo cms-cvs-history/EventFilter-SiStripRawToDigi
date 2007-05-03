@@ -147,15 +147,12 @@ void SiStripPerformanceRecordModule::clusters(const RefGetter& clusts) {
   
   clusts_->clusters_.reserve(1000000);
   RefGetter::const_iterator iregion = clusts.begin();
-  for(;iregion!=clusts.end();iregion++) {
-    std::vector< DetSet >::const_iterator idetset = iregion->second.begin();
-    for(;idetset!=iregion->second.end();idetset++) {
-      DetSet::const_iterator icluster = idetset->begin();
-      for(;icluster!=idetset->end();icluster++) {
-	SimpleSiStripCluster simplecluster;
-	convert(*icluster,simplecluster);
-	clusts_->clusters_.push_back(simplecluster);
-      }
+  for(;iregion!=clusts.end();++iregion) {
+    vector<SiStripCluster>::const_iterator icluster = iregion->first;
+    for (;icluster!=iregion->second;icluster++) {
+      SimpleSiStripCluster simplecluster;
+      convert(*icluster,simplecluster);
+      clusts_->clusters_.push_back(simplecluster);
     }
   }
 }
