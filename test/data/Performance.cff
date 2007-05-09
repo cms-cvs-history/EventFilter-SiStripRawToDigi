@@ -4,8 +4,6 @@ service = PathTimerService {}
 module Performance = SiStripPerformanceRecordModule
 {
     untracked bool Demand = false
-    untracked string InputModuleLabel = "SiStripRawToClusters"
-    untracked string InputProductLabel = ""
     untracked vstring UnpackingModuleLabels = {"SiStripRawToClusters"}
     untracked string FileName = "/tmp/pwing/Performance.root"
     untracked string TreeName = "RawToClusters"	
