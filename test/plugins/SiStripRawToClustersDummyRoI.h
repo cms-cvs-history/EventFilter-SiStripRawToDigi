@@ -12,6 +12,7 @@
 #include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
 #include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 //Calib Formats
 #include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCabling.h"
@@ -41,8 +42,13 @@ class SiStripRawToClustersDummyRoI : public edm::EDProducer {
   
  private: 
 
-  /** Method defining regions of interest */
-  void interest(uint32_t,std::vector<uint32_t>&) const;
+  /** Method defining regions of interest by event number */
+  void event(const uint32_t&,
+	     SiStripRegionCabling::Regions&) const;
+  
+  /** Method defining regions of interest by superclusters */
+  void superclusters(const reco::SuperClusterCollection&,
+		     SiStripRegionCabling::Regions&) const;
 
   /** Input label */
   std::string inputModuleLabel_;
