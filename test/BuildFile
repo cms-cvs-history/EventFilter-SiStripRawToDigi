@@ -9,7 +9,7 @@
 
   <library file=plugins/*.cc name=testEventFilterSiStripRawToDigiPlugins>
   <use name=CalibFormats/SiStripObjects>
-  <use name=CommonTools/SiStripClusterization>
+  <use name=CalibTracker/Records>
   <use name=CondFormats/DataRecord>
   <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/Common>
@@ -18,15 +18,14 @@
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/EgammaReco>
   <use name=DQM/HLTEvF>
-  <use name=EventFilter/SiStripRawToDigi>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger> 
   <use name=FWCore/ParameterSet>
-  <use name=FWCore/Utilities> 
-  <lib name=testCalibTrackerSiStripConnectivity>
-  <use name=TkOnlineSw>
+  <use name=FWCore/ServiceRegistry>
   <use name=clhep>
+  <use name=TkOnlineSw>
   <lib name=testEventFilterSiStripRawToDigi>
+  <lib name=CalibTrackerSiStripConnectivityPlugins>
     <flags EDM_PLUGIN=1>
   </library>
 
