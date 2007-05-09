@@ -12,8 +12,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
 #include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
 
 //Calib Formats
 #include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCabling.h"
@@ -21,7 +23,7 @@
 // Root
 #include "TFile.h"
 #include "TTree.h"
-#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleSiStripCollection.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/EventData.h"
 #include <string>
 #include <vector>
 
@@ -45,15 +47,17 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
  private:
 
-  void clusters(const RefGetter&);
-  void clusters(const DSV&);
-  void convert(const SiStripCluster&,SimpleSiStripCluster&);
+  void timer(uint32_t event);
+  void electrons(const edm::Handle<reco::PixelMatchGsfElectronCollection>&);
+  void sclusters(const edm::Handle<reco::SuperClusterCollection>&);
+  void sistripclusters(const edm::Handle< RefGetter >&);
+  void sistripclusters(const edm::Handle< DSV >&);
+  void sistripchannels(const edm::Handle< RefGetter >&);
+  void sistripchannels();
   void reset();
 
   //Configurations
   bool demand_;
-  std::string inputModuleLabel_;
-  std::string inputProductLabel_;
   std::vector< std::string > unpackingModuleLabels_;
   std::string filename_;
   std::string treename_;
@@ -67,7 +71,7 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   //Performance record
   TFile* file_;
   TTree* tree_;
-  SimpleSiStripCollection* clusts_;
+  EventData* data_;
   unsigned int event_;
   double time_;
   unsigned int nchans_;

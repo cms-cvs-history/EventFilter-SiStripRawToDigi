@@ -1,19 +1,21 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformanceRecordModule.h"
 
-//edm
-#include "DataFormats/Common/interface/Handle.h"
+//FWCore
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+//DataFormats
+#include "DataFormats/Common/interface/Handle.h"
 
 //Calib Tracker
 #include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCablingRcd.h"
 
+//DQM
+#include "DQM/HLTEvF/interface/PathTimerService.h"
+
 //std
 #include <cstdlib>
-
-//Timing
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/HLTEvF/interface/PathTimerService.h"
 
 using namespace std;
 using namespace sistrip;
@@ -23,8 +25,6 @@ using namespace sistrip;
 SiStripPerformanceRecordModule::SiStripPerformanceRecordModule( const edm::ParameterSet& pset ) :
 
   demand_(pset.getUntrackedParameter<bool>( "Demand", false )),
-  inputModuleLabel_(pset.getUntrackedParameter<string>( "InputModuleLabel" ,"")),
-  inputProductLabel_(pset.getUntrackedParameter<string>( "InputProductLabel" ,"")),
   unpackingModuleLabels_(pset.getUntrackedParameter< vector< string> >( "UnpackingModuleLabels" )),
   filename_(pset.getUntrackedParameter<string>("FileName" ,"Performance.root")),
   treename_(pset.getUntrackedParameter<string>("TreeName" ,"Data")),
@@ -32,18 +32,18 @@ SiStripPerformanceRecordModule::SiStripPerformanceRecordModule( const edm::Param
   meantime_(0),
   file_(0),
   tree_(0),
-  clusts_(0),
+  data_(0),
   event_(0),
   time_(0.),
   nchans_(0),
   nunpackedchans_(0)
 
 {
-  clusts_ = new SimpleSiStripCollection(inputModuleLabel_);
+  data_ = new EventData();
   file_ = new TFile(filename_.c_str(),"UPDATE");
   tree_ = new TTree(treename_.c_str(),treename_.c_str());
   tree_->Branch("event",&event_,"event/i");
-  tree_->Branch("SimpleSiStripCollection","SimpleSiStripCollection",&clusts_);
+  tree_->Branch("EventData","EventData",&data_);
   tree_->Branch("time",&time_,"time/D");
   tree_->Branch("nchans",&nchans_,"nchans/i");
   tree_->Branch("nunpackedchans",&nunpackedchans_,"nunpackedchans/i");
@@ -54,7 +54,7 @@ SiStripPerformanceRecordModule::SiStripPerformanceRecordModule( const edm::Param
 SiStripPerformanceRecordModule::~SiStripPerformanceRecordModule() {
   if (tree_) delete tree_;
   file_->Close();
-  if (clusts_) delete clusts_;
+  if (data_) delete data_;
 }
 
 // -----------------------------------------------------------------------------
@@ -88,34 +88,69 @@ void SiStripPerformanceRecordModule::endJob() {
 void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent, 
 					      const edm::EventSetup& iSetup ) {
 
-  //Get Clusters from event
+  std::cout << "analyze" << std::endl;
+  //SiStripClusters
   if (demand_) {
-    edm::Handle< RefGetter > demandclusters;
-    iEvent.getByLabel(inputModuleLabel_,inputProductLabel_,demandclusters);
+    edm::Handle< RefGetter > Sistripclusters;
+    iEvent.getByLabel("DummyRoI", "", Sistripclusters);
+    sistripclusters(Sistripclusters);
+    sistripchannels(Sistripclusters);
+  }
+  
+  else {
+    edm::Handle< DSV > Sistripclusters;
+    iEvent.getByLabel( "SiStripRawToClustersModule", "", Sistripclusters );
+    sistripclusters(Sistripclusters);
+    sistripchannels();
+  }
 
-    //Count unpacked channels
-    SiStripRegionCabling::RegionCabling rcabling = cabling_->getRegionCabling();
-    for (uint32_t iregion=0;iregion<rcabling.size();iregion++) {
-      if (demandclusters->find(iregion)!=demandclusters->end()) {
-	SiStripRegionCabling::RegionMap::const_iterator idet = rcabling[iregion].begin();
-	for (;idet!=rcabling[iregion].end();idet++) {
-	  nunpackedchans_+=idet->second.size();
-	}
+  std::cout << "sclusters" << std::endl;
+
+  //SuperClusters
+  edm::Handle<reco::SuperClusterCollection> barrelsclusters;
+  edm::Handle<reco::SuperClusterCollection> endcapsclusters;
+  iEvent.getByLabel( "correctedHybridSuperClusters", "", barrelsclusters );
+  iEvent.getByLabel( "correctedIslandEndcapSuperClusters","",endcapsclusters);
+  sclusters(barrelsclusters);
+  sclusters(endcapsclusters);
+
+  std::cout << "electrons" << std::endl;
+
+  //Electrons
+  edm::Handle<reco::PixelMatchGsfElectronCollection> Electrons;
+  iEvent.getByLabel( "pixelMatchGsfElectrons", "", Electrons );
+  electrons(Electrons);
+
+  std::cout << "timing" << std::endl;
+  //Time relevent modules
+  timer(iEvent.id().event());
+  std::cout << "fill" << std::endl;
+  //Update performance record
+  tree_->Fill();
+  std::cout << "reset" << std::endl;
+  //Reset recorded values
+  reset();
+}
+
+void SiStripPerformanceRecordModule::sistripchannels(const edm::Handle< RefGetter >& demandclusters) {
+
+  SiStripRegionCabling::RegionCabling rcabling = cabling_->getRegionCabling();
+  for (uint32_t iregion=0;iregion<rcabling.size();iregion++) {
+    if (demandclusters->find(iregion)!=demandclusters->end()) {
+      SiStripRegionCabling::RegionMap::const_iterator idet = rcabling[iregion].begin();
+      for (;idet!=rcabling[iregion].end();idet++) {
+	nunpackedchans_+=idet->second.size();
       }
     }
-  
-    //Record unpacked clusters
-    clusters(*demandclusters);
   }
+}
 
-  else {
-    edm::Handle< DSV > allclusters;
-    iEvent.getByLabel( inputModuleLabel_, inputProductLabel_, allclusters );
-    clusters(*allclusters);
-    nunpackedchans_ = nchans_;
-  }
-    
-    //Time relevent modules
+void SiStripPerformanceRecordModule::sistripchannels() {
+  nunpackedchans_ = nchans_;
+}
+
+void SiStripPerformanceRecordModule::timer(uint32_t event) {
+
     std::auto_ptr<HLTPerformanceInfo> hltinfo = edm::Service<edm::service::PathTimerService>().operator->()->getInfo();
     HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
     for (;imodule != hltinfo->endModules(); imodule++) {
@@ -126,7 +161,7 @@ void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent,
     } 
     
   //Caculate "running mean" unpacking time
-  meantime_ = (meantime_*(iEvent.id().event()-1) + time_)/(double)iEvent.id().event();
+  meantime_ = (meantime_*(event-1) + time_)/(double)event;
   
   //Print some performance values
   cout << "[SiStripPerformanceRecordModule::"
@@ -135,53 +170,75 @@ void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent,
        << " Event unpacking time = "
        << time_
        << endl;
-  
-  //Update performance record
-  tree_->Fill();
-
-  //Reset recorded values
-  reset();
 }
 
-void SiStripPerformanceRecordModule::clusters(const RefGetter& clusts) {
+void SiStripPerformanceRecordModule::sistripclusters(const edm::Handle< RefGetter >& clusts) {
   
-  clusts_->clusters_.reserve(1000000);
-  RefGetter::const_iterator iregion = clusts.begin();
-  for(;iregion!=clusts.end();++iregion) {
+  data_->sistripclusters.reserve(1000000);
+  RefGetter::const_iterator iregion = clusts->begin();
+  for(;iregion!=clusts->end();++iregion) {
     vector<SiStripCluster>::const_iterator icluster = iregion->first;
     for (;icluster!=iregion->second;icluster++) {
-      SimpleSiStripCluster simplecluster;
-      convert(*icluster,simplecluster);
-      clusts_->clusters_.push_back(simplecluster);
+      data_->sistripclusters.push_back(SimpleSiStripCluster(icluster->geographicalId(), icluster->firstStrip(), icluster->amplitudes().size(), icluster->barycenter()));
     }
   }
 }
 
-void SiStripPerformanceRecordModule::clusters(const DSV& clusts) {
+void SiStripPerformanceRecordModule::sistripclusters(const edm::Handle< DSV >& clusts) {
   
-  clusts_->clusters_.reserve(1000000);
-  DSV::const_iterator idetset = clusts.begin();
-  for (;idetset!=clusts.end();++idetset) {
+  data_->sistripclusters.reserve(1000000);
+  DSV::const_iterator idetset = clusts->begin();
+  for (;idetset!=clusts->end();++idetset) {
     DetSet::const_iterator icluster = idetset->begin();
-      for (;icluster!=idetset->end();++icluster) {
-        SimpleSiStripCluster simplecluster;
-        convert(*icluster,simplecluster);
-        clusts_->clusters_.push_back(simplecluster);
-      }
+    for (;icluster!=idetset->end();++icluster) {
+      data_->sistripclusters.push_back(SimpleSiStripCluster(icluster->geographicalId(), icluster->firstStrip(), icluster->amplitudes().size(), icluster->barycenter()));
+    }
   }
 }
 
-void SiStripPerformanceRecordModule::convert(const SiStripCluster& cluster,
-					     SimpleSiStripCluster& simplecluster) {
-  simplecluster.detId_ = cluster.geographicalId();
-  simplecluster.firstStrip_ = cluster.firstStrip();
-  simplecluster.baryCenter_ = cluster.barycenter();
-  simplecluster.amplitudes_ = cluster.amplitudes().size();
+void SiStripPerformanceRecordModule::electrons(const edm::Handle<reco::PixelMatchGsfElectronCollection>& Electrons) {
+
+  reco::PixelMatchGsfElectronCollection::const_iterator ielectron = Electrons->begin();
+  for (; ielectron != Electrons->end(); ielectron++) {
+    
+    SimpleParticle inner(ielectron->track().get()->momentum().Rho(), 
+			 ielectron->track().get()->momentum().Eta(), 
+			 ielectron->track().get()->momentum().Phi(), 
+			 ielectron->track().get()->vertex().X(),
+			 ielectron->track().get()->vertex().Y(),
+			 ielectron->track().get()->vertex().Z());
+    
+    SimpleParticle outer(ielectron->track().get()->outerMomentum().Rho(), 
+			 ielectron->track().get()->outerMomentum().Eta(), 
+			 ielectron->track().get()->outerMomentum().Phi(), 
+			 ielectron->track().get()->outerPosition().X(),
+			 ielectron->track().get()->outerPosition().Y(),
+			 ielectron->track().get()->outerPosition().Z());
+    
+    SimpleTrack track(inner,outer,ielectron->track().get()->charge());
+    
+    SimpleSCluster scluster(ielectron->superCluster().get()->energy(),
+			    ielectron->superCluster().get()->eta(),
+			    ielectron->superCluster().get()->phi());
+    
+    SimpleElectron electron(track,
+			    scluster);
+
+    data_->electrons.push_back(electron);
+  }
+}
+
+void SiStripPerformanceRecordModule::sclusters(const edm::Handle<reco::SuperClusterCollection>& sClusters) {
+  
+  reco::SuperClusterCollection::const_iterator iscluster = sClusters->begin();
+  for (;iscluster!=sClusters->end();iscluster++) {
+    data_->sclusters.push_back(SimpleSCluster(iscluster->rawEnergy(),iscluster->seed()->position().eta(),iscluster->seed()->position().phi()));
+  }
 }
 
 void SiStripPerformanceRecordModule::reset() {
   
-  clusts_->clusters_.clear();
+  data_->clear();
   nunpackedchans_ = 0;
   time_ = 0.;
 }
