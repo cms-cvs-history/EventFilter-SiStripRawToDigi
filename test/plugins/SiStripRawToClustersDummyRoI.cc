@@ -3,13 +3,12 @@
 //FWCore
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//Data Formats
+//DataFormats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-//CalibFormats
-#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCablingRcd.h"
+//CalibTracker
+#include "CalibTracker/SiStripConnectivity/plugins/SiStripRegionCablingRcd.h"
 
 //CLHEP
 #include "CLHEP/Random/RandFlat.h"

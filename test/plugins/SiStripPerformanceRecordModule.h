@@ -10,15 +10,14 @@
 
 // Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h" 
 
-//Calib Formats
-#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCabling.h"
+//CalibFormats
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 
 // Root
 #include "TFile.h"

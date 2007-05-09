@@ -3,13 +3,12 @@
 //FWCore
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //DataFormats
 #include "DataFormats/Common/interface/Handle.h"
 
-//Calib Tracker
-#include "CalibTracker/SiStripConnectivity/test/stubs/SiStripRegionCablingRcd.h"
+//CalibTracker
+#include "CalibTracker/SiStripConnectivity/plugins/SiStripRegionCablingRcd.h"
 
 //DQM
 #include "DQM/HLTEvF/interface/PathTimerService.h"
