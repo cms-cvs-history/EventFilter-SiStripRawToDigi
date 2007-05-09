@@ -68,20 +68,23 @@ void SiStripRawToClustersDummyRoI::produce( edm::Event& event,
   // Retrieve unpacking tool from event
   edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > getter;
   event.getByLabel(inputModuleLabel_,"",getter);
-  
+  /*
   // Retrieve superclusters from event
   edm::Handle<reco::SuperClusterCollection> barrelsclusters;
   edm::Handle<reco::SuperClusterCollection> endcapsclusters;
   event.getByLabel("correctedHybridSuperClusters","",barrelsclusters);
   event.getByLabel("correctedIslandEndcapSuperClusters","",endcapsclusters);
-  
+  */
   // Create regions of interest vector
   SiStripRegionCabling::Regions demand;
   demand.reserve(cabling_->getRegionCabling().size());
-
+  
   // Define regions of interest for unpacking
+  /*
   superclusters(*barrelsclusters,demand);
   superclusters(*endcapsclusters,demand);
+  */
+  random(demand);
 
   // Add regions of interest to RefGetter object
   std::auto_ptr<RefGetter> region(new RefGetter(getter,demand));
@@ -91,8 +94,7 @@ void SiStripRawToClustersDummyRoI::produce( edm::Event& event,
 }
 
 
-void SiStripRawToClustersDummyRoI::event(const uint32_t& event, 
-					 SiStripRegionCabling::Regions& regions) const {
+void SiStripRawToClustersDummyRoI::random(SiStripRegionCabling::Regions& regions) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
   uint32_t required = (uint32_t)(RandFlat::shoot()*(total+1));
