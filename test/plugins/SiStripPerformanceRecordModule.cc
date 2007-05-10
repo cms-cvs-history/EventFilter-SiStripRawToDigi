@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 //CalibTracker
-#include "CalibTracker/SiStripConnectivity/plugins/SiStripRegionCablingRcd.h"
+#include "CalibTracker/SiStripConnectivity/interface/SiStripRegionCablingRcd.h"
 
 //DQM
 #include "DQM/HLTEvF/interface/PathTimerService.h"

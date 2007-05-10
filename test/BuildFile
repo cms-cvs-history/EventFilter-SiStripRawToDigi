@@ -1,15 +1,12 @@
-
-<environment>
-
-  <use name=root>
-
-  <library file=stubs/*.cc name=testEventFilterSiStripRawToDigi>
+<library file=stubs/*.cc name=testEventFilterSiStripRawToDigi>
   <use name=boost>
-  </library>
+  <use name=root>
+</library>
 
-  <library file=plugins/*.cc name=testEventFilterSiStripRawToDigiPlugins>
+<library file=plugins/*.cc name=testEventFilterSiStripRawToDigiPlugins>
   <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/Records>
+  <use name=CalibTracker/SiStripConnectivity>
   <use name=CondFormats/DataRecord>
   <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/Common>
@@ -25,9 +22,6 @@
   <use name=clhep>
   <use name=TkOnlineSw>
   <lib name=testEventFilterSiStripRawToDigi>
-  <lib name=CalibTrackerSiStripConnectivityPlugins>
-    <flags EDM_PLUGIN=1>
-  </library>
-
-</environment>
+  <flags EDM_PLUGIN=1>
+</library>
 

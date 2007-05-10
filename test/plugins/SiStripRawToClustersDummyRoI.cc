@@ -8,7 +8,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 //CalibTracker
-#include "CalibTracker/SiStripConnectivity/plugins/SiStripRegionCablingRcd.h"
+#include "CalibTracker/SiStripConnectivity/interface/SiStripRegionCablingRcd.h"
 
 //CLHEP
 #include "CLHEP/Random/RandFlat.h"
