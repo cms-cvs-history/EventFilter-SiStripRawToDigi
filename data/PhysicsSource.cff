@@ -1,8 +1,8 @@
 service = AdaptorConfig {} 
 
 source = PoolSource { 
-    untracked PSet maxEvents = { untracked int32 input = 100 }
     untracked vstring fileNames = {
 	'rfio:/castor/cern.ch/cms/store/RelVal/2007/3/30/RelVal130SingleEPt35-DIGI-RECO/0000/3659BCC2-B6DF-DB11-8A30-0002B3AFABA5.root'
     }
 }
+untracked PSet maxEvents = { untracked int32 input = 100 }
