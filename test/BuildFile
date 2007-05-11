@@ -22,6 +22,6 @@
   <use name=clhep>
   <use name=TkOnlineSw>
   <lib name=testEventFilterSiStripRawToDigi>
-  <flags EDM_PLUGIN=1>
+  <flags SEALPLUGIN=1>
 </library>
 
