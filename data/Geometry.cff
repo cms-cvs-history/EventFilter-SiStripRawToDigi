@@ -1,7 +1,6 @@
 # tracker geometry
 include "Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi"
 
-
 # tracker geometry es_modules
 include "Geometry/TrackerGeometryBuilder/data/trackerGeometry.cfi"
 es_module = TrackerGeometricDetESModule {}
