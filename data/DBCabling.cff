@@ -18,3 +18,4 @@ es_source pool1 = PoolDBESSource {
 
 # build cabling objects of det and fec views
 es_module = SiStripConnectivity {}
+
