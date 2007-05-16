@@ -15,6 +15,11 @@ class SimpleSiStripCluster : public TObject {
 
   virtual ~SimpleSiStripCluster() {}
 
+  const unsigned int detId() const {return detId_;}
+  const unsigned short firstStrip() const {return firstStrip_;}
+  const unsigned short amplitudes() const {return amplitudes_;}
+  const double baryCenter() const {return baryCenter_;}
+
   bool operator < (const SimpleSiStripCluster& compare) const {
     if (compare.detId_ < detId_) return true;
     else if ((compare.detId_ == detId_ &&

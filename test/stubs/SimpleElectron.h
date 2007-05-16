@@ -9,24 +9,31 @@ class SimpleElectron : public TObject {
 
  public:
 
-  SimpleElectron() : track(), scluster(), tag(false) {}
+  SimpleElectron() : track_(), scluster_(), tag_(false) {}
 
-  SimpleElectron(SimpleTrack& Track,SimpleSCluster& Scluster) : track(Track), scluster(Scluster), tag(false) {}
+  SimpleElectron(SimpleTrack& Track,SimpleSCluster& Scluster) : track_(Track), scluster_(Scluster), tag_(false) {}
 
   virtual ~SimpleElectron() {}
 
+  const SimpleTrack& track() const {return track_;}
+  const SimpleSCluster& scluster() const {return scluster_;}
+  const bool tag() const {return tag_;}
+  void tag(bool Tag) {tag_=Tag;}
+
   bool operator < (const SimpleElectron& compare) const {
 
-    if (tag && !compare.tag) return true;
-    else if (compare.tag && !tag) return false;
-    else if (compare.scluster.et() < scluster.et()) return true;
+    if (tag_ && !compare.tag()) return true;
+    else if (compare.tag() && !tag_) return false;
+    else if (compare.scluster().et() < scluster().et()) return true;
     else return false;
     
   }
 
-  SimpleTrack track;
-  SimpleSCluster scluster;
-  bool tag;
+ private:
+
+  SimpleTrack track_;
+  SimpleSCluster scluster_;
+  bool tag_;
 
   ClassDef(SimpleElectron,1)
 
