@@ -1,0 +1,14 @@
+include "CommonTools/SiStripClusterization/data/SiStripClusterization.cfi"
+
+module SiStripRawToClusters =  SiStripRawToClustersModule {
+	
+    untracked string ProductLabel = "source"
+    untracked string ProductInstance = ""
+    untracked int32 AppendedBytes = 0 
+    untracked int32 FedBufferDumpFreq = 0  
+    untracked bool UseFedKey = false
+    untracked int32 TriggerFedId = 0   
+    using SiStripClusterization
+}
+
+replace SiStripRawToClusters.UseCalibDataFromDB  = false
