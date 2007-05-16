@@ -14,6 +14,7 @@
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/EgammaReco>
+  <use name=SimDataFormats/HepMCProduct>
   <use name=DQM/HLTEvF>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger> 
