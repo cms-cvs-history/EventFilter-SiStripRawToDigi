@@ -15,6 +15,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h" 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //CalibFormats
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
@@ -46,7 +47,8 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
  private:
 
-  void timer(uint32_t event);
+  void timer(uint32_t);
+  void mc(const edm::Handle<edm::HepMCProduct>&);
   void electrons(const edm::Handle<reco::PixelMatchGsfElectronCollection>&);
   void sclusters(const edm::Handle<reco::SuperClusterCollection>&);
   void sistripclusters(const edm::Handle< RefGetter >&);
@@ -56,7 +58,10 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   void reset();
 
   //Configurations
-  bool demand_;
+  bool siStripDemand_;
+  bool recordMc_;
+  bool recordElectrons_;
+  bool recordSuperClusters_;
   std::vector< std::string > unpackingModuleLabels_;
   std::string filename_;
   std::string treename_;
