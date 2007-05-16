@@ -193,7 +193,8 @@ void SiStripPerformanceRecordModule::mc(const edm::Handle<edm::HepMCProduct>& mc
 			    prt->production_vertex()->position().x(),
 			    prt->production_vertex()->position().y(),
 			    prt->production_vertex()->position().z(),
-			    prt->pdg_id());
+			    prt->pdg_id()
+			    1); //@@ fix this
     data_->mc().push_back(particle);
   }
 }
