@@ -1,0 +1,11 @@
+service = PathTimerService {} 
+module Performance = SiStripPerformanceRecordModule
+{
+    untracked bool SiStripDemand = true
+    untracked bool RecordMc = true
+    untracked bool RecordElectrons = true
+    untracked bool RecordSuperClusters = true
+    untracked vstring UnpackingModuleLabels = {"SiStripRawToClustersFacility","DummyRoI","DummyUnpacker"}
+    untracked string FileName = "/tmp/pwing/Performance.root"
+    untracked string TreeName = "RegionalRawToClusters"	
+}
