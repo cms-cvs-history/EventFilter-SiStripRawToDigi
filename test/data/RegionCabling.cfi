@@ -1,8 +1,0 @@
-
-# build regional cabling
-es_module = SiStripRegionConnectivity 
-{
-    untracked uint32 EtaDivisions = 10
-    untracked uint32 PhiDivisions = 10
-    untracked double EtaMax = 2.4
-}
