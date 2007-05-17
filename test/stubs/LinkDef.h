@@ -4,8 +4,7 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleTrack.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleSCluster.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleElectron.h"
-
-
+#include "EventFilter/SiStripRawToDigi/test/stubs/Efficiency.h"
 
 #ifdef __CINT__
 
@@ -19,5 +18,6 @@
 #pragma link C++ class SimpleTrack+;
 #pragma link C++ class SimpleSCluster+;
 #pragma link C++ class SimpleElectron+;
+#pragma link C++ class Efficiency+;
 
 #endif
