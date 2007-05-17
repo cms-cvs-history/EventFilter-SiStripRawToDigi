@@ -6,6 +6,8 @@
 
 //DataFormats
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 //CalibTracker
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
@@ -90,7 +92,6 @@ void SiStripPerformanceRecordModule::endJob() {
 void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent, 
 					      const edm::EventSetup& iSetup ) {
 
- 
   //SiStripClusters
   if (siStripDemand_) {
     edm::Handle< RefGetter > Sistripclusters;
@@ -105,31 +106,31 @@ void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent,
     sistripclusters(Sistripclusters);
     sistripchannels();
   }
-
+ 
   //Monte Carlo
   if (recordMc_) {
     edm::Handle<edm::HepMCProduct> mcp;
     iEvent.getByLabel("VtxSmeared","", mcp );
     mc(mcp);
   }
-  
+
   //SuperClusters
   if (recordSuperClusters_) {
   edm::Handle<reco::SuperClusterCollection> barrelsclusters;
   edm::Handle<reco::SuperClusterCollection> endcapsclusters;
-  iEvent.getByLabel( "correctedHybridSuperClusters", "", barrelsclusters );
-  iEvent.getByLabel( "correctedIslandEndcapSuperClusters","",endcapsclusters);
+  iEvent.getByLabel( "hltHybridSuperClustersL1Isolated", "", barrelsclusters );
+  iEvent.getByLabel( "hltIslandSuperClustersL1Isolated" "islandEndcapSuperClusters",endcapsclusters);
   sclusters(barrelsclusters);
   sclusters(endcapsclusters);
   }
-
+  
   //Electrons
   if (recordElectrons_) {
-  edm::Handle<reco::PixelMatchGsfElectronCollection> Electrons;
-  iEvent.getByLabel( "pixelMatchGsfElectrons", "", Electrons );
+  edm::Handle<reco::ElectronCollection> Electrons;
+  iEvent.getByLabel( "pixelMatchElectronsL1IsoForHLT", "", Electrons );
   electrons(Electrons);
   }
-
+  
   //Time relevent modules
   timer(iEvent.id().event());
 
@@ -223,9 +224,9 @@ void SiStripPerformanceRecordModule::sistripclusters(const edm::Handle< DSV >& c
   }
 }
 
-void SiStripPerformanceRecordModule::electrons(const edm::Handle<reco::PixelMatchGsfElectronCollection>& Electrons) {
+void SiStripPerformanceRecordModule::electrons(const edm::Handle<reco::ElectronCollection>& Electrons) {
 
-  reco::PixelMatchGsfElectronCollection::const_iterator ielectron = Electrons->begin();
+  reco::ElectronCollection::const_iterator ielectron = Electrons->begin();
   for (; ielectron != Electrons->end(); ielectron++) {
     
     SimpleTrack track(ielectron->track().get()->momentum().Rho(), 

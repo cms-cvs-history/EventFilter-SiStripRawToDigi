@@ -13,7 +13,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h" 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -49,7 +49,7 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
   void timer(uint32_t);
   void mc(const edm::Handle<edm::HepMCProduct>&);
-  void electrons(const edm::Handle<reco::PixelMatchGsfElectronCollection>&);
+  void electrons(const edm::Handle<reco::ElectronCollection>&);
   void sclusters(const edm::Handle<reco::SuperClusterCollection>&);
   void sistripclusters(const edm::Handle< RefGetter >&);
   void sistripclusters(const edm::Handle< DSV >&);
