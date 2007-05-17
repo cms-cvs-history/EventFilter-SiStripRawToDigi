@@ -1,4 +1,4 @@
-service = PathTimerService {} 
+
 module Performance = SiStripPerformanceRecordModule
 {
     untracked bool SiStripDemand = true
