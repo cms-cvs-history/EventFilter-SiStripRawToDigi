@@ -119,7 +119,7 @@ void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent,
   edm::Handle<reco::SuperClusterCollection> barrelsclusters;
   edm::Handle<reco::SuperClusterCollection> endcapsclusters;
   iEvent.getByLabel( "hltHybridSuperClustersL1Isolated", "", barrelsclusters );
-  iEvent.getByLabel( "hltIslandSuperClustersL1Isolated" "islandEndcapSuperClusters",endcapsclusters);
+  iEvent.getByLabel( "hltIslandSuperClustersL1Isolated", "islandEndcapSuperClusters",endcapsclusters);
   sclusters(barrelsclusters);
   sclusters(endcapsclusters);
   }
