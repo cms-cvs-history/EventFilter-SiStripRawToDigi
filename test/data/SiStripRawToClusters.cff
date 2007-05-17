@@ -1,0 +1,16 @@
+
+# event setup
+include "CalibTracker/SiStripConnectivity/data/SiStripRegionConnectivity.cfi"
+
+# raw-to-clusters facility
+include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
+replace SiStripRawToClustersFacility.ProductLabel = "DigiToRaw"
+
+# raw-to-clusters regions of interest module
+include "EventFilter/SiStripRawToDigi/test/data/SiStripRawToClustersDummyRoI.cfi"
+
+# raw to clusters DSV builder
+include "EventFilter/SiStripRawToDigi/test/data/SiStripClustersDSVBuilder.cfi"
+
+sequence sistriprawtoclusters = {SiStripRawToClustersFacility, DummyRoI, siStripClusters}
+
