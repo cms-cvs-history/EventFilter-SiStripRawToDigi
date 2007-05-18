@@ -50,7 +50,6 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   void timer(uint32_t);
   void mc(const edm::Handle<edm::HepMCProduct>&);
   void electrons(const edm::Handle<reco::ElectronCollection>&);
-  void sclusters(const edm::Handle<reco::SuperClusterCollection>&);
   void sistripclusters(const edm::Handle< RefGetter >&);
   void sistripclusters(const edm::Handle< DSV >&);
   void sistripchannels(const edm::Handle< RefGetter >&);
@@ -58,10 +57,15 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   void reset();
 
   //Configurations
-  bool siStripDemand_;
+  bool sistripDemand_;
+  std::string sistripClustersModuleLabel_;
+  std::string sistripClustersProductLabel_;
   bool recordMc_;
+  std::string mcModuleLabel_;
+  std::string mcProductLabel_;
   bool recordElectrons_;
-  bool recordSuperClusters_;
+  std::string electronsModuleLabel_;
+  std::string electronsProductLabel_;
   std::vector< std::string > unpackingModuleLabels_;
   std::string filename_;
   std::string treename_;

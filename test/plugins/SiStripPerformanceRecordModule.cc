@@ -25,11 +25,16 @@ using namespace sistrip;
 
 SiStripPerformanceRecordModule::SiStripPerformanceRecordModule( const edm::ParameterSet& pset ) :
 
-  siStripDemand_(pset.getUntrackedParameter<bool>( "SiStripDemand", true )),
-  recordMc_(pset.getUntrackedParameter<bool>( "RecordMc", true )),
-  recordElectrons_(pset.getUntrackedParameter<bool>( "RecordElectrons", true )),
-  recordSuperClusters_(pset.getUntrackedParameter<bool>( "RecordSuperClusters", true )),
-  unpackingModuleLabels_(pset.getUntrackedParameter< vector< string> >( "UnpackingModuleLabels" )),
+  sistripDemand_(pset.getUntrackedParameter<bool>("SiStripDemand", true)),
+  sistripClustersModuleLabel_(pset.getUntrackedParameter<string>("SiStripClustersModuleLabel","")),
+  sistripClustersProductLabel_(pset.getUntrackedParameter<string>("SiStripClustersProductLabel","")),
+  recordMc_(pset.getUntrackedParameter<bool>("RecordMc", true)),
+  mcModuleLabel_(pset.getUntrackedParameter<string>("McModuleLabel","")),
+  mcProductLabel_(pset.getUntrackedParameter<string>("McProductLabel","")),
+  recordElectrons_(pset.getUntrackedParameter<bool>("RecordElectrons", true)),
+  electronsModuleLabel_(pset.getUntrackedParameter<string>("ElectronsModuleLabel","")),
+  electronsProductLabel_(pset.getUntrackedParameter<string>("ElectronsProductLabel","")),
+  unpackingModuleLabels_(pset.getUntrackedParameter< vector< string> >("UnpackingModuleLabels")),
   filename_(pset.getUntrackedParameter<string>("FileName" ,"Performance.root")),
   treename_(pset.getUntrackedParameter<string>("TreeName" ,"Data")),
   cabling_(),
@@ -93,43 +98,29 @@ void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent,
 					      const edm::EventSetup& iSetup ) {
 
   //SiStripClusters
-  if (siStripDemand_) {
+  if (sistripDemand_) {
     edm::Handle< RefGetter > Sistripclusters;
-    iEvent.getByLabel("DummyRoI", "", Sistripclusters);
+    iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, Sistripclusters);
     sistripclusters(Sistripclusters);
-    sistripchannels(Sistripclusters);
-  }
+    sistripchannels(Sistripclusters);}
   
   else {
     edm::Handle< DSV > Sistripclusters;
-    iEvent.getByLabel( "SiStripRawToClustersModule", "", Sistripclusters );
+    iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, Sistripclusters );
     sistripclusters(Sistripclusters);
-    sistripchannels();
-  }
+    sistripchannels();}
  
   //Monte Carlo
   if (recordMc_) {
     edm::Handle<edm::HepMCProduct> mcp;
-    iEvent.getByLabel("VtxSmeared","", mcp );
-    mc(mcp);
-  }
-
-  //SuperClusters
-  if (recordSuperClusters_) {
-  edm::Handle<reco::SuperClusterCollection> barrelsclusters;
-  edm::Handle<reco::SuperClusterCollection> endcapsclusters;
-  iEvent.getByLabel( "hltHybridSuperClustersL1Isolated", "", barrelsclusters );
-  iEvent.getByLabel( "hltIslandSuperClustersL1Isolated", "islandEndcapSuperClusters",endcapsclusters);
-  sclusters(barrelsclusters);
-  sclusters(endcapsclusters);
-  }
+    iEvent.getByLabel(mcModuleLabel_,mcProductLabel_, mcp);
+    mc(mcp);}
   
   //Electrons
   if (recordElectrons_) {
   edm::Handle<reco::ElectronCollection> Electrons;
-  iEvent.getByLabel( "pixelMatchElectronsL1IsoForHLT", "", Electrons );
-  electrons(Electrons);
-  }
+  iEvent.getByLabel( electronsModuleLabel_, electronsProductLabel_, Electrons );
+  electrons(Electrons);}
   
   //Time relevent modules
   timer(iEvent.id().event());
@@ -182,20 +173,19 @@ void SiStripPerformanceRecordModule::timer(uint32_t event) {
 }
 
 void SiStripPerformanceRecordModule::mc(const edm::Handle<edm::HepMCProduct>& mcp) {
-  
+
   const HepMC::GenEvent& gen = mcp->getHepMCData();
- 
   for(int ibar=0; ibar < gen.particles_size(); ibar++) {
     HepMC::GenParticle* prt = gen.barcode_to_particle(ibar);
-    if (!prt) continue;
+    if (!prt) continue; 
     SimpleParticle particle(prt->momentum().perp(),
 			    -1.0*log(tan(0.5*(prt->momentum().theta()))),
 			    prt->momentum().phi(),
-			    prt->production_vertex()->position().x(),
-			    prt->production_vertex()->position().y(),
-			    prt->production_vertex()->position().z(),
+			    0.,//prt->production_vertex()->position().x(),
+			    0.,//prt->production_vertex()->position().y(),
+			    0.,//prt->production_vertex()->position().z(),
 			    prt->pdg_id(),
-			    1); //@@ fix this
+			    0); //@@ fix this
     data_->mc().push_back(particle);
   }
 }
@@ -254,13 +244,6 @@ void SiStripPerformanceRecordModule::electrons(const edm::Handle<reco::ElectronC
   }
 }
 
-void SiStripPerformanceRecordModule::sclusters(const edm::Handle<reco::SuperClusterCollection>& sClusters) {
-  
-  reco::SuperClusterCollection::const_iterator iscluster = sClusters->begin();
-  for (;iscluster!=sClusters->end();iscluster++) {
-    data_->sClusters().push_back(SimpleSCluster(iscluster->rawEnergy(),iscluster->seed()->position().eta(),iscluster->seed()->position().phi()));
-  }
-}
 
 void SiStripPerformanceRecordModule::reset() {
   data_->clear();
