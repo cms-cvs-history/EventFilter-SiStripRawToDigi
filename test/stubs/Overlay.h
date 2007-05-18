@@ -8,12 +8,13 @@
 #include "TH1.h"
 #include "TCanvas.h"
 #include <string>
+#include <algorithm>
 
 class Overlay {
 
  public:
 
-  Overlay(): canvas_(0), legend_(0), labOne_(""), labTwo_(""), labThree_("") {
+  Overlay(): canvas_(0), legend_(0), labOne_(""), labTwo_(""), labThree_(""), labFour_(""), labFive_("") {
 
     canvas_ = new TCanvas("", "",200,10,700,500);
     legend_ = new TLegend(0.7,0.56,0.9,0.69);
@@ -25,13 +26,15 @@ class Overlay {
     delete legend_;
   }
 
-  void label(std::string labOne="",std::string labTwo="",std::string labThree="") {
+  void label(std::string labOne="", std::string labTwo="", std::string labThree="", std::string labFour="", std::string labFive="") {
     labOne_ = labOne;
     labTwo_ = labTwo;
     labThree_ = labThree;
+    labFour_ = labFour;
+    labFive_ = labFive;
   }
   
-  void graphs(TGraph* const one,TGraph* const two,TGraph* const three,bool legend=false,string option="") {
+  void graphs(TGraph* const one, TGraph* const two=0, TGraph* const three=0, TGraph* const four=0,TGraph* const five=0, bool legend=false, string option="") {
     
   canvas_->Clear();
   legend_->Clear();
@@ -42,19 +45,28 @@ class Overlay {
   //Format graph and build legend
   if (one) {
     one->SetMarkerColor(kBlue);
+    one->Draw(("AP"+option).c_str());
     if (legend) legend_->AddEntry(one,labOne_.c_str(),"p");}
 
   if (two) {
     two->SetMarkerColor(kRed);
+    two->Draw(("P"+option).c_str());
     if (legend) legend_->AddEntry(two,labTwo_.c_str(),"p");}
 
   if (three) {
     three->SetMarkerColor(kBlack);
+    three->Draw(("P"+option).c_str());
     if (legend) legend_->AddEntry(three,labThree_.c_str(),"p");}
- 
-  one->Draw(("AP"+option).c_str());
-  if (two) two->Draw(("P"+option).c_str());
-  if (three) three->Draw(("P"+option).c_str());  
+
+  if (four) {
+    four->SetMarkerColor(kGreen);
+    four->Draw(("P"+option).c_str());
+    if (legend) legend_->AddEntry(four,labThree_.c_str(),"p");}
+
+  if (five) {
+    five->SetMarkerColor(kMagenta);
+    five->Draw(("P"+option).c_str());
+    if (legend) legend_->AddEntry(five,labThree_.c_str(),"p");}  
   
   //Draw legend
   if (legend) legend_->Draw();
@@ -78,7 +90,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
 }
  
- void histos(TH1* const one,TH1* const two,TH1* const three,bool legend=false,string option="") {
+ void histos(TH1* const one,TH1* const two=0,TH1* const three=0,TH1* const four=0,TH1* const five=0,bool legend=false,string option="") {
 
   canvas_->Clear();
   legend_->Clear();
@@ -102,40 +114,65 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
     three->SetMarkerColor(kBlack);
     if (legend) legend_->AddEntry(three,labThree_.c_str(),"l");}
 
-  //Draw axis.
-  Double_t maxY = 0.;
-  bool ytwo = false, ythree = false;
+  if (four) {
+    four->SetLineColor(kGreen);
+    four->SetMarkerColor(kBlack);
+    if (legend) legend_->AddEntry(four,labThree_.c_str(),"l");}
 
-  if (one->GetBinContent(one->GetMaximumBin()) > maxY) 
-    maxY = one->GetBinContent(one->GetMaximumBin());
-  
-  if (two &&
-      (two->GetBinContent(two->GetMaximumBin()) > maxY)) {
-    maxY = two->GetBinContent(two->GetMaximumBin());
-    ytwo = true;}
+  if (five) {
+    five->SetLineColor(kMagenta);
+    five->SetMarkerColor(kBlack);
+    if (legend) legend_->AddEntry(five,labThree_.c_str(),"l");}
 
-  if (three &&
-      (three->GetBinContent(three->GetMaximumBin()) > maxY)) {
-    maxY = three->GetBinContent(three->GetMaximumBin());
-    ytwo = false;
-    ythree = true;}
+  //Draw
+  Int_t maxtwo = 0, maxthree = 0, maxfour = 0, maxfive = 0;
+  if (two) maxtwo = two->GetMaximumBin();
+  if (three) maxthree = three->GetMaximumBin();
+  if (four) maxthree = four->GetMaximumBin();
+  if (five) maxthree = five->GetMaximumBin();
 
-  if (ytwo) two->Draw(option.c_str());
-  else if (ythree) three->Draw(option.c_str());
-  else one->Draw(option.c_str());
+  Int_t yrange[] = {one->GetMaximumBin(),maxtwo,maxthree,maxfour,maxfive};
+  Int_t maxy = max_element(yrange,yrange+5)-yrange;
 
-  //Draw overlayed graphs.
-  if (ytwo ||
-      ythree) {
-    one->Draw(("SAME"+option).c_str());}
+  if (maxy == 0) {
+    one->Draw(option.c_str());
+    if (two) two->Draw(("SAME"+option).c_str());
+    if (three) three->Draw(("SAME"+option).c_str());
+    if (four) four->Draw(("SAME"+option).c_str());
+    if (five) five->Draw(("SAME"+option).c_str());
+  }
 
-  if (two &&
-      !ytwo) {
-    two->Draw(("SAME"+option).c_str());}
+  else if (maxy == 1) {
+    two->Draw(option.c_str());
+    one->Draw(("SAME"+option).c_str());
+    if (three) three->Draw(("SAME"+option).c_str());
+    if (four) four->Draw(("SAME"+option).c_str());
+    if (five) five->Draw(("SAME"+option).c_str());
+  }
 
-  if (three &&
-      !ythree) {
-    three->Draw(("SAME"+option).c_str());}  
+  else if (maxy == 2) {
+    three->Draw(option.c_str());
+    one->Draw(("SAME"+option).c_str());
+    if (two) two->Draw(("SAME"+option).c_str());
+    if (four) four->Draw(("SAME"+option).c_str());
+    if (five) five->Draw(("SAME"+option).c_str());
+  }
+
+  else if (maxy == 3) {
+    four->Draw(option.c_str());
+    one->Draw(("SAME"+option).c_str());
+    if (two) two->Draw(("SAME"+option).c_str());
+    if (three) three->Draw(("SAME"+option).c_str());
+    if (five) five->Draw(("SAME"+option).c_str());
+  }
+
+  else if (maxy == 4) {
+    five->Draw(option.c_str());
+    one->Draw(("SAME"+option).c_str());
+    if (two) two->Draw(("SAME"+option).c_str());
+    if (three) three->Draw(("SAME"+option).c_str());
+    if (four) four->Draw(("SAME"+option).c_str());
+  }
 
   //Draw legend
   if (legend) legend_->Draw();
@@ -165,7 +202,8 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
   std::string labOne_;
   std::string labTwo_;
   std::string labThree_;
-
+  std::string labFour_;
+  std::string labFive_;
 };
 
 #endif
