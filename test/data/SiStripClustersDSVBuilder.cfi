@@ -1,4 +1,4 @@
 module siStripClusters = SiStripClustersDSVBuilder 
 {
-    untracked string InputModuleLabel = "SiStripRawToClustersFacility"
+    untracked string InputModuleLabel = "DummyRoI"
 }
