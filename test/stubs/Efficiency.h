@@ -33,7 +33,7 @@ class Efficiency : public TObject {
       Double_t value = 0.;
       if (all->GetBinContent(ibin+1))
 	value = selected->GetBinContent(ibin+1)/all->GetBinContent(ibin+1);
-      Double_t error = dEfficiency(value,all->GetBinContent(ibin+1));
+      Double_t error = utility::dEfficiency(value,all->GetBinContent(ibin+1));
       efficiency->SetBinContent(ibin+1,value);
       efficiency->SetBinError(ibin+1,error);
     }

@@ -6,7 +6,10 @@
 #include "TH1F.h"
 #include <vector>
 #include <string>
+#include <iostream>
 
+namespace utility {
+  
 TDirectory* addDir(TDirectory* currentDir,std::string path) {
 
  std::vector<std::string> directories; 
@@ -31,6 +34,24 @@ TDirectory* addDir(TDirectory* currentDir,std::string path) {
    if (!child->GetDirectory(dir->c_str())) child = child->mkdir(dir->c_str());
    else {child = child->GetDirectory(dir->c_str());}}
  return child;
+}
+
+std::vector<TH1*> th1s(TDirectory* dir) {
+ 
+  std::vector<TH1*> th1s;
+  if (!dir) return th1s;
+  TList* keylist = dir->GetListOfKeys();
+  if (!keylist) return th1s;
+  TObject* obj = keylist->First();
+  if (!obj) return th1s;
+  bool loop = true;
+  while (loop) { 
+    if (obj == keylist->Last()) loop = false;
+    TH1* th1 = dynamic_cast<TH1*>(dir->Get(obj->GetName()));
+    if (th1) th1s.push_back(th1);
+    obj = keylist->After(obj);
+  }  
+  return th1s;
 }
 
 bool equal(const double& one,const double& two) {
@@ -76,5 +97,7 @@ double dSoSplusB(Double_t signal,
 }
 
 double dSignificance() { return 0.;}
+
+}
 
 #endif

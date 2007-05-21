@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include <string>
 #include <algorithm>
+#include <iostream>
 
 class Overlay {
 
@@ -90,7 +91,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
 }
  
- void histos(TH1* const one,TH1* const two=0,TH1* const three=0,TH1* const four=0,TH1* const five=0,bool legend=false,string option="") {
+ void histos(TH1* const one, TH1* const two=0, TH1* const three=0, TH1* const four=0, TH1* const five=0, bool legend=false, string option="") {
 
   canvas_->Clear();
   legend_->Clear();
@@ -125,17 +126,18 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
     if (legend) legend_->AddEntry(five,labThree_.c_str(),"l");}
 
   //Draw
-  Int_t maxtwo = 0, maxthree = 0, maxfour = 0, maxfive = 0;
+  Int_t maxone = 0, maxtwo = 0, maxthree = 0, maxfour = 0, maxfive = 0;
+  if (one) maxone = one->GetMaximumBin();
   if (two) maxtwo = two->GetMaximumBin();
   if (three) maxthree = three->GetMaximumBin();
   if (four) maxthree = four->GetMaximumBin();
   if (five) maxthree = five->GetMaximumBin();
 
-  Int_t yrange[] = {one->GetMaximumBin(),maxtwo,maxthree,maxfour,maxfive};
+  Int_t yrange[] = {maxone,maxtwo,maxthree,maxfour,maxfive};
   Int_t maxy = max_element(yrange,yrange+5)-yrange;
 
   if (maxy == 0) {
-    one->Draw(option.c_str());
+    if (one) one->Draw(option.c_str());
     if (two) two->Draw(("SAME"+option).c_str());
     if (three) three->Draw(("SAME"+option).c_str());
     if (four) four->Draw(("SAME"+option).c_str());
@@ -144,7 +146,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
   else if (maxy == 1) {
     two->Draw(option.c_str());
-    one->Draw(("SAME"+option).c_str());
+    if (one) one->Draw(("SAME"+option).c_str());
     if (three) three->Draw(("SAME"+option).c_str());
     if (four) four->Draw(("SAME"+option).c_str());
     if (five) five->Draw(("SAME"+option).c_str());
@@ -152,7 +154,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
   else if (maxy == 2) {
     three->Draw(option.c_str());
-    one->Draw(("SAME"+option).c_str());
+    if (one) one->Draw(("SAME"+option).c_str());
     if (two) two->Draw(("SAME"+option).c_str());
     if (four) four->Draw(("SAME"+option).c_str());
     if (five) five->Draw(("SAME"+option).c_str());
@@ -160,7 +162,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
   else if (maxy == 3) {
     four->Draw(option.c_str());
-    one->Draw(("SAME"+option).c_str());
+    if (one) one->Draw(("SAME"+option).c_str());
     if (two) two->Draw(("SAME"+option).c_str());
     if (three) three->Draw(("SAME"+option).c_str());
     if (five) five->Draw(("SAME"+option).c_str());
@@ -168,7 +170,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
   else if (maxy == 4) {
     five->Draw(option.c_str());
-    one->Draw(("SAME"+option).c_str());
+    if (one) one->Draw(("SAME"+option).c_str());
     if (two) two->Draw(("SAME"+option).c_str());
     if (three) three->Draw(("SAME"+option).c_str());
     if (four) four->Draw(("SAME"+option).c_str());
