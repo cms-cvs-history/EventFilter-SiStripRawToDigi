@@ -23,7 +23,9 @@ SiStripRawToClustersDummyRoI::SiStripRawToClustersDummyRoI( const edm::Parameter
   inputModuleLabel_(conf.getUntrackedParameter<string>("InputModuleLabel","")),
   cabling_(),
   random_(conf.getUntrackedParameter<bool>("Random",false)),
-  electron_(conf.getUntrackedParameter<bool>("Electron",true))
+  all_(conf.getUntrackedParameter<bool>("All",false)),
+  electron_(conf.getUntrackedParameter<bool>("Electron",true)),
+  dR_(conf.getUntrackedParameter<double>("DeltaR",0.5))
   
 {
   LogTrace(mlRawToCluster_)
@@ -74,9 +76,8 @@ void SiStripRawToClustersDummyRoI::produce( edm::Event& event,
   SiStripRegionCabling::Regions demand;
   demand.reserve(cabling_->getRegionCabling().size());
 
-  if (random_) {
-    random(demand);
-  }
+  if (random_) random(demand);
+  if (all_) all(demand);
   
   if (electron_) {
   edm::Handle<reco::SuperClusterCollection> barrelsclusters;
@@ -104,13 +105,21 @@ void SiStripRawToClustersDummyRoI::random(SiStripRegionCabling::Regions& regions
   }
 }
 
+void SiStripRawToClustersDummyRoI::all(SiStripRegionCabling::Regions& regions) const {
+
+  uint32_t total = cabling_->getRegionCabling().size();
+  for (uint32_t iregion = 0; iregion < total; iregion++) {
+    regions.push_back(iregion);
+  }
+}
+
 void SiStripRawToClustersDummyRoI::superclusters(const reco::SuperClusterCollection& coll, SiStripRegionCabling::Regions& regions) const {
 
   reco::SuperClusterCollection::const_iterator iclust = coll.begin();
   for (;iclust!=coll.end();iclust++) {
     SiStripRegionCabling::Position position(iclust->seed()->position().eta(),
 					    iclust->seed()->position().phi());
-    SiStripRegionCabling::Regions newregions = cabling_->regions(position,0.5);
+    SiStripRegionCabling::Regions newregions = cabling_->regions(position,dR_);
     std::copy(newregions.begin(),newregions.end(),std::back_inserter(regions));
   }
 }
