@@ -2,5 +2,7 @@ module DummyRoI = SiStripRawToClustersDummyRoI
 {
     untracked string InputModuleLabel = "SiStripRawToClustersFacility"
     untracked bool Random = false
-    untracked bool Electron = true
+    untracked bool All = true
+    untracked bool Electron = false
+    untracked double DeltaR = 0.5
 }
