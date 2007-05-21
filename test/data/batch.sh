@@ -1,12 +1,15 @@
 #!/bin/bash
 
+### Run using the following syntax:
+### bsub -q 8nm -m lxb7350.cern.ch batch.sh $FILE1 
+### Output root file copied to castor.
+
 #arguments
 FILE1_=$1;
-FILE2_=$2;
 
 #hardcoded directories
-CFGDIR=~pwing/scratch0/CMSSW_1_3_0_pre5/src/EventFilter/SiStripRawToDigi/test;
-CASTORFILE=/castor/cern.ch/user/p/pwing/LowLevelRecon/Performance2.root
+CFGDIR=~pwing/scratch0/CMSSW_1_3_1_HLT2/src/EventFilter/SiStripRawToDigi/data;
+CASTORFILE=/castor/cern.ch/user/p/pwing/LowLevelRecon
 
 #record current directory
 WNDIR=$(pwd);
@@ -17,17 +20,8 @@ source /afs/cern.ch/cms/sw/cmsset_default.sh;
 eval `scramv1 runtime -sh`;
 cd $WNDIR;
 
-#copy over necessary files
-cp $CFGDIR'/authentication.xml' .
-cp $CFGDIR'/sistripfedcabling.db' .
-cp $CFGDIR'/SiStripFedCablingCatalog.xml' .
-cp $CFGDIR'/noise_0.0.db' .
-cp $CFGDIR'/noise_0.0.xml' .
-
 #run
 cmsRun $CFGDIR'/'$FILE1_;
-if [ "$FILE2" != "" ];then
-    cmsRun $CFGDIR'/'$FILE2_;
-fi
 
-rfcp Performance.root $CASTORFILE;
+#store output files
+rfcp *.root $CASTORFILE;
