@@ -13,8 +13,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //CalibFormats
@@ -47,9 +46,9 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
  private:
 
-  void timer(uint32_t);
+  void timer();
   void mc(const edm::Handle<edm::HepMCProduct>&);
-  void electrons(const edm::Handle<reco::ElectronCollection>&);
+  void electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
   void sistripclusters(const edm::Handle< RefGetter >&);
   void sistripclusters(const edm::Handle< DSV >&);
   void sistripchannels(const edm::Handle< RefGetter >&);
@@ -73,10 +72,11 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   //Cabling
   edm::ESHandle<SiStripRegionCabling> cabling_;
 
-  //Debug
-  double meantime_;
+  //Run record
+  double sumtime_;
+  double sumtime2_;
 
-  //Performance record
+  //Event record
   TFile* file_;
   TTree* tree_;
   EventData* data_;

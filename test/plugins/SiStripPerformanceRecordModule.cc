@@ -8,6 +8,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
 
 //CalibTracker
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
@@ -17,6 +19,7 @@
 
 //std
 #include <cstdlib>
+#include <fstream>
 
 using namespace std;
 using namespace sistrip;
@@ -38,7 +41,8 @@ SiStripPerformanceRecordModule::SiStripPerformanceRecordModule( const edm::Param
   filename_(pset.getUntrackedParameter<string>("FileName" ,"Performance.root")),
   treename_(pset.getUntrackedParameter<string>("TreeName" ,"Data")),
   cabling_(),
-  meantime_(0),
+  sumtime_(0.),
+  sumtime2_(0.),
   file_(0),
   tree_(0),
   data_(0),
@@ -49,7 +53,7 @@ SiStripPerformanceRecordModule::SiStripPerformanceRecordModule( const edm::Param
 
 {
   data_ = new EventData();
-  file_ = new TFile(filename_.c_str(),"RECREATE");
+  file_ = new TFile(filename_.c_str(),"UPDATE");
   tree_ = new TTree(treename_.c_str(),treename_.c_str());
   tree_->Branch("event",&event_,"event/i");
   tree_->Branch("EventData","EventData",&data_);
@@ -67,6 +71,7 @@ SiStripPerformanceRecordModule::~SiStripPerformanceRecordModule() {
 }
 
 // -----------------------------------------------------------------------------
+
 void SiStripPerformanceRecordModule::beginJob( const edm::EventSetup& iSetup ) {
 
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
@@ -81,21 +86,34 @@ void SiStripPerformanceRecordModule::beginJob( const edm::EventSetup& iSetup ) {
 }
 
 // -----------------------------------------------------------------------------
+
 void SiStripPerformanceRecordModule::endJob() {
   file_->cd();
   tree_->Write(treename_.c_str(),TObject::kOverwrite);
 
-  cout << "[SiStripPerformanceRecordModule::"
-       << __func__
-       << "]:"
-       << " Mean unpacking time over run = "
-       << meantime_ 
-       << endl;
+  std::ofstream output("output.txt",ios::app);
+  output << "Timing Run : "
+	 << filename_
+	 << ":"
+	 << treename_
+	 << ". Unpacking time : "
+	 << sumtime_/event_
+	 << " +/- "
+	 << sqrt(fabs((sumtime2_/event_)-(sumtime_/event_)*(sumtime_/event_))) 
+	 << std::endl;
+  output.close();
 }
 
 // -----------------------------------------------------------------------------
+
 void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent, 
 					      const edm::EventSetup& iSetup ) {
+
+  //Event number
+  event_++;
+
+  //Timer
+  timer();
 
   //SiStripClusters
   if (sistripDemand_) {
@@ -118,12 +136,9 @@ void SiStripPerformanceRecordModule::analyze( const edm::Event& iEvent,
   
   //Electrons
   if (recordElectrons_) {
-  edm::Handle<reco::ElectronCollection> Electrons;
+  edm::Handle<reco::HLTFilterObjectWithRefs> Electrons;
   iEvent.getByLabel( electronsModuleLabel_, electronsProductLabel_, Electrons );
   electrons(Electrons);}
-  
-  //Time relevent modules
-  timer(iEvent.id().event());
 
   //Update performance record
   tree_->Fill();
@@ -149,27 +164,17 @@ void SiStripPerformanceRecordModule::sistripchannels() {
   nunpackedchans_ = nchans_;
 }
 
-void SiStripPerformanceRecordModule::timer(uint32_t event) {
+void SiStripPerformanceRecordModule::timer() {
   
   std::auto_ptr<HLTPerformanceInfo> hltinfo = edm::Service<edm::service::PathTimerService>().operator->()->getInfo();
   HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
+  double time = 0.;
   for (;imodule != hltinfo->endModules(); imodule++) {
     vector<string>::const_iterator iunpacking = unpackingModuleLabels_.begin();
     for (;iunpacking != unpackingModuleLabels_.end(); iunpacking++) {
-      if (imodule->name() == *iunpacking) time_+=imodule->time(); 
-    }
-  } 
-  
-  //Caculate "running mean" unpacking time
-  meantime_ = (meantime_*(event-1) + time_)/(double)event;
-  
-  //Print some performance values
-  cout << "[SiStripPerformanceRecordModule::"
-       << __func__
-       << "]:"
-       << " Event unpacking time = "
-       << time_
-       << endl;
+      if (imodule->name() == *iunpacking) time+=imodule->time();}}
+  sumtime_+=time;
+  sumtime2_+=time*time; 
 }
 
 void SiStripPerformanceRecordModule::mc(const edm::Handle<edm::HepMCProduct>& mcp) {
@@ -214,28 +219,30 @@ void SiStripPerformanceRecordModule::sistripclusters(const edm::Handle< DSV >& c
   }
 }
 
-void SiStripPerformanceRecordModule::electrons(const edm::Handle<reco::ElectronCollection>& Electrons) {
-
-  reco::ElectronCollection::const_iterator ielectron = Electrons->begin();
+void SiStripPerformanceRecordModule::electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>& Electrons) {
+ 
+  reco::HLTFilterObjectWithRefs::const_iterator ielectron = Electrons->begin();
   for (; ielectron != Electrons->end(); ielectron++) {
+    reco::Candidate& eleccand = const_cast<reco::Candidate&>(*ielectron);
+    reco::Electron& elec = dynamic_cast<reco::Electron&>(eleccand);
+
+    SimpleTrack track(elec.track().get()->momentum().Rho(), 
+		      elec.track().get()->momentum().Eta(), 
+		      elec.track().get()->momentum().Phi(), 
+		      elec.track().get()->vertex().X(),
+		      elec.track().get()->vertex().Y(),
+		      elec.track().get()->vertex().Z(),
+		      elec.track().get()->outerMomentum().Rho(), 
+		      elec.track().get()->outerMomentum().Eta(), 
+		      elec.track().get()->outerMomentum().Phi(), 
+		      elec.track().get()->outerPosition().X(),
+		      elec.track().get()->outerPosition().Y(),
+		      elec.track().get()->outerPosition().Z(),
+		      elec.track().get()->charge());
     
-    SimpleTrack track(ielectron->track().get()->momentum().Rho(), 
-		      ielectron->track().get()->momentum().Eta(), 
-		      ielectron->track().get()->momentum().Phi(), 
-		      ielectron->track().get()->vertex().X(),
-		      ielectron->track().get()->vertex().Y(),
-		      ielectron->track().get()->vertex().Z(),
-		      ielectron->track().get()->outerMomentum().Rho(), 
-		      ielectron->track().get()->outerMomentum().Eta(), 
-		      ielectron->track().get()->outerMomentum().Phi(), 
-		      ielectron->track().get()->outerPosition().X(),
-		      ielectron->track().get()->outerPosition().Y(),
-		      ielectron->track().get()->outerPosition().Z(),
-		      ielectron->track().get()->charge());
-    
-    SimpleSCluster scluster(ielectron->superCluster().get()->energy(),
-			    ielectron->superCluster().get()->eta(),
-			    ielectron->superCluster().get()->phi());
+    SimpleSCluster scluster(elec.superCluster().get()->energy(),
+			    elec.superCluster().get()->eta(),
+			    elec.superCluster().get()->phi());
     
     SimpleElectron electron(track,
 			    scluster);
