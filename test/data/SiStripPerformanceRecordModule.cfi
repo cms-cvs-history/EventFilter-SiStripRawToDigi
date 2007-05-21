@@ -3,8 +3,8 @@ module Performance = SiStripPerformanceRecordModule
 {
 
     # Root File
-    untracked string FileName = "/tmp/pwing/Performance.root"
-    untracked string TreeName = "RegionalRawToClusters"	
+    untracked string FileName = "RegionalRawToClusters.root"
+    untracked string TreeName = "tree"	
 
     # Record
     untracked bool SiStripDemand = true
@@ -16,11 +16,11 @@ module Performance = SiStripPerformanceRecordModule
     untracked string SiStripClustersProductLabel = ""
     untracked string McModuleLabel = "VtxSmeared"
     untracked string McProductLabel = ""
-    untracked string ElectronsModuleLabel = "pixelMatchElectronsL1IsoForHLT"
+    untracked string ElectronsModuleLabel = "hltL1IsoDoubleElectronEoverpFilter"
     untracked string ElectronsProductLabel = ""
 
     # Timing
-    untracked vstring UnpackingModuleLabels = {"SiStripRawToClustersFacility","DummyRoI","DummyUnpacker"}
+    untracked vstring UnpackingModuleLabels = {"SiStripRawToClustersFacility","DummyRoI","siStripClusters"}
 
 
 }
