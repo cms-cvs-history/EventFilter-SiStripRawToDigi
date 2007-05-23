@@ -200,8 +200,8 @@ void SiStripPerformanceRecordModule::sistripclusters(const edm::Handle< RefGette
   data_->sistripClusters().reserve(1000000);
   RefGetter::const_iterator iregion = clusts->begin();
   for(;iregion!=clusts->end();++iregion) {
-    vector<SiStripCluster>::const_iterator icluster = iregion->first;
-    for (;icluster!=iregion->second;icluster++) {
+    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
+    for (;icluster!=iregion->end();icluster++) {
       data_->sistripClusters().push_back(SimpleSiStripCluster(icluster->geographicalId(), icluster->firstStrip(), icluster->amplitudes().size(), icluster->barycenter()));
     }
   }
