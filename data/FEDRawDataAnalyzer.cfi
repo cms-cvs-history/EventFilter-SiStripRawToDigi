@@ -3,7 +3,4 @@ module FedAnalyzer = FEDRawDataAnalyzer
     untracked string ProductLabel = "source"
     untracked string ProductInstance = ""
     untracked int32  pause_us = 0
-    //untracked int32  initial_rate = 0
-    //untracked int32  rate_increment = 10
-    //untracked int32  nevents = 100
 }
