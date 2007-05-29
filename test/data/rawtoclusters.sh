@@ -9,9 +9,9 @@ FILE1_=$1;
 FILE2_=$2;
 
 #hardcoded directories
-CFGDIR=~pwing/scratch0/CMSSW_1_3_1_HLT2/src/EventFilter/SiStripRawToDigi/data;
+CFGDIR=~pwing/scratch0/CMSSW_1_5_0_pre4/src/EventFilter/SiStripRawToDigi/data;
 CASTORFILE=/castor/cern.ch/user/p/pwing/LowLevelRecon
-AUTHDIR=~pwing/public/scripts/RawToDigi/post_140
+AUTHDIR=~pwing/public/scripts/RawToDigi
 
 #record current directory
 WNDIR=$(pwd);

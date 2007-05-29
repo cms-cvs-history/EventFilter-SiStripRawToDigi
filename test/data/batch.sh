@@ -8,7 +8,7 @@
 FILE1_=$1;
 
 #hardcoded directories
-CFGDIR=~pwing/scratch0/CMSSW_1_3_1_HLT2/src/EventFilter/SiStripRawToDigi/data;
+CFGDIR=~pwing/scratch0/CMSSW_1_3_1_HLT3/src/EventFilter/SiStripRawToDigi/data;
 CASTORFILE=/castor/cern.ch/user/p/pwing/LowLevelRecon
 
 #record current directory
