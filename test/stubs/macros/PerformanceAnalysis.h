@@ -3,7 +3,7 @@
 
 #include <string>
 #include "TTree.h"
-#include "TRFIOFile.h"
+#include "TFile.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TH1F.h"
@@ -15,7 +15,7 @@ class PerformanceAnalysis {
 
 public:
   
-  PerformanceAnalysis(TRFIOFile*,std::string);
+  PerformanceAnalysis(TFile*,std::string);
   ~PerformanceAnalysis();
 
   void book();
@@ -27,7 +27,7 @@ private:
   void save();
   void format();
 
-  TRFIOFile* file_;
+  TFile* file_;
   std::string treename_;
   TTree* tree_;
 

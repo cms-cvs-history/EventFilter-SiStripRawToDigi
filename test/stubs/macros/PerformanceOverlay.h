@@ -3,7 +3,7 @@
 
 #include <string>
 #include "TTree.h"
-#include "TRFIOFile.h"
+#include "TFile.h"
 #include "TProfile.h"
 #include <vector>
 #include "EventFilter/SiStripRawToDigi/test/stubs/Overlay.h"
@@ -12,7 +12,7 @@ class PerformanceOverlay {
 
 public:
   
-  PerformanceOverlay(TRFIOFile*);
+  PerformanceOverlay(TFile*);
   ~PerformanceOverlay();
 
   void book();
@@ -21,7 +21,7 @@ public:
 
 private:
 
-  TRFIOFile* file_;
+  TFile* file_;
   Overlay* overlay_;
 
 };

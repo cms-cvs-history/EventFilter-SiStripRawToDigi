@@ -4,7 +4,7 @@
 
 using namespace std;
 
-PerformanceOverlay::PerformanceOverlay(TRFIOFile* file) :
+PerformanceOverlay::PerformanceOverlay(TFile* file) :
 
   file_(file),
   overlay_(0)

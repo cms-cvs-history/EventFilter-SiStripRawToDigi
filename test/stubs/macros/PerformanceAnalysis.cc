@@ -6,7 +6,7 @@
 
 using namespace std;
 
-PerformanceAnalysis::PerformanceAnalysis(TRFIOFile* file,string treename) :
+PerformanceAnalysis::PerformanceAnalysis(TFile* file,string treename) :
 
   file_(file),
   treename_(treename),
@@ -88,7 +88,7 @@ void PerformanceAnalysis::analyze() {
   
   for (Int_t ievent=0; ievent<nEvents; ievent++) {
     tree_->GetEntry(ievent); 
-
+ 
     //Loop clusters container
     Int_t ndigis = 0;
     vector<SimpleSiStripCluster>::const_iterator icluster = data->sistripClusters().begin();
