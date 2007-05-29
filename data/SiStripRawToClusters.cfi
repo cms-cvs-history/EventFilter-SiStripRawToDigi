@@ -9,3 +9,4 @@ module SiStripRawToClustersFacility = SiStripRawToClusters {
 }
 
 replace SiStripRawToClustersFacility.UseCalibDataFromDB  = false
+replace SiStripRawToClustersFacility.ProductLabel = "DigiToRaw"

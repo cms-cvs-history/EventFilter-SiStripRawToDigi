@@ -1,0 +1,17 @@
+
+# raw-to-clusters facility
+include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
+
+# raw-to-clusters regions of interest module
+include "EventFilter/SiStripRawToDigi/test/data/SiStripRawToClustersDummyRoI.cfi"
+
+# raw to clusters DSV builder (temporary, for compatibility with rech-hits converter)
+include "EventFilter/SiStripRawToDigi/test/data/SiStripClustersDSVBuilder.cfi"
+
+# dummy clusters loop (for unpacking)
+include "EventFilter/SiStripRawToDigi/test/data/SiStripRawToClustersDummyUnpacker.cfi"
+
+sequence sistriprawtoclusters = {SiStripRawToClustersFacility, DummyRoI, siStripClusters}
+
+sequence sistriprawtoclusterstest = {SiStripRawToClustersFacility, DummyRoI, DummyUnpacker}
+

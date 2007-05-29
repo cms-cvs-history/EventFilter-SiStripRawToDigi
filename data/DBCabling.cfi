@@ -1,0 +1,21 @@
+include "CondCore/DBCommon/data/CondDBSetup.cfi"
+
+# cabling
+es_source pool1 = PoolDBESSource { 
+    VPSet toGet = {
+	{ string record = "SiStripFedCablingRcd"
+	    string tag = "SiStripFedCabling_v1"
+	} 
+    }
+    bool loadAll = true
+    string connect = "sqlite_file:/afs/cern.ch/cms/cmt/onlinedev/data/cabling/140/sistripfedcabling.db"
+    untracked string catalog = "file:/afs/cern.ch/cms/cmt/onlinedev/data/cabling/140/SiStripFedCablingCatalog.xml"
+    string timetype = "runnumber"
+    untracked uint32 authenticationMethod = 1
+    untracked uint32 messagelevel = 10
+    using CondDBSetup
+}
+
+
+
+

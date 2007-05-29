@@ -13,8 +13,8 @@
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //CalibFormats
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
@@ -46,9 +46,9 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
 
  private:
 
-  void timer(uint32_t event);
-  void electrons(const edm::Handle<reco::PixelMatchGsfElectronCollection>&);
-  void sclusters(const edm::Handle<reco::SuperClusterCollection>&);
+  void timer();
+  void mc(const edm::Handle<edm::HepMCProduct>&);
+  void electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
   void sistripclusters(const edm::Handle< RefGetter >&);
   void sistripclusters(const edm::Handle< DSV >&);
   void sistripchannels(const edm::Handle< RefGetter >&);
@@ -56,7 +56,15 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   void reset();
 
   //Configurations
-  bool demand_;
+  bool sistripDemand_;
+  std::string sistripClustersModuleLabel_;
+  std::string sistripClustersProductLabel_;
+  bool recordMc_;
+  std::string mcModuleLabel_;
+  std::string mcProductLabel_;
+  bool recordElectrons_;
+  std::string electronsModuleLabel_;
+  std::string electronsProductLabel_;
   std::vector< std::string > unpackingModuleLabels_;
   std::string filename_;
   std::string treename_;
@@ -64,10 +72,11 @@ class SiStripPerformanceRecordModule : public edm::EDAnalyzer {
   //Cabling
   edm::ESHandle<SiStripRegionCabling> cabling_;
 
-  //Debug
-  double meantime_;
+  //Run record
+  double sumtime_;
+  double sumtime2_;
 
-  //Performance record
+  //Event record
   TFile* file_;
   TTree* tree_;
   EventData* data_;

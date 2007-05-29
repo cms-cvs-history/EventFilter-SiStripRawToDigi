@@ -14,6 +14,8 @@
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=SimDataFormats/HepMCProduct>
   <use name=DQM/HLTEvF>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger> 
@@ -24,4 +26,3 @@
   <lib name=testEventFilterSiStripRawToDigi>
   <flags SEALPLUGIN=1>
 </library>
-

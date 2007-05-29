@@ -3,4 +3,4 @@ include "Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi"
 
 # tracker geometry es_modules
 include "Geometry/TrackerGeometryBuilder/data/trackerGeometry.cfi"
-es_module = TrackerGeometricDetESModule {}
+include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"

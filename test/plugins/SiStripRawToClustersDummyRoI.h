@@ -22,8 +22,9 @@
 #include "boost/bind.hpp"
 
 /**
-   @file EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersDummyRoI.h
+   @file EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyRoI.h
    @class SiStripRawToClustersDummyRoI
+   @author M.Wingham
 */
 
 class SiStripRawToClustersDummyRoI : public edm::EDProducer {
@@ -43,6 +44,9 @@ class SiStripRawToClustersDummyRoI : public edm::EDProducer {
 
   /** Method defining regions of interest randomly */
   void random(SiStripRegionCabling::Regions&) const;
+
+  /** Method defining ALL regions of interest */
+  void all(SiStripRegionCabling::Regions&) const;
   
   /** Method defining regions of interest by superclusters */
   void superclusters(const reco::SuperClusterCollection&,
@@ -54,8 +58,13 @@ class SiStripRawToClustersDummyRoI : public edm::EDProducer {
   /** Cabling */
   edm::ESHandle<SiStripRegionCabling> cabling_;
 
-  /** Configurable to vary dummy regions of interest with event number.*/
-  uint32_t period_;
+  /** Booleans to define objects of interest */
+  bool random_;
+  bool all_;
+  bool electron_;
+
+  /** dR to define regions of interest around physics objects */
+  double dR_;
 
 };
 
