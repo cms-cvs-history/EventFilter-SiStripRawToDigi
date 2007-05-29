@@ -1,6 +1,0 @@
-module FedAnalyzer = FEDRawDataAnalyzer 
-{
-    untracked string ProductLabel = "source"
-    untracked string ProductInstance = ""
-    untracked int32  pause_us = 0
-}
