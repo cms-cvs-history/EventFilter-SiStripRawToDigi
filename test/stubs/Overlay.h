@@ -117,21 +117,21 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
 
   if (four) {
     four->SetLineColor(kGreen);
-    four->SetMarkerColor(kBlack);
-    if (legend) legend_->AddEntry(four,labThree_.c_str(),"l");}
+    four->SetMarkerColor(kGreen);
+    if (legend) legend_->AddEntry(four,labFour_.c_str(),"l");}
 
   if (five) {
     five->SetLineColor(kMagenta);
-    five->SetMarkerColor(kBlack);
-    if (legend) legend_->AddEntry(five,labThree_.c_str(),"l");}
+    five->SetMarkerColor(kMagenta);
+    if (legend) legend_->AddEntry(five,labFive_.c_str(),"l");}
 
   //Draw
   Int_t maxone = 0, maxtwo = 0, maxthree = 0, maxfour = 0, maxfive = 0;
   if (one) maxone = one->GetMaximumBin();
   if (two) maxtwo = two->GetMaximumBin();
   if (three) maxthree = three->GetMaximumBin();
-  if (four) maxthree = four->GetMaximumBin();
-  if (five) maxthree = five->GetMaximumBin();
+  if (four) maxfour = four->GetMaximumBin();
+  if (five) maxfive = five->GetMaximumBin();
 
   Int_t yrange[] = {maxone,maxtwo,maxthree,maxfour,maxfive};
   Int_t maxy = max_element(yrange,yrange+5)-yrange;
