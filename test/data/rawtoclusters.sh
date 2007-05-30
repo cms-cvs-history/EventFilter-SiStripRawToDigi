@@ -1,20 +1,17 @@
 #!/bin/bash
 
 ### Run using the following syntax:
-### bsub -q 8nm -m lxb7350.cern.ch rawtoclusters.sh $FILE1 $FILE2
-### Output root file copied to castor, txt file to local config dir.
-
-#arguments
-FILE1_=$1;
-FILE2_=$2;
-
-#hardcoded directories
-CFGDIR=~pwing/scratch0/CMSSW_1_5_0_pre4/src/EventFilter/SiStripRawToDigi/data;
-CASTORFILE=/castor/cern.ch/user/p/pwing/LowLevelRecon
-AUTHDIR=~pwing/public/scripts/RawToDigi
+### bsub -q 8nm -m lxb7350.cern.ch rawtoclusters.sh $1 $2 $3 $4
+### $1 = cfg file 1.
+### $2 = cfg file 2.
+### $3 = CMSSW_BASE.
+### $4 = output root file destination.
 
 #record current directory
 WNDIR=$(pwd);
+
+#config directories
+CFGDIR=$3/src/EventFilter/SiStripRawToDigi/data;
 
 #set environment
 cd $CFGDIR;
@@ -25,14 +22,14 @@ cd $WNDIR;
 #copy over necessary files
 touch $CFGDIR/output.txt
 cp $CFGDIR/output.txt .
-cp $AUTHDIR/authentication.xml .
+cp /afs/cern.ch/cms/cmt/onlinedev/data/cabling/131/authentication.xml .
 
 #run
-cmsRun $CFGDIR'/'$FILE1_;
-if [ "$FILE2" != "" ];then
-    cmsRun $CFGDIR'/'$FILE2_;
+cmsRun $CFGDIR'/'$1;
+if [ "$2" != "" ];then
+    cmsRun $CFGDIR'/'$2;
 fi
 
 #store output files
-rfcp *.root $CASTORFILE;
-cp output.txt $CFGDIR
+rfcp *.root $4;
+cp output.txt $CFGDIR;

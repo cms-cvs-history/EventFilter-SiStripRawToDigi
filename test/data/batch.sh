@@ -1,18 +1,16 @@
 #!/bin/bash
 
 ### Run using the following syntax:
-### bsub -q 8nm -m lxb7350.cern.ch batch.sh $FILE1 
-### Output root file copied to castor.
-
-#arguments
-FILE1_=$1;
-
-#hardcoded directories
-CFGDIR=~pwing/scratch0/CMSSW_1_3_1_HLT3/src/EventFilter/SiStripRawToDigi/data;
-CASTORFILE=/castor/cern.ch/user/p/pwing/LowLevelRecon
+### bsub -q 8nm -m lxb7350.cern.ch rawtoclusters.sh $1 $2 $3
+### $1 = cfg file.
+### $2 = CMSSW_BASE.
+### $3 = output root file destination.
 
 #record current directory
 WNDIR=$(pwd);
+
+#config directories
+CFGDIR=$2/src/EventFilter/SiStripRawToDigi/data;
 
 #set environment
 cd $CFGDIR;
@@ -21,7 +19,7 @@ eval `scramv1 runtime -sh`;
 cd $WNDIR;
 
 #run
-cmsRun $CFGDIR'/'$FILE1_;
+cmsRun $CFGDIR'/'$1;
 
 #store output files
-rfcp *.root $CASTORFILE;
+rfcp *.root $3;
