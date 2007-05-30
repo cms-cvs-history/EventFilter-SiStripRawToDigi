@@ -43,8 +43,8 @@ void PerformanceAnalysis::book() {
   clusterwidth_ = new TH1F(treename_.c_str(), treename_.c_str(), 20,0.,20.);
   firststrip_ = new TH1F(treename_.c_str(), treename_.c_str(), 800,0.,800.);
   firststripVsclusterwidth_ = new TProfile(treename_.c_str(), treename_.c_str(), 800,0.,800.);
-  effelectronVspt_ = new Efficiency(treename_.c_str(),treename_.c_str(),10,0.,100.);
-  effelectronVseta_ = new Efficiency(treename_.c_str(),treename_.c_str(),10,-3.,3.);
+  effelectronVspt_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
+  effelectronVseta_ = new Efficiency(treename_.c_str(),treename_.c_str(),60,-3.,3.);
   format();
 }
 
