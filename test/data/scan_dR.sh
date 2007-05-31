@@ -24,11 +24,12 @@ cp /afs/cern.ch/cms/cmt/onlinedev/data/cabling/131/authentication.xml .
 #run
 namefield='TreeName'
 valuefield='DeltaR'
+globalfield='All'
 equals=' = '
 string='"'
 endline=' #'
 
-for dR in 0.1 0.2 0.3 0.4 0.5 
+for dR in 0 0.05 0.1 0.15 0.2 Global
 do
 
 name=$string$dR$string;
@@ -36,6 +37,13 @@ value=$dR;
 
 replace "$namefield" "$namefield$equals$name$endline" -- $TESTDATA/SiStripPerformanceRecordModule.cfi;
 replace "$valuefield" "$valuefield$equals$value$endline" -- $TESTDATA/SiStripRawToClustersDummyRoI.cfi;
+replace "$globalfield" "$globalfield$equals""false""$endline" -- $TESTDATA/SiStripRawToClustersDummyRoI.cfi;
+
+if [ $dR == "Global" ];then
+    replace "$valuefield" "$valuefield$equals""0""$endline" -- $TESTDATA/SiStripRawToClustersDummyRoI.cfi;
+    replace "$globalfield" "$globalfield$equals""true""$endline" -- $TESTDATA/SiStripRawToClustersDummyRoI.cfi;
+fi
+
 cmsRun $DATA/RegionalReconstruction.cfg;
 
 done
