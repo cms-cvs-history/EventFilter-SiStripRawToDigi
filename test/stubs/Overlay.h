@@ -32,7 +32,7 @@ class Overlay {
     labFive_ = labFive;
   }
   
-  void graphs(TGraph* const one, TGraph* const two=0, TGraph* const three=0, TGraph* const four=0,TGraph* const five=0, bool legend=false, string option="") {
+  void graphs(TGraph* const one, TGraph* const two=0, TGraph* const three=0, TGraph* const four=0,TGraph* const five=0, bool legend=false, std::string option="") {
     
     if (!one) return;
     reset();
@@ -66,7 +66,7 @@ class Overlay {
   if (legend) legend_->Draw();
 }
 
-void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", string ytitle="", string ztitle="",string option="") {
+void Overlay::graphs2D(TGraph2D* const graph, std::string title="", std::string xtitle="", std::string ytitle="", std::string ztitle="", std::string option="") {
 
   if (!graph) return;
   reset();
@@ -78,7 +78,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
   graph->GetZaxis()->SetTitle(ztitle.c_str());
 }
  
- void histos(TH1* const one, TH1* const two=0, TH1* const three=0, TH1* const four=0, TH1* const five=0, bool legend=false, string option="") {
+ void histos(TH1* const one, TH1* const two=0, TH1* const three=0, TH1* const four=0, TH1* const five=0, bool legend=false, std::string option="") {
 
    if (!one) return;
    reset();
@@ -170,7 +170,7 @@ void Overlay::graphs2D(TGraph2D* const graph,string title="", string xtitle="", 
    return marker;
  }
  
- void save(string name) {
+ void save(std::string name) {
    canvas_->SetName(name.c_str());
    canvas_->Write(name.c_str(), TObject::kOverwrite);
  }

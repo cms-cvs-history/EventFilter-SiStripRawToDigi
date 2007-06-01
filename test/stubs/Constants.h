@@ -5,8 +5,8 @@ namespace constants {
 
   static const unsigned int invalid32 = 0xFFFFFFFF;
   static const unsigned int invalid16 = 0xFFFF;
-  static const double invalid = -9999.;
-  static const double large = 9999.;
+  static const double invalid = -99999999.;
+  static const double large = 99999999.;
   static const double etaCut = 2.4;
   static const double dRjet = 0.4;
   static const double dRelec = 0.4;

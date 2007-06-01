@@ -67,12 +67,6 @@ void normalise(TH1F* h,double scale) {
  if (scale > 0.)  h->Scale(1./scale);
 }
 
-double dEfficiency(double efficiency, double ntot) {
-
-  if (ntot) return sqrt(efficiency * (1. - efficiency)/ntot);
-  return 0.;
-}
-
 double dSoSplusB(Double_t signal,
 		 Double_t b1,
 		 Double_t b2,

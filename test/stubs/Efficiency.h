@@ -4,7 +4,6 @@
 #include "TH1F.h"
 #include "TGraphErrors.h"
 #include <iostream>
-#include "EventFilter/SiStripRawToDigi/test/stubs/Utility.h"
 
 class Efficiency : public TObject {
 
@@ -33,7 +32,7 @@ class Efficiency : public TObject {
       Double_t value = 0.;
       if (all->GetBinContent(ibin+1))
 	value = selected->GetBinContent(ibin+1)/all->GetBinContent(ibin+1);
-      Double_t error = utility::dEfficiency(value,all->GetBinContent(ibin+1));
+      Double_t error = dEfficiency(value,all->GetBinContent(ibin+1));
       efficiency->SetBinContent(ibin+1,value);
       efficiency->SetBinError(ibin+1,error);
     }
@@ -49,9 +48,13 @@ class Efficiency : public TObject {
     if (valid) selected->Fill(value);
   }
 
-  TH1F* const get() {
-    return efficiency;
-  }
+  TH1F* const get() {return efficiency;}
+
+  Int_t bins() {return nbins_;}
+  
+  Double_t xmin() {return xmin_;}
+  
+  Double_t xmax() {return xmax_;}
 
   static bool comparable(Efficiency* one,
 			 Efficiency* two) {
@@ -84,18 +87,12 @@ class Efficiency : public TObject {
       }
     }
   }
-  
-  Int_t bins() {
-    return nbins_;
-  }
-  
-  Double_t xmin() {
-    return xmin_;
-  }
-  
-  Double_t xmax() {
-    return xmax_;
-  }
+
+static double dEfficiency(double efficiency, double ntot) {
+
+  if (ntot) return sqrt(efficiency * (1. - efficiency)/ntot);
+  return 0.;
+}
 
  private:
   
