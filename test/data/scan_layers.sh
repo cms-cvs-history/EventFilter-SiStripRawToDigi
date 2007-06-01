@@ -40,13 +40,18 @@ tecouter=$replace'TECLayers={7,8,9};'
 
 #run
 cp $CONN conn.txt;
-for layers in "$tob$tec" "$tib$tid" "$tib$tid$tob$tec" #$tobouter$tecouter $tib$tid$tobouter$tecouter 
+for layers in "$tob$tec" "$tib$tid" "$tib$tid$tob$tec" "$tobouter$tecouter" "$tib$tid$tobouter$tecouter" 
 do
 
 sed '$a'"$empty" < $CONN > tmp.txt;
 sed '$a'"$layers" < tmp.txt > $CONN;
-name=$string${layers//$replacefull}$string;
+
+layers=${layers//$replace};
+layers=${layers//"Layers={"/":["};
+layers=${layers//"};"/"] "};
+name=$string$layers$string
 replace "$namefield" "$namefield$equals$name$endline" -- $TESTDATA/SiStripPerformanceRecordModule.cfi;
+
 cmsRun $DATA/RegionalReconstruction.cfg;
 cp conn.txt $CONN;
 
