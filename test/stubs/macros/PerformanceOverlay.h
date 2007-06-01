@@ -16,8 +16,9 @@ public:
   ~PerformanceOverlay();
 
   void book();
-  void unbook();
   void overlay(std::string);
+  void save(std::string);
+  void unbook();
 
 private:
 
