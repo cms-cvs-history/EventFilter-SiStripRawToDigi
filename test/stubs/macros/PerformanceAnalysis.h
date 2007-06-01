@@ -19,19 +19,18 @@ public:
   ~PerformanceAnalysis();
 
   void book();
-  void unbook();
+  void format();
   void analyze();
+  void save();
+  void unbook();
 
 private:
-
-  void save();
-  void format();
 
   TFile* file_;
   std::string treename_;
   TTree* tree_;
 
-  //Plots
+  //Timing
   TH1F* time_;
   TProfile* timeVsocc_;
   TProfile* timeVsdigis_;
@@ -40,11 +39,17 @@ private:
   TProfile* timeVsfrac_;
   TProfile* timeVsevent_;
   TProfile2D* timeVsoccVsfrac_;
+
+  //Clusters
   TH1F* clusterwidth_;
   TH1F* firststrip_;
   TProfile* firststripVsclusterwidth_;
-  Efficiency* effelectronVspt_;
-  Efficiency* effelectronVseta_;
+
+  //Efficiency
+  Efficiency* electronVspt_barrel_;
+  Efficiency* electronVspt_endcap_;
+  Efficiency* electronVseta_lt100_;
+  Efficiency* electronVseta_gt100_;
 
 };
 
