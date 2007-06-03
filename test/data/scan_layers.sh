@@ -24,30 +24,34 @@ cp /afs/cern.ch/cms/cmt/onlinedev/data/cabling/131/authentication.xml .
 
 #useful values
 replace='replace SiStripRegionConnectivity.'
-empty=$replace'TIBLayers={};'$replace'TOBLayers={};'$replace'TECLayers={};'$replace'TIDLayers={};'
+empty=$replace'TIBLayers={};'$replace'TIDWheels={};'$replace'TOBLayers={};'$replace'TECWheels={};'
 namefield='TreeName'
 equals=' = '
 string='"'
 endline=' #'
 
 #available settings
+tibempty=$replace'TIBLayers={};'
+tidempty=$replace'TIDWheels={};'
+tobempty=$replace'TOBLayers={};'
+tecempty=$replace'TECWheels={};'
 tib=$replace'TIBLayers={1,2,3,4};'
+tid=$replace'TIDWheels={1,2,3};'
 tob=$replace'TOBLayers={1,2,3,4,5,6};'
-tec=$replace'TECLayers={1,2,3,4,5,6,7,8,9};'
-tid=$replace'TIDLayers={1,2,3};'
+tec=$replace'TECWheels={1,2,3,4,5,6,7,8,9};'
 tobouter=$replace'TOBLayers={4,5,6};'
-tecouter=$replace'TECLayers={7,8,9};'
+tecouter=$replace'TECWheels={7,8,9};'
 
 #run
 cp $CONN conn.txt;
-for layers in "$tob$tec" "$tib$tid" "$tib$tid$tob$tec" "$tobouter$tecouter" "$tib$tid$tobouter$tecouter" 
+for layers in  "$tibempty$tidempty$tob$tec" "$tib$tid$tob$tec" "$tib$tid$tobempty$tecempty" "$tibempty$tidempty$tobouter$tecouter" "$tib$tid$tobouter$tecouter" 
 do
 
-sed '$a'"$empty" < $CONN > tmp.txt;
-sed '$a'"$layers" < tmp.txt > $CONN;
+sed '$a'"$layers" < $CONN > tmp.txt; mv tmp.txt $CONN
 
 layers=${layers//$replace};
 layers=${layers//"Layers={"/":["};
+layers=${layers//"Wheels={"/":["};
 layers=${layers//"};"/"] "};
 name=$string$layers$string
 replace "$namefield" "$namefield$equals$name$endline" -- $TESTDATA/SiStripPerformanceRecordModule.cfi;
