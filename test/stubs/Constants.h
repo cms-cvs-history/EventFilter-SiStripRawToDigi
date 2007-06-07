@@ -10,6 +10,7 @@ namespace constants {
   static const double etaCut = 2.4;
   static const double dRjet = 0.4;
   static const double dRelec = 0.4;
+  static const double dRtau = 0.4;
   static const double rEcal = 0.1365;
   static const double zEcal = 3.20;
   static const double ecEcal = 1.469;

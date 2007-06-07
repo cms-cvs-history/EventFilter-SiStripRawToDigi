@@ -4,6 +4,10 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleTrack.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleSCluster.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/SimpleElectron.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleHCluster.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleGenJet.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleJet.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SimpleTrigger.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/Efficiency.h"
 
 #ifdef __CINT__
@@ -18,6 +22,10 @@
 #pragma link C++ class SimpleTrack+;
 #pragma link C++ class SimpleSCluster+;
 #pragma link C++ class SimpleElectron+;
+#pragma link C++ class SimpleHCluster+;
+#pragma link C++ class SimpleGenJet+;
+#pragma link C++ class SimpleJet+;
+#pragma link C++ class SimpleTrigger+;
 #pragma link C++ class Efficiency+;
 
 #endif

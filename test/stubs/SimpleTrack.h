@@ -6,9 +6,9 @@ class SimpleTrack : public TObject {
 
  public:
 
-  SimpleTrack() :  innerpt_(constants::invalid), innereta_(constants::invalid), innerphi_(constants::invalid), innervx_(constants::invalid), innervy_(constants::invalid), innervz_(constants::invalid), outerpt_(constants::invalid), outereta_(constants::invalid), outerphi_(constants::invalid), outervx_(constants::invalid), outervy_(constants::invalid), outervz_(constants::invalid), charge_(constants::invalid32) {}
+  SimpleTrack() :  innerpt_(constants::invalid), innereta_(constants::invalid), innerphi_(constants::invalid), innervx_(constants::invalid), innervy_(constants::invalid), innervz_(constants::invalid), outerpt_(constants::invalid), outereta_(constants::invalid), outerphi_(constants::invalid), outervx_(constants::invalid), outervy_(constants::invalid), outervz_(constants::invalid), charge_(constants::invalid32), validHits_(constants::invalid16) {}
 
-  SimpleTrack(double InnerPt, double InnerEta, double InnerPhi, double InnerVx, double InnerVy, double InnerVz, double OuterPt, double OuterEta, double OuterPhi, double OuterVx, double OuterVy, double OuterVz, int Charge) :   innerpt_(InnerPt), innereta_(InnerEta), innerphi_(InnerPhi), innervx_(InnerVx), innervy_(InnerVy), innervz_(InnerVz), outerpt_(OuterPt), outereta_(OuterEta), outerphi_(OuterPhi), outervx_(OuterVx), outervy_(OuterVy), outervz_(OuterVz), charge_(Charge) {}
+  SimpleTrack(double InnerPt, double InnerEta, double InnerPhi, double InnerVx, double InnerVy, double InnerVz, double OuterPt, double OuterEta, double OuterPhi, double OuterVx, double OuterVy, double OuterVz, int Charge, unsigned short ValidHits) :   innerpt_(InnerPt), innereta_(InnerEta), innerphi_(InnerPhi), innervx_(InnerVx), innervy_(InnerVy), innervz_(InnerVz), outerpt_(OuterPt), outereta_(OuterEta), outerphi_(OuterPhi), outervx_(OuterVx), outervy_(OuterVy), outervz_(OuterVz), charge_(Charge), validHits_(ValidHits) {}
 
   virtual ~SimpleTrack() {}
 
@@ -30,6 +30,7 @@ class SimpleTrack : public TObject {
   const double outerVy() const {return outervy_;}
   const double outerVz() const {return outervz_;}
   const int charge() const {return charge_;}
+  const unsigned short hits() const {return validHits_;}
 
  private:
 
@@ -46,6 +47,7 @@ class SimpleTrack : public TObject {
   double outervy_;
   double outervz_;
   int charge_;
+  unsigned short validHits_;
 
   ClassDef(SimpleTrack,1)
 };
