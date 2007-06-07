@@ -13,8 +13,11 @@
   <use name=DataFormats/SiStripCommon>
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiStripDigi>
-  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/TrackReco>
   <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/HLTReco>
   <use name=SimDataFormats/HepMCProduct>
   <use name=DQM/HLTEvF>
   <use name=FWCore/Framework>
