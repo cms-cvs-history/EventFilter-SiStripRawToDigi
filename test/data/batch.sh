@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Run using the following syntax:
-### bsub -q 8nm -m lxb7350.cern.ch rawtoclusters.sh $1 $2 $3
+### bsub -q 8nm -m lxb7350.cern.ch batch.sh $1 $2 $3
 ### $1 = cfg file.
 ### $2 = CMSSW_BASE.
 ### $3 = output root file destination.
