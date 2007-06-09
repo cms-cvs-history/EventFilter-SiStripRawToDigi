@@ -176,13 +176,12 @@ void SiStripPerformance::timer() {
   
   std::auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
   HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
-  double time = 0.;
   for (;imodule != hltinfo->endModules(); imodule++) {
     vector<string>::const_iterator iunpacking = unpackingModuleLabels_.begin();
     for (;iunpacking != unpackingModuleLabels_.end(); iunpacking++) {
-      if (imodule->name() == *iunpacking) time+=imodule->time();}}
-  sumtime_+=time;
-  sumtime2_+=time*time; 
+      if (imodule->name() == *iunpacking) time_+=imodule->time();}}
+  sumtime_+=time_;
+  sumtime2_+=time_*time_; 
 }
 
 void SiStripPerformance::sistripchannels(const Handle< RefGetter >& demandclusters) {
@@ -287,21 +286,25 @@ void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& 
 }
 
 void SiStripPerformance::taus(const Handle<reco::HLTFilterObjectWithRefs>& Taus, const Handle<reco::JetTracksAssociationCollection>& JTAs) {
-  /*
+  
   for (size_t i=0; i<Taus->size(); i++) {
 
-    RefToBase<reco::Candidate> taucand = Taus->getParticleRef(i);
-    const reco::CaloJetRef& tau = taucand.castTo<reco::CaloJetRef>();
-    reco::JetTracksAssociationCollection::const_iterator ijta = JTAs->find(tau);
+    const edm::ProductID& id = Taus->getPID(i);
+    reco::JetTracksAssociationCollection::const_iterator taujta=JTAs->end();
+    reco::JetTracksAssociationCollection::const_iterator ijta=JTAs->begin();
+    for (;ijta!=JTAs->end();ijta++) {
+      if (ijta->first.id() == id) taujta = ijta;
+      break;
+    }
    
-    SimpleHCluster hcluster(ijta->key.get()->energy(),
-			    ijta->key.get()->energy(),
-			    ijta->key.get()->eta(),
-			    ijta->key.get()->phi());
+    SimpleHCluster hcluster(taujta->first.get()->energy(),
+			    taujta->first.get()->energy(),
+			    taujta->first.get()->eta(),
+			    taujta->first.get()->phi());
     
     std::vector<SimpleTrack> tracks;
-    RefVector<reco::TrackCollection>::const_iterator itrack=ijta->val.begin();
-    for (;itrack!=ijta->val.end();++itrack) {
+    RefVector<reco::TrackCollection>::const_iterator itrack=taujta->second.begin();
+    for (;itrack!=taujta->second.end();++itrack) {
       tracks.push_back(SimpleTrack(itrack->get()->momentum().Rho(), 
 				   itrack->get()->momentum().Eta(), 
 				   itrack->get()->momentum().Phi(), 
@@ -318,16 +321,15 @@ void SiStripPerformance::taus(const Handle<reco::HLTFilterObjectWithRefs>& Taus,
 				   itrack->get()->found()));      
     }
     
-    SimpleJet jet(ijta->key.get()->vertex().X(),
-		  ijta->key.get()->vertex().Y(),
-		  ijta->key.get()->vertex().Z(),
+    SimpleJet jet(taujta->first.get()->vertex().X(),
+		  taujta->first.get()->vertex().Y(),
+		  taujta->first.get()->vertex().Z(),
 		  hcluster,
 		  tracks,
 		  0.);
 
     data_->taus().push_back(jet);
   }
-  */
 }
 
 void SiStripPerformance::trigger(const Handle<TriggerResults>& Trigger) {
@@ -337,7 +339,7 @@ void SiStripPerformance::trigger(const Handle<TriggerResults>& Trigger) {
   for (unsigned int i=0;i<num;i++) {
     trigger.set(i,(Trigger->at(i).state() == hlt::Pass));
   }
-  data_->trigger() = trigger;;
+  data_->trigger() = trigger;
 }
 
 void SiStripPerformance::reset() {

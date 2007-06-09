@@ -1,20 +1,20 @@
 {
 
-TFile* file = new TFile("file:/tmp/pwing/50x50_FullTracker.root","UPDATE");
+TFile* file = new TFile("file:/tmp/pwing/SiStripPerformance.root","UPDATE");
 
-PerformanceAnalysis one(file,"Global");
+PerformanceAnalysis one(file,"");
 one.book(); one.format(); one.analyze(); one.save(); one.unbook();
 
-PerformanceAnalysis two(file,"0.05");
+PerformanceAnalysis two(file,"");
 two.book(); two.format(); two.analyze(); two.save(); two.unbook();
 
-PerformanceAnalysis three(file,"0.1"); 
+PerformanceAnalysis three(file,""); 
 three.book(); three.format(); three.analyze(); three.save(); three.unbook();
 
-PerformanceAnalysis four(file,"0.15"); 
+PerformanceAnalysis one(file,"");
 four.book(); four.format(); four.analyze(); four.save(); four.unbook();
 
-PerformanceAnalysis five(file,"0.2"); 
+PerformanceAnalysis one(file,"");
 five.book(); five.format(); five.analyze(); five.save(); five.unbook();
 
 PerformanceOverlay figures(file);
@@ -65,23 +65,38 @@ figures.save("/CLUSTER_WIDTHVSFIRST");
 figures.unbook();
 
 figures.book();
-figures.overlay("/ELECTRONVSPT_BARREL");
-figures.save("/ELECTRONVSPT_BARREL");
+figures.overlay("/EFFICIENCY_HLT");
+figures.save("/EFFICIENCY_HLT");
 figures.unbook();
 
 figures.book();
-figures.overlay("/ELECTRONVSPT_ENDCAP");
-figures.save("/ELECTRONVSPT_ENDCAP");
+figures.overlay("/EFFICIENCY");
+figures.save("/EFFICIENCY");
 figures.unbook();
 
 figures.book();
-figures.overlay("/ELECTRONVSETA_LT100");
-figures.save("/ELECTRONVSETA_LT100");
+figures.overlay("/EFFICIENCY_VSPT_1");
+figures.save("/EFFICIENCY_VSPT_1");
 figures.unbook();
 
 figures.book();
-figures.overlay("/ELECTRONVSETA_GT100");
-figures.save("/ELECTRONVSETA_GT100");
+figures.overlay("/EFFICIENCY_VSPT_2");
+figures.save("/EFFICIENCY_VSPT_2");
+figures.unbook();
+
+figures.book();
+figures.overlay("/EFFICIENCY_VSETA_1");
+figures.save("/EFFICIENCY_VSETA_1");
+figures.unbook();
+
+figures.book();
+figures.overlay("/EFFICIENCY_VSETA_2");
+figures.save("/EFFICIENCY_VSETA_2");
+figures.unbook();
+
+figures.book();
+figures.overlay("/EFFICIENCY_VSETA_3");
+figures.save("/EFFICIENCY_VSETA_3");
 figures.unbook();
 
 new TBrowser;

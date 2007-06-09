@@ -1,6 +1,5 @@
 
 #include "PerformanceAnalysis.h"
-#include "EventFilter/SiStripRawToDigi/test/stubs/EventData.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/Constants.h"
 #include <iostream>
 
@@ -22,10 +21,13 @@ PerformanceAnalysis::PerformanceAnalysis(TFile* file,string treename) :
   clusterwidth_(0),
   firststrip_(0),
   firststripVsclusterwidth_(0),
-  electronVspt_barrel_(0),
-  electronVspt_endcap_(0),
-  electronVseta_lt100_(0),
-  electronVseta_gt100_(0)
+  eff_hlt_(0),
+  eff_total_(0),
+  eff_vspt_1_(0),
+  eff_vspt_2_(0),
+  eff_vseta_1_(0),
+  eff_vseta_2_(0),
+  eff_vseta_3_(0)
 
 {;}
 
@@ -45,10 +47,13 @@ void PerformanceAnalysis::book() {
   clusterwidth_ = new TH1F(treename_.c_str(), treename_.c_str(), 20,0.,20.);
   firststrip_ = new TH1F(treename_.c_str(), treename_.c_str(), 800,0.,800.);
   firststripVsclusterwidth_ = new TProfile(treename_.c_str(), treename_.c_str(), 800,0.,800.);
-  electronVspt_barrel_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
-  electronVspt_endcap_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
-  electronVseta_lt100_ = new Efficiency(treename_.c_str(),treename_.c_str(),10,-3.,3.);
-  electronVseta_gt100_ = new Efficiency(treename_.c_str(),treename_.c_str(),10,-3.,3.);
+  eff_hlt_ = new Efficiency(treename_.c_str(),treename_.c_str(),1,0.,1.);
+  eff_total_ = new Efficiency(treename_.c_str(),treename_.c_str(),1,0.,1.);
+  eff_vspt_1_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
+  eff_vspt_2_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
+  eff_vseta_1_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
+  eff_vseta_2_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
+  eff_vseta_3_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
 }
 
 void PerformanceAnalysis::unbook() {
@@ -63,13 +68,16 @@ void PerformanceAnalysis::unbook() {
   if (clusterwidth_) delete clusterwidth_;
   if (firststrip_) delete firststrip_;
   if (firststripVsclusterwidth_) delete firststripVsclusterwidth_;
-  if (electronVspt_barrel_) delete electronVspt_barrel_;
-  if (electronVspt_endcap_) delete electronVspt_endcap_;
-  if (electronVseta_lt100_) delete electronVseta_lt100_;
-  if (electronVseta_gt100_) delete electronVseta_gt100_;
+  if (eff_hlt_) delete eff_hlt_;
+  if (eff_total_) delete eff_total_;
+  if (eff_vspt_1_) delete eff_vspt_1_;
+  if (eff_vspt_2_) delete eff_vspt_2_;
+  if (eff_vseta_1_) delete eff_vseta_1_;
+  if (eff_vseta_2_) delete eff_vseta_2_;
+  if (eff_vseta_3_) delete eff_vseta_3_;
 }
 
-void PerformanceAnalysis::analyze() {
+void PerformanceAnalysis::analyze(Trigger trigger) {
 
  if (!tree_) {
    cout << __PRETTY_FUNCTION__ 
@@ -96,42 +104,17 @@ void PerformanceAnalysis::analyze() {
     //Collect event data
     tree_->GetEntry(ievent); 
 
-    //Loop Monte-Carlo
-    vector<SimpleParticle>::const_iterator ipart = data->mc().begin();
-    for (; ipart != data->mc().end(); ipart++) {
-      
-      //Electron efficiency
-      if ((abs(ipart->pid()) == 11) &&
-	  (fabs(ipart->eta()) < constants::etaCut) &&
-	  (ipart->pt() > 10.)) {
-      
-	bool matched = false;
-	vector<SimpleElectron>::const_iterator ielectron = data->electrons().begin();
-	for (;ielectron!=data->electrons().end();ielectron++) {
-	  if (SimpleSCluster::dR(ielectron->scluster(),*ipart) < constants::dRelec) {
-	    matched = true; break;}
-	}
-
-	if (ipart->eta() < constants::ecEcal) {
-	  if (matched) electronVspt_barrel_->select((Double_t)ipart->pt());
-	  else electronVspt_barrel_->select((Double_t)ipart->pt(),false);
-	}
-
-	if (ipart->eta() > constants::ecEcal) {
-	  if (matched) electronVspt_endcap_->select((Double_t)ipart->pt());
-	  else electronVspt_endcap_->select((Double_t)ipart->pt(),false);
-	}
-
-	if (ipart->pt() < 100.) {
-	  if (matched) electronVseta_lt100_->select((Double_t)ipart->eta());
-	  else electronVseta_lt100_->select((Double_t)ipart->eta(),false);
-	}
-
-	if (ipart->pt() > 100.) {
-	  if (matched) electronVseta_gt100_->select((Double_t)ipart->eta());
-	  else electronVseta_gt100_->select((Double_t)ipart->eta(),false);
-	}
-      }
+    //Record HLT and recon efficiencies
+    if (trigger==ELECTRON_SINGLE && electron_single(data->mc())) {
+      electron(data->mc(),data->electrons());
+      if (data->trigger().get(18)) eff_hlt_->select(1);
+      else eff_hlt_->select(1,false);
+    }
+   
+    if (trigger==ELECTRON_DOUBLE && electron_double(data->mc())) {
+      electron(data->mc(),data->electrons());
+      if (data->trigger().get(20)) eff_hlt_->select(1);
+      else eff_hlt_->select(1,false);
     }
     
     //Loop clusters container
@@ -156,6 +139,192 @@ void PerformanceAnalysis::analyze() {
     timeVsoccVsfrac_->Fill(occupancy,(Double_t)nunpackedchans/(Double_t)nchans,time);
     
   }
+}
+
+bool PerformanceAnalysis::electron_single(std::vector<SimpleParticle>& mc) {
+
+  unsigned short count = 0;
+  vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  for (; ipart != mc.end(); ipart++) {
+    if ((abs(ipart->pid()) == 11) && 
+	(ipart->pt() > 26.) && 
+	(fabs(ipart->eta()) < constants::etaCut)) 
+      count++;
+  }
+  if (count >= 1) return true;
+  return false;
+}
+
+
+bool PerformanceAnalysis::electron_double(std::vector<SimpleParticle>& mc) {
+
+  unsigned short count = 0;
+  vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  for (; ipart != mc.end(); ipart++) {
+    if ((abs(ipart->pid()) == 11) && 
+	(ipart->pt() > 12.) && 
+	(fabs(ipart->eta()) < constants::etaCut)) 
+      count++;
+  }
+  if (count >= 2) return true;
+  return false;
+}
+
+
+void PerformanceAnalysis::electron(std::vector<SimpleParticle>& mc, 
+				   std::vector<SimpleElectron>& electrons) {
+ 
+ vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  for (; ipart != mc.end(); ipart++) {
+
+  if ((abs(ipart->pid()) == 11) &&
+      (ipart->pt() > 10.) &&
+      (fabs(ipart->eta()) < constants::etaCut)) {
+    
+    bool matched = false;
+    vector<SimpleElectron>::const_iterator ielectron = electrons.begin();
+    for (;ielectron!=electrons.end();ielectron++) {
+      if (SimpleSCluster::dR(ielectron->scluster(),*ipart) < constants::dRelec) {
+	matched = true; break;}
+    }
+    
+    if (matched) eff_total_->select(1);
+    else eff_total_->select(1,false);
+    
+    if (ipart->eta() < constants::ecEcal) {
+      if (matched) eff_vspt_1_->select((Double_t)ipart->pt());
+      else eff_vspt_1_->select((Double_t)ipart->pt(),false);
+    }
+    
+    if (ipart->eta() > constants::ecEcal) {
+      if (matched) eff_vspt_2_->select((Double_t)ipart->pt());
+      else eff_vspt_2_->select((Double_t)ipart->pt(),false);
+    }
+    
+    if (ipart->pt() < 40.) {
+      if (matched) eff_vseta_1_->select((Double_t)ipart->eta());
+      else eff_vseta_1_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
+      if (matched) eff_vseta_2_->select((Double_t)ipart->eta());
+      else eff_vseta_2_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if (ipart->pt() > 100.) {
+      if (matched) eff_vseta_3_->select((Double_t)ipart->eta());
+      else eff_vseta_3_->select((Double_t)ipart->eta(),false);
+    }
+  }
+  }
+}
+
+void PerformanceAnalysis::tau(std::vector<SimpleParticle>& mc, 
+			      std::vector<SimpleJet>& taus) {
+ 
+ vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  for (; ipart != mc.end(); ipart++) {
+
+  if ((abs(ipart->pid()) == 15) &&
+      (ipart->pt() > 20.) &&
+      (fabs(ipart->eta()) < constants::etaCut)) {
+    
+    bool matched = false;
+    vector<SimpleJet>::const_iterator itau = taus.begin();
+    for (;itau!=taus.end();itau++) {
+      if (SimpleHCluster::dR(itau->hcluster(),*ipart) < constants::dRtau) {
+	matched = true; break;}
+    }
+    
+    if (matched) eff_total_->select(1);
+    else eff_total_->select(1,false);
+    
+    if (ipart->eta() < constants::ecEcal) {
+      if (matched) eff_vspt_1_->select((Double_t)ipart->pt());
+      else eff_vspt_1_->select((Double_t)ipart->pt(),false);
+    }
+    
+    if (ipart->eta() > constants::ecEcal) {
+      if (matched) eff_vspt_2_->select((Double_t)ipart->pt());
+      else eff_vspt_2_->select((Double_t)ipart->pt(),false);
+    }
+    
+    if (ipart->pt() < 40.) {
+      if (matched) eff_vseta_1_->select((Double_t)ipart->eta());
+      else eff_vseta_1_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
+      if (matched) eff_vseta_2_->select((Double_t)ipart->eta());
+      else eff_vseta_2_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if (ipart->pt() > 100.) {
+      if (matched) eff_vseta_3_->select((Double_t)ipart->eta());
+      else eff_vseta_3_->select((Double_t)ipart->eta(),false);
+    }
+  }
+  }
+}
+
+void PerformanceAnalysis::format() {
+ 
+  time_->SetTitle("Event unpacking time.");
+  time_->GetXaxis()->SetTitle("Time [ s ]");
+  time_->GetYaxis()->SetTitle("Number of events");
+
+  timeVsocc_->SetTitle("Event unpacking time vs Occupancy.");
+  timeVsocc_->GetXaxis()->SetTitle("Occupancy [ % ]");
+  timeVsocc_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
+
+  timeVsdigis_->SetTitle("Event unpacking time vs Number of digis.");
+  timeVsdigis_->GetXaxis()->SetTitle("digis");
+  timeVsdigis_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
+
+  timeVsclusters_->SetTitle("Event unpacking time vs Number of clusters.");
+  timeVsclusters_->GetXaxis()->SetTitle("clusters");
+  timeVsclusters_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
+
+  timeVsclustersize_->SetTitle("Event unpacking time vs Mean cluster size.");
+  timeVsclustersize_->GetXaxis()->SetTitle("mean clusters size [ strips ]");
+  timeVsclustersize_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
+
+  timeVsfrac_->SetTitle("Event unpacking time vs Fraction of SST unpacked.");
+  timeVsfrac_->GetXaxis()->SetTitle("Fraction of SST");
+  timeVsfrac_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
+
+  timeVsevent_->SetTitle("Event unpacking time vs Event number.");
+  timeVsevent_->GetXaxis()->SetTitle("Event number");
+  timeVsevent_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
+
+  eff_hlt_->get()->SetTitle("HLT efficiency");
+  eff_hlt_->get()->GetXaxis()->SetTitle("");
+  eff_hlt_->get()->GetYaxis()->SetTitle("HLT Efficiency");
+
+  eff_total_->get()->SetTitle("Electron reconstruction efficiency");
+  eff_total_->get()->GetXaxis()->SetTitle("");
+  eff_total_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+  
+  eff_vspt_1_->get()->SetTitle("Reconstruction efficiency");
+  eff_vspt_1_->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
+  eff_vspt_1_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+
+  eff_vspt_2_->get()->SetTitle("Reconstruction efficiency");
+  eff_vspt_2_->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
+  eff_vspt_2_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+
+  eff_vseta_1_->get()->SetTitle("Reconstruction efficiency");
+  eff_vseta_1_->get()->GetXaxis()->SetTitle("Electron #eta");
+  eff_vseta_1_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+
+  eff_vseta_2_->get()->SetTitle("Reconstruction efficiency");
+  eff_vseta_2_->get()->GetXaxis()->SetTitle("Electron #eta");
+  eff_vseta_2_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+
+  eff_vseta_3_->get()->SetTitle("Reconstruction efficiency");
+  eff_vseta_3_->get()->GetXaxis()->SetTitle("Electron #eta");
+  eff_vseta_3_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+
 }
 
 void PerformanceAnalysis::save() {
@@ -217,75 +386,46 @@ void PerformanceAnalysis::save() {
   file_->GetDirectory(name.c_str())->cd();
   firststripVsclusterwidth_->Write(treename_.c_str(),TObject::kOverwrite);
 
-  name = "ELECTRONVSPT_BARREL";
+  name = "EFFICIENCY_HLT";
   file_->mkdir(name.c_str());
   file_->GetDirectory(name.c_str())->cd();
-  electronVspt_barrel_->calculate();
-  electronVspt_barrel_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+  eff_hlt_->calculate();
+  eff_hlt_->get()->Write(treename_.c_str(),TObject::kOverwrite);
 
-  name = "ELECTRONVSPT_ENDCAP";
+  name = "EFFICIENCY";
   file_->mkdir(name.c_str());
   file_->GetDirectory(name.c_str())->cd();
-  electronVspt_endcap_->calculate();
-  electronVspt_endcap_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+  eff_total_->calculate();
+  eff_total_->get()->Write(treename_.c_str(),TObject::kOverwrite);
 
-  name = "ELECTRONVSETA_LT100";
+  name = "EFFICIENCY_VSPT_1";
   file_->mkdir(name.c_str());
   file_->GetDirectory(name.c_str())->cd();
-  electronVseta_lt100_->calculate();
-  electronVseta_lt100_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+  eff_vspt_1_->calculate();
+  eff_vspt_1_->get()->Write(treename_.c_str(),TObject::kOverwrite);
 
-  name = "ELECTRONVSETA_GT100";
+  name = "EFFICIENCY_VSPT_2";
   file_->mkdir(name.c_str());
   file_->GetDirectory(name.c_str())->cd();
-  electronVseta_gt100_->calculate();
-  electronVseta_gt100_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+  eff_vspt_2_->calculate();
+  eff_vspt_2_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+
+  name = "EFFICIENCY_VSETA_1";
+  file_->mkdir(name.c_str());
+  file_->GetDirectory(name.c_str())->cd();
+  eff_vseta_1_->calculate();
+  eff_vseta_1_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+
+  name = "EFFICIENCY_VSETA_2";
+  file_->mkdir(name.c_str());
+  file_->GetDirectory(name.c_str())->cd();
+  eff_vseta_2_->calculate();
+  eff_vseta_2_->get()->Write(treename_.c_str(),TObject::kOverwrite);
+
+  name = "EFFICIENCY_VSETA_3";
+  file_->mkdir(name.c_str());
+  file_->GetDirectory(name.c_str())->cd();
+  eff_vseta_3_->calculate();
+  eff_vseta_3_->get()->Write(treename_.c_str(),TObject::kOverwrite);
 }
 
-void PerformanceAnalysis::format() {
- 
-  time_->SetTitle("Event unpacking time.");
-  time_->GetXaxis()->SetTitle("Time [ s ]");
-  time_->GetYaxis()->SetTitle("Number of events");
-
-  timeVsocc_->SetTitle("Event unpacking time vs Occupancy.");
-  timeVsocc_->GetXaxis()->SetTitle("Occupancy [ % ]");
-  timeVsocc_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
-  timeVsdigis_->SetTitle("Event unpacking time vs Number of digis.");
-  timeVsdigis_->GetXaxis()->SetTitle("digis");
-  timeVsdigis_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
-  timeVsclusters_->SetTitle("Event unpacking time vs Number of clusters.");
-  timeVsclusters_->GetXaxis()->SetTitle("clusters");
-  timeVsclusters_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
-  timeVsclustersize_->SetTitle("Event unpacking time vs Mean cluster size.");
-  timeVsclustersize_->GetXaxis()->SetTitle("mean clusters size [ strips ]");
-  timeVsclustersize_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
-  timeVsfrac_->SetTitle("Event unpacking time vs Fraction of SST unpacked.");
-  timeVsfrac_->GetXaxis()->SetTitle("Fraction of SST");
-  timeVsfrac_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
-  timeVsevent_->SetTitle("Event unpacking time vs Event number.");
-  timeVsevent_->GetXaxis()->SetTitle("Event number");
-  timeVsevent_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
-  electronVspt_barrel_->get()->SetTitle("Barrel electron reconstruction efficiency");
-  electronVspt_barrel_->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
-  electronVspt_barrel_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-
-  electronVspt_endcap_->get()->SetTitle("Endcap electron reconstruction efficiency");
-  electronVspt_endcap_->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
-  electronVspt_endcap_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-
-  electronVseta_lt100_->get()->SetTitle("Electron reconstruction efficiency (<100 GeV)");
-  electronVseta_lt100_->get()->GetXaxis()->SetTitle("Electron #eta");
-  electronVseta_lt100_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-
-  electronVseta_gt100_->get()->SetTitle("Electron reconstruction efficiency (>100 GeV)");
-  electronVseta_gt100_->get()->GetXaxis()->SetTitle("Electron #eta");
-  electronVseta_gt100_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-
-}
