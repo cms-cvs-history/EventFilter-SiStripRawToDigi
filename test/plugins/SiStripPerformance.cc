@@ -43,8 +43,6 @@ SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
   filename_(pset.getUntrackedParameter<string>("FileName" ,"Performance.root")),
   treename_(pset.getUntrackedParameter<string>("TreeName" ,"Data")),
   cabling_(),
-  sumtime_(0.),
-  sumtime2_(0.),
   file_(0),
   tree_(0),
   data_(0),
@@ -92,18 +90,6 @@ void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
 void SiStripPerformance::endJob() {
   file_->cd();
   tree_->Write(treename_.c_str(),TObject::kOverwrite);
-
-  std::ofstream output("output.txt",ios::app);
-  output << "Timing Run : "
-	 << filename_
-	 << ":"
-	 << treename_
-	 << ". Unpacking time : "
-	 << sumtime_/event_
-	 << " +/- "
-	 << sqrt(fabs((sumtime2_/event_)-(sumtime_/event_)*(sumtime_/event_))) 
-	 << std::endl;
-  output.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -179,9 +165,9 @@ void SiStripPerformance::timer() {
   for (;imodule != hltinfo->endModules(); imodule++) {
     vector<string>::const_iterator iunpacking = unpackingModuleLabels_.begin();
     for (;iunpacking != unpackingModuleLabels_.end(); iunpacking++) {
-      if (imodule->name() == *iunpacking) time_+=imodule->time();}}
-  sumtime_+=time_;
-  sumtime2_+=time_*time_; 
+      if (imodule->name() == *iunpacking) time_+=imodule->time();
+    }
+  }
 }
 
 void SiStripPerformance::sistripchannels(const Handle< RefGetter >& demandclusters) {

@@ -20,8 +20,6 @@ eval `scramv1 runtime -sh`;
 cd $WNDIR;
 
 #copy over necessary files
-touch $CFGDIR/output.txt
-cp $CFGDIR/output.txt .
 cp /afs/cern.ch/cms/cmt/onlinedev/data/cabling/131/authentication.xml .
 
 #run
@@ -32,4 +30,3 @@ fi
 
 #store output files
 rfcp *.root $4;
-cp output.txt $CFGDIR;

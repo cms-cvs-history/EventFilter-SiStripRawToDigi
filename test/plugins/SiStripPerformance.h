@@ -77,10 +77,6 @@ class SiStripPerformance : public edm::EDAnalyzer {
   //Cabling
   edm::ESHandle<SiStripRegionCabling> cabling_;
 
-  //Run record
-  double sumtime_;
-  double sumtime2_;
-
   //Event record
   TFile* file_;
   TTree* tree_;
