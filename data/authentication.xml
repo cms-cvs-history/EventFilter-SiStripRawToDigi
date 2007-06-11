@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<connectionlist>
+
+<connection name="sqlite_file:/afs/cern.ch/cms/cmt/onlinedev/data/cabling/131/sistripcabling.db">
+  <parameter name="user" value="me" />
+  <parameter name="password" value="mypass" />
+</connection>
+
+<connection name="sqlite_file:/afs/cern.ch/cms/cmt/onlinedev/data/cabling/131/sistripfedcabling.db">
+  <parameter name="user" value="me" />
+  <parameter name="password" value="mypass" />
+</connection>
+
+</connectionlist>
