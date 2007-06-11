@@ -62,14 +62,23 @@ class EventData : public TObject {
     return count;
   }
 
-  private :
-
-  std::vector<SimpleParticle> mc_;
-  std::vector<SimpleSCluster> sclusters_;
-  std::vector<SimpleElectron> electrons_;
-  std::vector<SimpleJet> taus_;
-  std::vector<SimpleSiStripCluster> sistripclusters_;
-  SimpleTrigger trigger_;
+ unsigned int sistripDigis(const unsigned short cut=0) const {
+   unsigned int count=0;
+   for (unsigned int i = 0; i < sistripclusters_.size(); i++) {
+     if (sistripclusters_[i].amplitudes() > cut) 
+       count+=sistripclusters_[i].amplitudes();
+   }
+   return count;
+ }
+ 
+ private:
+ 
+ std::vector<SimpleParticle> mc_;
+ std::vector<SimpleSCluster> sclusters_;
+ std::vector<SimpleElectron> electrons_;
+ std::vector<SimpleJet> taus_;
+ std::vector<SimpleSiStripCluster> sistripclusters_;
+ SimpleTrigger trigger_;
 
   ClassDef(EventData,1)
 
