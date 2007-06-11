@@ -16,13 +16,7 @@ PerformanceAnalysis::PerformanceAnalysis(TFile* file,string treename) :
   timeVsclusters_(0),
   timeVsclustersize_(0),
   timeVsfrac_(0),
-  timeVsevent_(0),
-  timeVsoccVsfrac_(0),
-  clusterwidth_(0),
-  firststrip_(0),
-  firststripVsclusterwidth_(0),
   eff_hlt_(0),
-  eff_total_(0),
   eff_vspt_1_(0),
   eff_vspt_2_(0),
   eff_vseta_1_(0),
@@ -42,13 +36,7 @@ void PerformanceAnalysis::book() {
   timeVsclusters_ = new TProfile(treename_.c_str(), treename_.c_str(), 100,0.,100000.);
   timeVsclustersize_ = new TProfile(treename_.c_str(), treename_.c_str(), 7,0.,7.);
   timeVsfrac_ = new TProfile(treename_.c_str(), treename_.c_str(), 11,0.,1.1);
-  timeVsevent_ = new TProfile(treename_.c_str(), treename_.c_str(), 20,0.,200.);
-  timeVsoccVsfrac_ = new TProfile2D(treename_.c_str(), treename_.c_str(),10,0.,5.,10,0.,1.);
-  clusterwidth_ = new TH1F(treename_.c_str(), treename_.c_str(), 20,0.,20.);
-  firststrip_ = new TH1F(treename_.c_str(), treename_.c_str(), 800,0.,800.);
-  firststripVsclusterwidth_ = new TProfile(treename_.c_str(), treename_.c_str(), 800,0.,800.);
   eff_hlt_ = new Efficiency(treename_.c_str(),treename_.c_str(),1,0.,1.);
-  eff_total_ = new Efficiency(treename_.c_str(),treename_.c_str(),1,0.,1.);
   eff_vspt_1_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
   eff_vspt_2_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
   eff_vseta_1_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
@@ -62,14 +50,8 @@ void PerformanceAnalysis::unbook() {
   if (timeVsdigis_) delete timeVsdigis_;
   if (timeVsclusters_) delete timeVsclusters_;
   if (timeVsclustersize_) delete timeVsclustersize_;
-  if (timeVsevent_) delete timeVsevent_;
   if (timeVsfrac_) delete timeVsfrac_;
-  if (timeVsoccVsfrac_) delete timeVsoccVsfrac_;
-  if (clusterwidth_) delete clusterwidth_;
-  if (firststrip_) delete firststrip_;
-  if (firststripVsclusterwidth_) delete firststripVsclusterwidth_;
   if (eff_hlt_) delete eff_hlt_;
-  if (eff_total_) delete eff_total_;
   if (eff_vspt_1_) delete eff_vspt_1_;
   if (eff_vspt_2_) delete eff_vspt_2_;
   if (eff_vseta_1_) delete eff_vseta_1_;
@@ -105,61 +87,118 @@ void PerformanceAnalysis::analyze(Trigger trigger) {
     tree_->GetEntry(ievent); 
 
     //Record HLT and recon efficiencies
-    if (trigger==ELECTRON_SINGLE && electron_single(data->mc())) {
+    if (trigger==ELECTRON_SINGLE && electron1(data->mc())) {
       electron(data->mc(),data->electrons());
       if (data->trigger().get(18)) eff_hlt_->select(1);
       else eff_hlt_->select(1,false);
     }
    
-    if (trigger==ELECTRON_DOUBLE && electron_double(data->mc())) {
+    if (trigger==ELECTRON_DOUBLE && electron2(data->mc())) {
       electron(data->mc(),data->electrons());
       if (data->trigger().get(20)) eff_hlt_->select(1);
       else eff_hlt_->select(1,false);
     }
     
-    //Loop clusters container
-    Int_t ndigis = 0;
-    vector<SimpleSiStripCluster>::const_iterator icluster = data->sistripClusters().begin();
-    for (; icluster != data->sistripClusters().end(); icluster++) {
-      ndigis+=icluster->amplitudes_;
-      clusterwidth_->Fill(icluster->amplitudes_);
-      firststrip_->Fill(icluster->firstStrip_);
-      firststripVsclusterwidth_->Fill(icluster->firstStrip_,icluster->amplitudes_);
+    //Timing plots
+    timer(time,data->sistripDigis(),data->sistripClusters().size(),(Double_t)nunpackedchans/(Double_t)nchans,data->sistripDigis()/((Double_t)nunpackedchans*2.56));   
+      }
+}
+
+void PerformanceAnalysis::electron(const std::vector<SimpleParticle>& mc, 
+				   const std::vector<SimpleElectron>& electrons) {
+ 
+ vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  for (; ipart != mc.end(); ipart++) {
+
+  if ((abs(ipart->pid()) == 11) &&
+      (fabs(ipart->eta()) < constants::etaCut)) {
+    
+    bool matched = electron_match(*ipart,electrons);
+    
+    if (ipart->eta() < constants::ecEcal) {
+      if (matched) eff_vspt_1_->select((Double_t)ipart->pt());
+      else eff_vspt_1_->select((Double_t)ipart->pt(),false);
     }
     
-    //Timing plots
-    Double_t occupancy = (double)ndigis/((double)nunpackedchans*2.56);
-    time_->Fill(time);
-    timeVsocc_->Fill(occupancy,time);
-    timeVsdigis_->Fill(ndigis,time);
-    timeVsclusters_->Fill(data->sistripClusters().size(),time);
-    timeVsclustersize_->Fill((Double_t)ndigis/(Double_t)data->sistripClusters().size(),time);
-    timeVsfrac_->Fill((Double_t)nunpackedchans/(Double_t)nchans,time);
-    timeVsevent_->Fill((Double_t)ievent,time);
-    timeVsoccVsfrac_->Fill(occupancy,(Double_t)nunpackedchans/(Double_t)nchans,time);
+    if (ipart->eta() > constants::ecEcal) {
+      if (matched) eff_vspt_2_->select((Double_t)ipart->pt());
+      else eff_vspt_2_->select((Double_t)ipart->pt(),false);
+    }
     
+    if (ipart->pt() < 40.) {
+      if (matched) eff_vseta_1_->select((Double_t)ipart->eta());
+      else eff_vseta_1_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
+      if (matched) eff_vseta_2_->select((Double_t)ipart->eta());
+      else eff_vseta_2_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if (ipart->pt() > 100.) {
+      if (matched) eff_vseta_3_->select((Double_t)ipart->eta());
+      else eff_vseta_3_->select((Double_t)ipart->eta(),false);
+    }
+  }
   }
 }
 
-bool PerformanceAnalysis::electron_single(std::vector<SimpleParticle>& mc) {
 
-  unsigned short count = 0;
-  vector<SimpleParticle>::const_iterator ipart = mc.begin();
+void PerformanceAnalysis::tau(const std::vector<SimpleParticle>& mc, 
+			      const std::vector<SimpleJet>& taus) {
+ 
+ vector<SimpleParticle>::const_iterator ipart = mc.begin();
   for (; ipart != mc.end(); ipart++) {
-    if ((abs(ipart->pid()) == 11) && 
-	(ipart->pt() > 26.) && 
-	(fabs(ipart->eta()) < constants::etaCut)) 
-      count++;
+
+  if ((abs(ipart->pid()) == 15) &&
+      (fabs(ipart->eta()) < constants::etaCut)) {
+    
+    bool matched = tau_match(*ipart,taus);
+    
+    if (ipart->eta() < constants::ecEcal) {
+      if (matched) eff_vspt_1_->select((Double_t)ipart->pt());
+      else eff_vspt_1_->select((Double_t)ipart->pt(),false);
+    }
+    
+    if (ipart->eta() > constants::ecEcal) {
+      if (matched) eff_vspt_2_->select((Double_t)ipart->pt());
+      else eff_vspt_2_->select((Double_t)ipart->pt(),false);
+    }
+    
+    if (ipart->pt() < 40.) {
+      if (matched) eff_vseta_1_->select((Double_t)ipart->eta());
+      else eff_vseta_1_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
+      if (matched) eff_vseta_2_->select((Double_t)ipart->eta());
+      else eff_vseta_2_->select((Double_t)ipart->eta(),false);
+    }
+    
+    if (ipart->pt() > 100.) {
+      if (matched) eff_vseta_3_->select((Double_t)ipart->eta());
+      else eff_vseta_3_->select((Double_t)ipart->eta(),false);
+    }
   }
-  if (count >= 1) return true;
-  return false;
+  }
 }
 
+ const bool PerformanceAnalysis::electron1(std::vector<SimpleParticle>& mc) {
+    
+    std::vector<SimpleParticle>::const_iterator ipart = mc.begin();
+    for (; ipart != mc.end(); ipart++) {
+      if ((abs(ipart->pid()) == 11) && 
+	  (ipart->pt() > 26.) && 
+	  (fabs(ipart->eta()) < constants::etaCut)) 
+	return true;
+    }
+    return false;
+  }
 
-bool PerformanceAnalysis::electron_double(std::vector<SimpleParticle>& mc) {
+const bool PerformanceAnalysis::electron2(std::vector<SimpleParticle>& mc) {
 
   unsigned short count = 0;
-  vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  std::vector<SimpleParticle>::const_iterator ipart = mc.begin();
   for (; ipart != mc.end(); ipart++) {
     if ((abs(ipart->pid()) == 11) && 
 	(ipart->pt() > 12.) && 
@@ -170,101 +209,40 @@ bool PerformanceAnalysis::electron_double(std::vector<SimpleParticle>& mc) {
   return false;
 }
 
-
-void PerformanceAnalysis::electron(std::vector<SimpleParticle>& mc, 
-				   std::vector<SimpleElectron>& electrons) {
- 
- vector<SimpleParticle>::const_iterator ipart = mc.begin();
-  for (; ipart != mc.end(); ipart++) {
-
-  if ((abs(ipart->pid()) == 11) &&
-      (ipart->pt() > 10.) &&
-      (fabs(ipart->eta()) < constants::etaCut)) {
-    
-    bool matched = false;
-    vector<SimpleElectron>::const_iterator ielectron = electrons.begin();
-    for (;ielectron!=electrons.end();ielectron++) {
-      if (SimpleSCluster::dR(ielectron->scluster(),*ipart) < constants::dRelec) {
-	matched = true; break;}
-    }
-    
-    if (matched) eff_total_->select(1);
-    else eff_total_->select(1,false);
-    
-    if (ipart->eta() < constants::ecEcal) {
-      if (matched) eff_vspt_1_->select((Double_t)ipart->pt());
-      else eff_vspt_1_->select((Double_t)ipart->pt(),false);
-    }
-    
-    if (ipart->eta() > constants::ecEcal) {
-      if (matched) eff_vspt_2_->select((Double_t)ipart->pt());
-      else eff_vspt_2_->select((Double_t)ipart->pt(),false);
-    }
-    
-    if (ipart->pt() < 40.) {
-      if (matched) eff_vseta_1_->select((Double_t)ipart->eta());
-      else eff_vseta_1_->select((Double_t)ipart->eta(),false);
-    }
-    
-    if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
-      if (matched) eff_vseta_2_->select((Double_t)ipart->eta());
-      else eff_vseta_2_->select((Double_t)ipart->eta(),false);
-    }
-    
-    if (ipart->pt() > 100.) {
-      if (matched) eff_vseta_3_->select((Double_t)ipart->eta());
-      else eff_vseta_3_->select((Double_t)ipart->eta(),false);
-    }
+const bool PerformanceAnalysis::electron_match(const SimpleParticle& mc, 
+					       const std::vector<SimpleElectron>& electrons) {
+  
+  vector<SimpleElectron>::const_iterator ielectron = electrons.begin();
+  for (;ielectron!=electrons.end();ielectron++) {
+    if (SimpleSCluster::dR(ielectron->scluster(),mc) < constants::dRelec)
+      return true;
   }
-  }
+  return false;
 }
 
-void PerformanceAnalysis::tau(std::vector<SimpleParticle>& mc, 
-			      std::vector<SimpleJet>& taus) {
- 
- vector<SimpleParticle>::const_iterator ipart = mc.begin();
-  for (; ipart != mc.end(); ipart++) {
+const bool PerformanceAnalysis::tau_match(const SimpleParticle& mc, 
+					  const std::vector<SimpleJet>& jets) {
 
-  if ((abs(ipart->pid()) == 15) &&
-      (ipart->pt() > 20.) &&
-      (fabs(ipart->eta()) < constants::etaCut)) {
-    
-    bool matched = false;
-    vector<SimpleJet>::const_iterator itau = taus.begin();
-    for (;itau!=taus.end();itau++) {
-      if (SimpleHCluster::dR(itau->hcluster(),*ipart) < constants::dRtau) {
-	matched = true; break;}
-    }
-    
-    if (matched) eff_total_->select(1);
-    else eff_total_->select(1,false);
-    
-    if (ipart->eta() < constants::ecEcal) {
-      if (matched) eff_vspt_1_->select((Double_t)ipart->pt());
-      else eff_vspt_1_->select((Double_t)ipart->pt(),false);
-    }
-    
-    if (ipart->eta() > constants::ecEcal) {
-      if (matched) eff_vspt_2_->select((Double_t)ipart->pt());
-      else eff_vspt_2_->select((Double_t)ipart->pt(),false);
-    }
-    
-    if (ipart->pt() < 40.) {
-      if (matched) eff_vseta_1_->select((Double_t)ipart->eta());
-      else eff_vseta_1_->select((Double_t)ipart->eta(),false);
-    }
-    
-    if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
-      if (matched) eff_vseta_2_->select((Double_t)ipart->eta());
-      else eff_vseta_2_->select((Double_t)ipart->eta(),false);
-    }
-    
-    if (ipart->pt() > 100.) {
-      if (matched) eff_vseta_3_->select((Double_t)ipart->eta());
-      else eff_vseta_3_->select((Double_t)ipart->eta(),false);
-    }
+ vector<SimpleJet>::const_iterator ijet = jets.begin();
+  for (;ijet!=jets.end();ijet++) {
+    if (SimpleHCluster::dR(ijet->hcluster(),mc) < constants::dRtau)
+      return true;
   }
-  }
+  return false;
+}
+
+void PerformanceAnalysis::timer(const Double_t time, 
+				const Int_t ndigis, 
+				const Int_t nclusters, 
+				const Double_t frac, 
+				const Double_t occ) {
+  
+  time_->Fill(time);
+  timeVsocc_->Fill(occ,time);
+  timeVsdigis_->Fill(ndigis,time);
+  timeVsclusters_->Fill(nclusters,time);
+  timeVsclustersize_->Fill((Double_t)ndigis/(Double_t)nclusters,time);
+  timeVsfrac_->Fill(frac,time);   
 }
 
 void PerformanceAnalysis::format() {
@@ -293,17 +271,9 @@ void PerformanceAnalysis::format() {
   timeVsfrac_->GetXaxis()->SetTitle("Fraction of SST");
   timeVsfrac_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
 
-  timeVsevent_->SetTitle("Event unpacking time vs Event number.");
-  timeVsevent_->GetXaxis()->SetTitle("Event number");
-  timeVsevent_->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-
   eff_hlt_->get()->SetTitle("HLT efficiency");
   eff_hlt_->get()->GetXaxis()->SetTitle("");
   eff_hlt_->get()->GetYaxis()->SetTitle("HLT Efficiency");
-
-  eff_total_->get()->SetTitle("Electron reconstruction efficiency");
-  eff_total_->get()->GetXaxis()->SetTitle("");
-  eff_total_->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
   
   eff_vspt_1_->get()->SetTitle("Reconstruction efficiency");
   eff_vspt_1_->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
@@ -361,42 +331,11 @@ void PerformanceAnalysis::save() {
   file_->GetDirectory(name.c_str())->cd();
   timeVsfrac_->Write(treename_.c_str(),TObject::kOverwrite);
 
-  name = "TIMING_VS_EVENT";
-  file_->mkdir(name.c_str());
-  file_->GetDirectory(name.c_str())->cd();
-  timeVsevent_->Write(treename_.c_str(),TObject::kOverwrite);
-  
-  name = "TIMING_VS_OCCUPANCY_VS_FRAC";
-  file_->mkdir(name.c_str());
-  file_->GetDirectory(name.c_str())->cd();
-  timeVsoccVsfrac_->Write(treename_.c_str(),TObject::kOverwrite);
-  
-  name = "CLUSTER_WIDTH";
-  file_->mkdir(name.c_str());
-  file_->GetDirectory(name.c_str())->cd();
-  clusterwidth_->Write(treename_.c_str(),TObject::kOverwrite);
-  
-  name = "CLUSTER_FIRST";
-  file_->mkdir(name.c_str());
-  file_->GetDirectory(name.c_str())->cd();
-  firststrip_->Write(treename_.c_str(),TObject::kOverwrite);
-  
-  name = "CLUSTER_WIDTHVSFIRST";
-  file_->mkdir(name.c_str());
-  file_->GetDirectory(name.c_str())->cd();
-  firststripVsclusterwidth_->Write(treename_.c_str(),TObject::kOverwrite);
-
   name = "EFFICIENCY_HLT";
   file_->mkdir(name.c_str());
   file_->GetDirectory(name.c_str())->cd();
   eff_hlt_->calculate();
   eff_hlt_->get()->Write(treename_.c_str(),TObject::kOverwrite);
-
-  name = "EFFICIENCY";
-  file_->mkdir(name.c_str());
-  file_->GetDirectory(name.c_str())->cd();
-  eff_total_->calculate();
-  eff_total_->get()->Write(treename_.c_str(),TObject::kOverwrite);
 
   name = "EFFICIENCY_VSPT_1";
   file_->mkdir(name.c_str());

@@ -11,10 +11,10 @@ two.book(); two.format(); two.analyze(); two.save(); two.unbook();
 PerformanceAnalysis three(file,""); 
 three.book(); three.format(); three.analyze(); three.save(); three.unbook();
 
-PerformanceAnalysis one(file,"");
+PerformanceAnalysis four(file,"");
 four.book(); four.format(); four.analyze(); four.save(); four.unbook();
 
-PerformanceAnalysis one(file,"");
+PerformanceAnalysis five(file,"");
 five.book(); five.format(); five.analyze(); five.save(); five.unbook();
 
 PerformanceOverlay figures(file);
@@ -50,28 +50,8 @@ figures.save("/TIMING_VS_FRAC");
 figures.unbook();
 
 figures.book();
-figures.overlay("/CLUSTER_WIDTH");
-figures.save("/CLUSTER_WIDTH");
-figures.unbook();
-
-figures.book();
-figures.overlay("/CLUSTER_FIRST");
-figures.save("/CLUSTER_FIRST");
-figures.unbook();
-
-figures.book();
-figures.overlay("/CLUSTER_WIDTHVSFIRST");
-figures.save("/CLUSTER_WIDTHVSFIRST");
-figures.unbook();
-
-figures.book();
 figures.overlay("/EFFICIENCY_HLT");
 figures.save("/EFFICIENCY_HLT");
-figures.unbook();
-
-figures.book();
-figures.overlay("/EFFICIENCY");
-figures.save("/EFFICIENCY");
 figures.unbook();
 
 figures.book();

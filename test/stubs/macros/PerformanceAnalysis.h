@@ -34,15 +34,27 @@ public:
 
 private:
 
-  bool electron_single(std::vector<SimpleParticle>&);
-  bool electron_double(std::vector<SimpleParticle>&);
-  bool tau_single(std::vector<SimpleParticle>&);
-  bool tau_double(std::vector<SimpleParticle>&);
+  void electron(const std::vector<SimpleParticle>&, 
+		const std::vector<SimpleElectron>&);
 
-  void electron(std::vector<SimpleParticle>&, 
-		std::vector<SimpleElectron>&);
-  void tau(std::vector<SimpleParticle>&, 
-	   std::vector<SimpleJet>&);
+  void tau(const std::vector<SimpleParticle>&, 
+	   const std::vector<SimpleJet>&);
+
+  void timer(const Double_t, 
+	     const Int_t, 
+	     const Int_t, 
+	     const Double_t, 
+	     const Double_t);
+
+  static const bool electron1(std::vector<SimpleParticle>&);
+
+  static const bool electron2(std::vector<SimpleParticle>&);
+  
+  static const bool electron_match(const SimpleParticle&, 
+			     const std::vector<SimpleElectron>&);
+  
+  static const bool tau_match(const SimpleParticle&, 
+			      const std::vector<SimpleJet>&);
 
   TFile* file_;
   std::string treename_;
@@ -55,17 +67,9 @@ private:
   TProfile* timeVsclusters_;
   TProfile* timeVsclustersize_;
   TProfile* timeVsfrac_;
-  TProfile* timeVsevent_;
-  TProfile2D* timeVsoccVsfrac_;
-
-  //Clusters
-  TH1F* clusterwidth_;
-  TH1F* firststrip_;
-  TProfile* firststripVsclusterwidth_;
 
   //Efficiency
   Efficiency* eff_hlt_;
-  Efficiency* eff_total_;
   Efficiency* eff_vspt_1_;
   Efficiency* eff_vspt_2_;
   Efficiency* eff_vseta_1_;
