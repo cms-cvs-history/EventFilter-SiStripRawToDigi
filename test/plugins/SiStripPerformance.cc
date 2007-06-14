@@ -73,13 +73,10 @@ SiStripPerformance::~SiStripPerformance() {
 // -----------------------------------------------------------------------------
 
 void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
-
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
-
-  SiStripRegionCabling::RegionCabling rcabling = cabling_->getRegionCabling();
-  for (uint32_t iregion=0;iregion<rcabling.size();iregion++) {
-    SiStripRegionCabling::RegionMap::const_iterator idet = rcabling[iregion].begin();
-    for (;idet!=rcabling[iregion].end();idet++) {
+  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
+    SiStripRegionCabling::RegionMap::const_iterator idet = cabling_->getRegionCabling()[iregion].begin();
+    for (;idet!=cabling_->getRegionCabling()[iregion].end();idet++) {
       nchans_+=idet->second.size();
     }
   }
@@ -106,18 +103,18 @@ void SiStripPerformance::analyze( const Event& iEvent,
   //SiStripClusters
   if (sistripDemand_) {
     try {
-    Handle< RefGetter > Sistripclusters;
-    iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, Sistripclusters);
-    sistripclusters(Sistripclusters);
-    sistripchannels(Sistripclusters);
+    Handle< RefGetter > sistripClusters;
+    iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters);
+    sistripchannels(sistripClusters);
+    sistripclusters(sistripClusters);
     } catch(...) {;}
   } 
   
   else {
     try {
-      Handle< DSV > Sistripclusters;
-      iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, Sistripclusters );
-      sistripclusters(Sistripclusters);
+      Handle< DSV > sistripClusters;
+      iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters );
+      sistripclusters(sistripClusters);
     } catch(...) {;}
   }
  
@@ -172,11 +169,11 @@ void SiStripPerformance::timer() {
 
 void SiStripPerformance::sistripchannels(const Handle< RefGetter >& demandclusters) {
 
-  SiStripRegionCabling::RegionCabling rcabling = cabling_->getRegionCabling();
-  for (uint32_t iregion=0;iregion<rcabling.size();iregion++) {
+  nunpackedchans_=0;
+  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
     if (demandclusters->find(iregion)!=demandclusters->end()) {
-      SiStripRegionCabling::RegionMap::const_iterator idet = rcabling[iregion].begin();
-      for (;idet!=rcabling[iregion].end();idet++) {
+      SiStripRegionCabling::RegionMap::const_iterator idet = cabling_->getRegionCabling()[iregion].begin();
+      for (;idet!=cabling_->getRegionCabling()[iregion].end();idet++) {
 	nunpackedchans_+=idet->second.size();
       }
     }

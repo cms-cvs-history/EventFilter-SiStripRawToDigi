@@ -5,6 +5,9 @@ module Performance = SiStripPerformance
     # Root File
     untracked string FileName = "SiStripPerformance.root"
     untracked string TreeName = "tree"
+    
+    # Unpacking on demand
+    untracked bool SiStripDemand = true
 
     # EDProduct Labels
     untracked string SiStripClustersModuleLabel = "SiStripRoI"

@@ -36,8 +36,8 @@ class SiStripPerformance : public edm::EDAnalyzer {
   public:
 
   typedef edm::DetSet<SiStripCluster> DetSet;
-  typedef std::vector< edm::DetSet<SiStripCluster> > DSV;
-  typedef edm::SiStripRefGetter< SiStripCluster > RefGetter;
+  typedef edm::DetSetVector<SiStripCluster> DSV;
+  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripPerformance(const edm::ParameterSet&);
   ~SiStripPerformance();
@@ -76,7 +76,7 @@ class SiStripPerformance : public edm::EDAnalyzer {
 
   //Cabling
   edm::ESHandle<SiStripRegionCabling> cabling_;
-
+		       
   //Event record
   TFile* file_;
   TTree* tree_;
