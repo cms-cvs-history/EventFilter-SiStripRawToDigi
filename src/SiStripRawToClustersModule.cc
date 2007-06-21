@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.7 2007/03/21 16:38:14 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersModule.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -15,8 +15,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 #include <sstream>
 
 using namespace sistrip;
