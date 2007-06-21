@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.28 2007/03/28 10:27:36 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.29 2007/04/04 06:56:57 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -14,8 +14,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Timing/interface/TimingReport.h"
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
 #include <iostream>
