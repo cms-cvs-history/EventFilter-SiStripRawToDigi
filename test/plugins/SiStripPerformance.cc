@@ -74,13 +74,28 @@ SiStripPerformance::~SiStripPerformance() {
 
 void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
-  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
-    SiStripRegionCabling::RegionMap::const_iterator idet = cabling_->getRegionCabling()[iregion].begin();
-    for (;idet!=cabling_->getRegionCabling()[iregion].end();idet++) {
-      nchans_+=idet->second.size();
+
+  for (uint32_t iregion = 0;
+       iregion < cabling_->getRegionCabling().size();
+       iregion++) {
+    
+    for (uint32_t isubdet = 3; 
+	 isubdet < cabling_->getRegionCabling()[iregion].size(); 
+	 isubdet++) {
+      
+      for (uint32_t ilayer = 0; 
+	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
+	   ilayer++) {
+
+	SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();
+	for (;idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {
+	  nchans_+=idet->second.size();
+	}
+      }
     }
   }
 }
+
 
 // -----------------------------------------------------------------------------
 
@@ -170,12 +185,27 @@ void SiStripPerformance::timer() {
 void SiStripPerformance::sistripchannels(const Handle< RefGetter >& demandclusters) {
 
   nunpackedchans_=0;
-  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
+
+  for (uint32_t iregion = 0;
+       iregion < cabling_->getRegionCabling().size();
+       iregion++) {
+    
     if (demandclusters->find(iregion)!=demandclusters->end()) {
-      SiStripRegionCabling::RegionMap::const_iterator idet = cabling_->getRegionCabling()[iregion].begin();
-      for (;idet!=cabling_->getRegionCabling()[iregion].end();idet++) {
-	nunpackedchans_+=idet->second.size();
+     
+    for (uint32_t isubdet = 0; 
+	 isubdet < cabling_->getRegionCabling()[iregion].size(); 
+	 isubdet++) {
+      
+      for (uint32_t ilayer = 0; 
+	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
+	   ilayer++) {
+
+	SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();
+	for (;idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {
+	  nchans_+=idet->second.size();
+	}
       }
+    }
     }
   }
 }
