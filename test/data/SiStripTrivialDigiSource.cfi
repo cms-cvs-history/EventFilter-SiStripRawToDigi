@@ -1,6 +1,0 @@
-module DigiSource = SiStripTrivialDigiSource 
-{
-    untracked bool   TestDistribution = false       
-    untracked double MeanOccupancy = 1.0                     
-    untracked double RmsOccupancy = 0.1             
-}
