@@ -1,28 +1,23 @@
 
 module Performance = SiStripPerformance
-{
-
-    # Root File
-    untracked string FileName = "SiStripPerformance.root"
-    untracked string TreeName = "tree"
+{ 
+    # root file
+    untracked string FileName = "Output.root"
+    untracked string TreeName = "Tree"
     
-    # Unpacking on demand
-    untracked bool SiStripDemand = true
-
-    # EDProduct Labels
+    # edproduct labels
+    untracked string SiStripDigisModuleLabel = "siStripDigis"
+    untracked string SiStripDigisProductLabel = ""
     untracked string SiStripClustersModuleLabel = "SiStripRoI"
     untracked string SiStripClustersProductLabel = ""
     untracked string McModuleLabel = "VtxSmeared"
     untracked string McProductLabel = ""
     untracked string ElectronModuleLabel = "hltL1IsoDoubleElectronEoverpFilter"
     untracked string ElectronProductLabel = ""
-    untracked string TauModuleLabel = "filterL3SingleTau"
+    untracked string TauModuleLabel = "isolatedL3SingleTau"
     untracked string TauProductLabel = ""
-    InputTag HLTriggerResults = TriggerResults
     untracked string TriggerProductLabel = ""
 
-    # Timing
+    # timing
     untracked vstring UnpackingModuleLabels = {"SiStripRawToClustersFacility","SiStripRoI","siStripMatchedRecHits"}
-
-
 }
