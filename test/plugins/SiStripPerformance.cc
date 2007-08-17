@@ -1,35 +1,16 @@
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformance.h"
-
-//FWCore
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//DataFormats
-#include "DataFormats/Common/interface/HLTenums.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
-//CalibTracker
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
-
-//DQM
-#include "DQM/HLTEvF/interface/PathTimerService.h"
-
-//std
-#include <cstdlib>
-#include <fstream>
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformance.h"
 
 using namespace std;
 using namespace sistrip;
 using namespace edm;
 
-// -----------------------------------------------------------------------------
-
 SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
 
-  sistripDemand_(pset.getUntrackedParameter<bool>("SiStripDemand", true)),
+  sistripDigisModuleLabel_(pset.getUntrackedParameter<string>("SiStripDigisModuleLabel","")),
+  sistripDigisProductLabel_(pset.getUntrackedParameter<string>("SiStripDigisProductLabel","")),
   sistripClustersModuleLabel_(pset.getUntrackedParameter<string>("SiStripClustersModuleLabel","")),
   sistripClustersProductLabel_(pset.getUntrackedParameter<string>("SiStripClustersProductLabel","")),
   mcModuleLabel_(pset.getUntrackedParameter<string>("McModuleLabel","")),
@@ -38,143 +19,113 @@ SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
   electronsProductLabel_(pset.getUntrackedParameter<string>("ElectronProductLabel","")),
   tausModuleLabel_(pset.getUntrackedParameter<string>("TauModuleLabel","")),
   tausProductLabel_(pset.getUntrackedParameter<string>("TauProductLabel","")),
-  hlTriggerResults_(pset.getParameter<InputTag>("HLTriggerResults")),
   unpackingModuleLabels_(pset.getUntrackedParameter< vector< string> >("UnpackingModuleLabels")),
-  filename_(pset.getUntrackedParameter<string>("FileName" ,"Performance.root")),
-  treename_(pset.getUntrackedParameter<string>("TreeName" ,"Data")),
   cabling_(),
+  pdt_(),
   file_(0),
   tree_(0),
   data_(0),
-  event_(0),
   time_(0.),
   nchans_(0),
   nunpackedchans_(0)
-
 {
-  data_ = new EventData();
-  file_ = new TFile(filename_.c_str(),"UPDATE");
-  tree_ = new TTree(treename_.c_str(),treename_.c_str());
-  tree_->Branch("event",&event_,"event/i");
-  tree_->Branch("EventData","EventData",&data_);
+  file_ = new TFile(pset.getUntrackedParameter<string>("FileName" ,"Output.root").c_str(),"UPDATE");
+  tree_ = new TTree(pset.getUntrackedParameter<string>("TreeName" ,"Tree").c_str(),"");
+  data_ = new SimpleEventData();
+  tree_->Branch("SimpleEventData","SimpleEventData",&data_);
   tree_->Branch("time",&time_,"time/D");
   tree_->Branch("nchans",&nchans_,"nchans/i");
-  tree_->Branch("nunpackedchans",&nunpackedchans_,"nunpackedchans/i");
+  tree_->Branch("nunpackedchans",&nunpackedchans_,"nunpackedchans/i"); 
 }
-
-// -----------------------------------------------------------------------------
 
 SiStripPerformance::~SiStripPerformance() {
+  if (data_) delete data_;
   if (tree_) delete tree_;
   file_->Close();
-  if (data_) delete data_;
 }
-
-// -----------------------------------------------------------------------------
 
 void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
-
-  for (uint32_t iregion = 0;
-       iregion < cabling_->getRegionCabling().size();
-       iregion++) {
-    
-    for (uint32_t isubdet = 3; 
-	 isubdet < cabling_->getRegionCabling()[iregion].size(); 
-	 isubdet++) {
-      
-      for (uint32_t ilayer = 0; 
-	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
-	   ilayer++) {
-
-	SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();
-	for (;idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {
-	  nchans_+=idet->second.size();
-	}
-      }
-    }
-  }
+  iSetup.getData(pdt_);
+  allchannels();
 }
-
-
-// -----------------------------------------------------------------------------
 
 void SiStripPerformance::endJob() {
   file_->cd();
-  tree_->Write(treename_.c_str(),TObject::kOverwrite);
+  tree_->Write();
 }
 
-// -----------------------------------------------------------------------------
-
-void SiStripPerformance::analyze( const Event& iEvent, 
-				  const EventSetup& iSetup ) {
-
-  //Event number
-  event_++;
-
-  //Timer
-  timer();
-
-  //SiStripClusters
-  if (sistripDemand_) {
-    try {
-    Handle< RefGetter > sistripClusters;
-    iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters);
-    sistripchannels(sistripClusters);
-    sistripclusters(sistripClusters);
-    } catch(...) {;}
-  } 
+void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup ) {
   
-  else {
-    try {
-      Handle< DSV > sistripClusters;
-      iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters );
-      sistripclusters(sistripClusters);
-    } catch(...) {;}
-  }
+  //Refresh performance record
+  data_->clear();
+  data_->event()++;
+  nunpackedchans_ = nchans_;
+  
+  //Timing
+  try {
+    auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
+    timer(*hltinfo);
+  } catch(...) {;}
+  
+  //SiStripDigis
+  try {
+    Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
+    iEvent.getByLabel(sistripDigisModuleLabel_, sistripDigisProductLabel_, sistripDigis);
+    sistripdigis(sistripDigis);
+  } catch(...) {;}
  
+  //SiStripClusters
+  try {
+    Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
+    iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters);
+    regionalchannels(sistripClusters);
+    sistripclusters(sistripClusters);
+  } catch(...) {;}
+
+  try {
+    Handle< DetSetVector<SiStripCluster> > sistripClusters;
+    iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters );
+    sistripclusters(sistripClusters);
+  } catch(...) {;}
+  
   //Monte Carlo
-    try {
-      Handle<HepMCProduct> mcp;
-      iEvent.getByLabel(mcModuleLabel_,mcProductLabel_, mcp);
-      mc(mcp);
-    } catch(...) {;}
+  try {
+    Handle<HepMCProduct> mcp;
+    iEvent.getByLabel(mcModuleLabel_,mcProductLabel_, mcp);
+    particles(mcp);
+  } catch(...) {;}
   
-    //Electrons
-    try {
-      Handle<reco::HLTFilterObjectWithRefs> Electrons;
-      iEvent.getByLabel( electronsModuleLabel_, electronsProductLabel_, Electrons );
-      electrons(Electrons);
-    } catch(...) {;}
+  //Electrons
+  try {
+    Handle<reco::HLTFilterObjectWithRefs> Electrons;
+    iEvent.getByLabel( electronsModuleLabel_, electronsProductLabel_, Electrons );
+    electrons(Electrons);
+  } catch(...) {;}
   
-    //Taus
-    try {
-      Handle<reco::HLTFilterObjectWithRefs> Taus;
-      Handle<reco::JetTracksAssociationCollection> JTAs;
-      iEvent.getByLabel( tausModuleLabel_, tausProductLabel_, Taus );
-      iEvent.getByLabel( "associatorL3SingleTau", "", JTAs );
-      taus(Taus,JTAs);
-    } catch(...) {;}
+  //Taus
+  try {
+    Handle<IsolatedTauTagInfoCollection> Taus;
+    iEvent.getByLabel( tausModuleLabel_, tausProductLabel_, Taus );
+    taus(Taus);
+  } catch(...) {;}
   
-    //Trigger
-    try {
-      Handle<TriggerResults> Trigger;
-      iEvent.getByLabel( hlTriggerResults_, Trigger );
-      trigger(Trigger);
-    } catch(...) {;}
-    
+  //Trigger
+  try {
+    Handle<TriggerResults> Trigger;
+    iEvent.getByType( Trigger );
+    trigger(Trigger);
+  } catch(...) {;}
+
   //Update performance record
   tree_->Fill();
-
-  //Reset recorded values
-  reset();
 }
 
-void SiStripPerformance::timer() {
-  
-  std::auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
-  HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
-  for (;imodule != hltinfo->endModules(); imodule++) {
+void SiStripPerformance::timer(const HLTPerformanceInfo& hltinfo) {
+
+  time_=0.;  
+  HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo.beginModules();
+  for (;imodule != hltinfo.endModules(); imodule++) {
     vector<string>::const_iterator iunpacking = unpackingModuleLabels_.begin();
     for (;iunpacking != unpackingModuleLabels_.end(); iunpacking++) {
       if (imodule->name() == *iunpacking) time_+=imodule->time();
@@ -182,78 +133,70 @@ void SiStripPerformance::timer() {
   }
 }
 
-void SiStripPerformance::sistripchannels(const Handle< RefGetter >& demandclusters) {
-  
-  nunpackedchans_=0;
-  RefGetter::const_iterator ielement = demandclusters->begin();
-    for (;ielement != demandclusters->end();ielement++) {
-      
-      uint32_t element = ielement->region(); 
-      uint32_t iregion = SiStripRegionCabling::region(element);
-      uint32_t isubdet = SiStripRegionCabling::subdet(element);
-      uint32_t ilayer = SiStripRegionCabling::layer(element);
-      
-      SiStripRegionCabling::ElementCabling::const_iterator idet; 
-      for (idet=cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();
-	   idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();
-	   idet++) {
-	nchans_+=idet->second.size();
+void SiStripPerformance::allchannels() {
+
+ for (uint32_t iregion = 0;iregion < cabling_->getRegionCabling().size();iregion++) {
+    for (uint32_t isubdet = 3;isubdet < cabling_->getRegionCabling()[iregion].size();isubdet++) {
+      for (uint32_t ilayer = 0;ilayer < cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
+	for (SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {
+	  nchans_+=idet->second.size();
+	}
       }
     }
+  }
 }
 
-void SiStripPerformance::sistripclusters(const Handle< RefGetter >& clusts) {
+void SiStripPerformance::regionalchannels(const Handle< edm::SiStripRefGetter<SiStripCluster> >& demandclusters) {
   
-  data_->sistripClusters().reserve(1000000);
-  RefGetter::const_iterator iregion = clusts->begin();
-  for(;iregion!=clusts->end();++iregion) {
+  for (edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = demandclusters->begin();ielement != demandclusters->end();ielement++) { 
+    for (SiStripRegionCabling::ElementCabling::const_iterator idet=cabling_->getRegionCabling()[SiStripRegionCabling::region(ielement->region())][SiStripRegionCabling::subdet(ielement->region())][SiStripRegionCabling::layer(ielement->region())].begin();idet!=cabling_->getRegionCabling()[SiStripRegionCabling::region(ielement->region())][SiStripRegionCabling::subdet(ielement->region())][SiStripRegionCabling::layer(ielement->region())].end();idet++) {
+      nunpackedchans_+=idet->second.size();
+    }
+  }
+}
+
+void SiStripPerformance::sistripdigis(const edm::Handle< DetSetVector<SiStripDigi> >& digis) {
+ 
+  data_->sistripdigis().reserve(100000);
+  DetSetVector<SiStripDigi>::const_iterator idetset = digis->begin();
+  for (;idetset!=digis->end();++idetset) {
+    DetSet<SiStripDigi>::const_iterator idigi = idetset->begin();
+    for (;idigi!=idetset->end();++idigi) {
+      data_->sistripdigis().push_back(objectconverter::sistripdigi(*idigi,idetset->id));
+    }
+  }
+}
+
+void SiStripPerformance::sistripclusters(const Handle< edm::SiStripRefGetter<SiStripCluster> >& clusters) {
+  
+  data_->sistripclusters().reserve(100000);
+  edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = clusters->begin();
+  for(;iregion!=clusters->end();++iregion) {
     vector<SiStripCluster>::const_iterator icluster = iregion->begin();
     for (;icluster!=iregion->end();icluster++) {
-
-      SimpleSiStripCluster cluster(icluster->geographicalId(), 
-				   icluster->firstStrip(), 
-				   icluster->amplitudes().size(), 
-				   icluster->barycenter());
-
-      data_->sistripClusters().push_back(cluster);
+      data_->sistripclusters().push_back(objectconverter::sistripcluster(*icluster));
     }
   }
 }
 
-void SiStripPerformance::sistripclusters(const Handle< DSV >& clusts) {
+void SiStripPerformance::sistripclusters(const Handle< DetSetVector<SiStripCluster> >& clusters) {
   
-  data_->sistripClusters().reserve(1000000);
-  DSV::const_iterator idetset = clusts->begin();
-  for (;idetset!=clusts->end();++idetset) {
-    DetSet::const_iterator icluster = idetset->begin();
+  data_->sistripclusters().reserve(100000);
+  DetSetVector<SiStripCluster>::const_iterator idetset = clusters->begin();
+  for (;idetset!=clusters->end();++idetset) {
+    DetSet<SiStripCluster>::const_iterator icluster = idetset->begin();
     for (;icluster!=idetset->end();++icluster) {
-      
-      SimpleSiStripCluster cluster(icluster->geographicalId(),
-				   icluster->firstStrip(), 
-				   icluster->amplitudes().size(), 
-				   icluster->barycenter());
-
-      data_->sistripClusters().push_back(cluster);
-      
+      data_->sistripclusters().push_back(objectconverter::sistripcluster(*icluster));
     }
   }
 }
 
-void SiStripPerformance::mc(const Handle<HepMCProduct>& mcp) {
+void SiStripPerformance::particles(const Handle<HepMCProduct>& mcp) {
 
   const HepMC::GenEvent& gen = mcp->getHepMCData();
   for(int ibar=0; ibar < gen.particles_size(); ibar++) {
     HepMC::GenParticle* prt = gen.barcode_to_particle(ibar);
-    if (!prt) continue; 
-    SimpleParticle particle(prt->momentum().perp(),
-			    -1.0*log(tan(0.5*(prt->momentum().theta()))),
-			    prt->momentum().phi(),
-			    0.,//prt->production_vertex()->position().x(),
-			    0.,//prt->production_vertex()->position().y(),
-			    0.,//prt->production_vertex()->position().z(),
-			    prt->pdg_id(),
-			    0); //@@ fix this
-    data_->mc().push_back(particle);
+    if (prt) data_->mc().push_back(objectconverter::particle(*prt,pdt_));
   }
 }
 
@@ -261,94 +204,21 @@ void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& 
  
   reco::HLTFilterObjectWithRefs::const_iterator ielectron = Electrons->begin();
   for (; ielectron != Electrons->end(); ielectron++) {
-    reco::Candidate& eleccand = const_cast<reco::Candidate&>(*ielectron);
-    reco::Electron& elec = dynamic_cast<reco::Electron&>(eleccand);
-
-    SimpleTrack track(elec.track().get()->momentum().Rho(), 
-		      elec.track().get()->momentum().Eta(), 
-		      elec.track().get()->momentum().Phi(), 
-		      elec.track().get()->vertex().X(),
-		      elec.track().get()->vertex().Y(),
-		      elec.track().get()->vertex().Z(),
-		      elec.track().get()->outerMomentum().Rho(), 
-		      elec.track().get()->outerMomentum().Eta(), 
-		      elec.track().get()->outerMomentum().Phi(), 
-		      elec.track().get()->outerPosition().X(),
-		      elec.track().get()->outerPosition().Y(),
-		      elec.track().get()->outerPosition().Z(),
-		      elec.track().get()->charge(),
-		      elec.track().get()->found());
-    
-    SimpleSCluster scluster(elec.superCluster().get()->energy(),
-			    elec.superCluster().get()->eta(),
-			    elec.superCluster().get()->phi());
-    
-    SimpleElectron electron(track,
-			    scluster);
-
-    data_->electrons().push_back(electron);
+    const reco::Electron& electron = dynamic_cast<const reco::Electron&>(*ielectron);
+    data_->electrons().push_back(objectconverter::electron(electron));
   }
 }
 
-void SiStripPerformance::taus(const Handle<reco::HLTFilterObjectWithRefs>& Taus, const Handle<reco::JetTracksAssociationCollection>& JTAs) {
-  
-  for (size_t i=0; i<Taus->size(); i++) {
-
-    const edm::ProductID& id = Taus->getPID(i);
-    reco::JetTracksAssociationCollection::const_iterator taujta=JTAs->end();
-    reco::JetTracksAssociationCollection::const_iterator ijta=JTAs->begin();
-    for (;ijta!=JTAs->end();ijta++) {
-      if (ijta->first.id() == id) taujta = ijta;
-      break;
-    }
-   
-    SimpleHCluster hcluster(taujta->first.get()->energy(),
-			    taujta->first.get()->energy(),
-			    taujta->first.get()->eta(),
-			    taujta->first.get()->phi());
-    
-    std::vector<SimpleTrack> tracks;
-    RefVector<reco::TrackCollection>::const_iterator itrack=taujta->second.begin();
-    for (;itrack!=taujta->second.end();++itrack) {
-      tracks.push_back(SimpleTrack(itrack->get()->momentum().Rho(), 
-				   itrack->get()->momentum().Eta(), 
-				   itrack->get()->momentum().Phi(), 
-				   itrack->get()->vertex().X(),
-				   itrack->get()->vertex().Y(),
-				   itrack->get()->vertex().Z(),
-				   itrack->get()->outerMomentum().Rho(), 
-				   itrack->get()->outerMomentum().Eta(), 
-				   itrack->get()->outerMomentum().Phi(), 
-				   itrack->get()->outerPosition().X(),
-				   itrack->get()->outerPosition().Y(),
-				   itrack->get()->outerPosition().Z(),
-				   itrack->get()->charge(),
-				   itrack->get()->found()));      
-    }
-    
-    SimpleJet jet(taujta->first.get()->vertex().X(),
-		  taujta->first.get()->vertex().Y(),
-		  taujta->first.get()->vertex().Z(),
-		  hcluster,
-		  tracks,
-		  0.);
-
-    data_->taus().push_back(jet);
+void SiStripPerformance::taus(const Handle<reco::IsolatedTauTagInfoCollection>& Taus) {
+ 
+  reco::IsolatedTauTagInfoCollection::const_iterator itau = Taus->begin();
+  for (; itau != Taus->end(); itau++) {
+    const CaloJet& jet = dynamic_cast<const CaloJet&>(*(itau->jet()));
+    data_->jets().push_back(objectconverter::jet(jet,itau->jtaRef()->second));
   }
 }
 
 void SiStripPerformance::trigger(const Handle<TriggerResults>& Trigger) {
-    
-  unsigned int num = Trigger->size();
-  SimpleTrigger trigger(num);
-  for (unsigned int i=0;i<num;i++) {
-    trigger.set(i,(Trigger->at(i).state() == hlt::Pass));
-  }
-  data_->trigger() = trigger;
+  data_->trigger() = objectconverter::trigger(*Trigger);
 }
 
-void SiStripPerformance::reset() {
-  data_->clear();
-  nunpackedchans_ = nchans_;
-  time_ = 0.;
-}
