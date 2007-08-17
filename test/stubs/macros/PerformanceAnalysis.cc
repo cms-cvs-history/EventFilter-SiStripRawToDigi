@@ -1,14 +1,11 @@
-
-#include "PerformanceAnalysis.h"
-#include "EventFilter/SiStripRawToDigi/test/stubs/Constants.h"
-#include <iostream>
+#include "EventFilter/SiStripRawToDigi/test/stubs/macros/PerformanceAnalysis.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleUtility.h"
 
 using namespace std;
 
 PerformanceAnalysis::PerformanceAnalysis(TFile* file,string treename) :
 
   file_(file),
-  treename_(treename),
   tree_(0),
   time_(0),
   timeVsocc_(0),
@@ -23,28 +20,29 @@ PerformanceAnalysis::PerformanceAnalysis(TFile* file,string treename) :
   eff_vseta_2_(0),
   eff_vseta_3_(0)
 
-{;}
+{tree_ = dynamic_cast<TTree*>(file_->Get(treename.c_str()));}
 
 PerformanceAnalysis::~PerformanceAnalysis() {;}
 
 void PerformanceAnalysis::book() {
 
-  tree_ = (TTree*)file_->Get(treename_.c_str());
-  time_ = new TH1F(treename_.c_str(), treename_.c_str(), 30,0.,0.15);
-  timeVsocc_ = new TProfile(treename_.c_str(), treename_.c_str(), 50,0.,1.);
-  timeVsdigis_ = new TProfile(treename_.c_str(), treename_.c_str(), 1000,50000.,150000.);
-  timeVsclusters_ = new TProfile(treename_.c_str(), treename_.c_str(), 100,0.,100000.);
-  timeVsclustersize_ = new TProfile(treename_.c_str(), treename_.c_str(), 7,0.,7.);
-  timeVsfrac_ = new TProfile(treename_.c_str(), treename_.c_str(), 11,0.,1.1);
-  eff_hlt_ = new Efficiency(treename_.c_str(),treename_.c_str(),1,0.,1.);
-  eff_vspt_1_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
-  eff_vspt_2_ = new Efficiency(treename_.c_str(),treename_.c_str(),20,0.,100.);
-  eff_vseta_1_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
-  eff_vseta_2_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
-  eff_vseta_3_ = new Efficiency(treename_.c_str(),treename_.c_str(),30,-3.,3.);
+  if (!tree_) {return;}
+  time_ = new TH1F(tree_->GetName(), tree_->GetName(), 30,0.,0.15);
+  timeVsocc_ = new TProfile(tree_->GetName(), tree_->GetName(), 50,0.,1.);
+  timeVsdigis_ = new TProfile(tree_->GetName(), tree_->GetName(), 1000,50000.,150000.);
+  timeVsclusters_ = new TProfile(tree_->GetName(), tree_->GetName(), 100,0.,100000.);
+  timeVsclustersize_ = new TProfile(tree_->GetName(), tree_->GetName(), 7,0.,7.);
+  timeVsfrac_ = new TProfile(tree_->GetName(), tree_->GetName(), 11,0.,1.1);
+  eff_hlt_ = new SimpleEfficiency(tree_->GetName(), tree_->GetName(), 1,0.,1.);
+  eff_vspt_1_ = new SimpleEfficiency(tree_->GetName(), tree_->GetName(), 20,0.,100.);
+  eff_vspt_2_ = new SimpleEfficiency(tree_->GetName(), tree_->GetName(), 20,0.,100.);
+  eff_vseta_1_ = new SimpleEfficiency(tree_->GetName(), tree_->GetName(), 30,-3.,3.);
+  eff_vseta_2_ = new SimpleEfficiency(tree_->GetName(), tree_->GetName(), 30,-3.,3.);
+  eff_vseta_3_ = new SimpleEfficiency(tree_->GetName(), tree_->GetName(), 30,-3.,3.);
 }
 
 void PerformanceAnalysis::unbook() {
+
   if (time_) delete time_;
   if (timeVsocc_) delete timeVsocc_;
   if (timeVsdigis_) delete timeVsdigis_;
@@ -61,31 +59,24 @@ void PerformanceAnalysis::unbook() {
 
 void PerformanceAnalysis::analyze(Trigger trigger) {
 
- if (!tree_) {
-   cout << __PRETTY_FUNCTION__ 
-	<< "Invalid treename." 
-	<< endl;
-   return;}
+ if (!tree_) {return;}
  
- UInt_t event;
- EventData* data = 0;
- Double_t time;
- UInt_t nchans;
- UInt_t nunpackedchans;
+ SimpleEventData* data = 0;
+ double time;
+ unsigned int nchans;
+ unsigned int nunpackedchans;
  
- tree_->SetBranchAddress("event", &event);
- tree_->SetBranchAddress("EventData", &data);
+ tree_->SetBranchAddress("SimpleEventData", &data);
  tree_->SetBranchAddress("time", &time);
  tree_->SetBranchAddress("nchans", &nchans);
  tree_->SetBranchAddress("nunpackedchans", &nunpackedchans);
  
- Int_t nEvents = tree_->GetEntries();
+ unsigned int nevents = tree_->GetEntries();
+  for (unsigned int ievent=0; ievent<nevents; ievent++) {
   
-  for (Int_t ievent=0; ievent<nEvents; ievent++) {
-
     //Collect event data
     tree_->GetEntry(ievent); 
-
+  
     //Record HLT and recon efficiencies
     if (trigger==ELECTRON_SINGLE && electron1(data->mc())) {
       electron(data->mc(),data->electrons());
@@ -98,16 +89,25 @@ void PerformanceAnalysis::analyze(Trigger trigger) {
       if (data->trigger().get(20)) eff_hlt_->select(1);
       else eff_hlt_->select(1,false);
     }
+ 
+    //Record timing
+    double occ = occupancy(*data,nunpackedchans);
+    unsigned int ndigis = data->sistripdiginum();
+    unsigned int nclusters = data->sistripclusternum();
     
-    //Timing plots
-    timer(time,data->sistripDigis(),data->sistripClusters().size(),(Double_t)nunpackedchans/(Double_t)nchans,data->sistripDigis()/((Double_t)nunpackedchans*2.56));   
-      }
+    time_->Fill(time);
+    timeVsocc_->Fill(occ,time);
+    timeVsdigis_->Fill(ndigis,time);
+    timeVsclusters_->Fill(nclusters,time);
+    timeVsclustersize_->Fill((double)ndigis/(double)nclusters,time);
+    timeVsfrac_->Fill((double)nunpackedchans/(double)nchans,time); 
+ }
 }
 
-void PerformanceAnalysis::electron(const std::vector<SimpleParticle>& mc, 
+void PerformanceAnalysis::electron(const std::vector<SimpleGenParticle>& mc, 
 				   const std::vector<SimpleElectron>& electrons) {
  
- vector<SimpleParticle>::const_iterator ipart = mc.begin();
+ vector<SimpleGenParticle>::const_iterator ipart = mc.begin();
   for (; ipart != mc.end(); ipart++) {
 
   if ((abs(ipart->pid()) == 11) &&
@@ -144,10 +144,10 @@ void PerformanceAnalysis::electron(const std::vector<SimpleParticle>& mc,
 }
 
 
-void PerformanceAnalysis::tau(const std::vector<SimpleParticle>& mc, 
+void PerformanceAnalysis::tau(const std::vector<SimpleGenParticle>& mc, 
 			      const std::vector<SimpleJet>& taus) {
  
- vector<SimpleParticle>::const_iterator ipart = mc.begin();
+ vector<SimpleGenParticle>::const_iterator ipart = mc.begin();
   for (; ipart != mc.end(); ipart++) {
 
   if ((abs(ipart->pid()) == 15) &&
@@ -183,9 +183,9 @@ void PerformanceAnalysis::tau(const std::vector<SimpleParticle>& mc,
   }
 }
 
- const bool PerformanceAnalysis::electron1(std::vector<SimpleParticle>& mc) {
+ const bool PerformanceAnalysis::electron1(std::vector<SimpleGenParticle>& mc) {
     
-    std::vector<SimpleParticle>::const_iterator ipart = mc.begin();
+    std::vector<SimpleGenParticle>::const_iterator ipart = mc.begin();
     for (; ipart != mc.end(); ipart++) {
       if ((abs(ipart->pid()) == 11) && 
 	  (ipart->pt() > 26.) && 
@@ -195,22 +195,18 @@ void PerformanceAnalysis::tau(const std::vector<SimpleParticle>& mc,
     return false;
   }
 
-const bool PerformanceAnalysis::electron2(std::vector<SimpleParticle>& mc) {
+const bool PerformanceAnalysis::electron2(std::vector<SimpleGenParticle>& mc) {
 
   unsigned short count = 0;
-  std::vector<SimpleParticle>::const_iterator ipart = mc.begin();
+  std::vector<SimpleGenParticle>::const_iterator ipart = mc.begin();
   for (; ipart != mc.end(); ipart++) {
-    if ((abs(ipart->pid()) == 11) && 
-	(ipart->pt() > 12.) && 
-	(fabs(ipart->eta()) < constants::etaCut)) 
-      count++;
+    if ((abs(ipart->pid()) == 11) && (ipart->pt() > 12.) && (fabs(ipart->eta()) < constants::etaCut)) count++;
   }
   if (count >= 2) return true;
   return false;
 }
 
-const bool PerformanceAnalysis::electron_match(const SimpleParticle& mc, 
-					       const std::vector<SimpleElectron>& electrons) {
+const bool PerformanceAnalysis::electron_match(const SimpleGenParticle& mc, const std::vector<SimpleElectron>& electrons) {
   
   vector<SimpleElectron>::const_iterator ielectron = electrons.begin();
   for (;ielectron!=electrons.end();ielectron++) {
@@ -220,8 +216,7 @@ const bool PerformanceAnalysis::electron_match(const SimpleParticle& mc,
   return false;
 }
 
-const bool PerformanceAnalysis::tau_match(const SimpleParticle& mc, 
-					  const std::vector<SimpleJet>& jets) {
+const bool PerformanceAnalysis::tau_match(const SimpleGenParticle& mc, const std::vector<SimpleJet>& jets) {
 
  vector<SimpleJet>::const_iterator ijet = jets.begin();
   for (;ijet!=jets.end();ijet++) {
@@ -231,18 +226,13 @@ const bool PerformanceAnalysis::tau_match(const SimpleParticle& mc,
   return false;
 }
 
-void PerformanceAnalysis::timer(const Double_t time, 
-				const Int_t ndigis, 
-				const Int_t nclusters, 
-				const Double_t frac, 
-				const Double_t occ) {
+const double PerformanceAnalysis::occupancy(SimpleEventData& data, unsigned int nchans) {
   
-  time_->Fill(time);
-  timeVsocc_->Fill(occ,time);
-  timeVsdigis_->Fill(ndigis,time);
-  timeVsclusters_->Fill(nclusters,time);
-  timeVsclustersize_->Fill((Double_t)ndigis/(Double_t)nclusters,time);
-  timeVsfrac_->Fill(frac,time);   
+  unsigned int ndigis = 0;
+  std::cout << "here" << std::endl;
+  for (unsigned int i=0;i<(data.sistripclusternum());i++) {ndigis+=(data.sistripclusters()[i].amplitudes());}
+  std::cout << ndigis << std::endl;
+  return (ndigis) ? ndigis/(nchans*2.56) : data.sistripdiginum()/(nchans*2.56);
 }
 
 void PerformanceAnalysis::format() {

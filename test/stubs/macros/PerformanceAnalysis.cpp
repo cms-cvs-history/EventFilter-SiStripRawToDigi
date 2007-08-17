@@ -2,13 +2,13 @@
 
 TFile* file = new TFile("file:/tmp/pwing/SiStripPerformance.root","UPDATE");
 
-PerformanceAnalysis one(file,"");
+PerformanceAnalysis one(file,"raw2digis");
 one.book(); one.format(); one.analyze(); one.save(); one.unbook();
-
-PerformanceAnalysis two(file,"");
+/*
+PerformanceAnalysis two(file,"raw2clusters");
 two.book(); two.format(); two.analyze(); two.save(); two.unbook();
 
-PerformanceAnalysis three(file,""); 
+PerformanceAnalysis three(file,"raw2rechits"); 
 three.book(); three.format(); three.analyze(); three.save(); three.unbook();
 
 PerformanceAnalysis four(file,"");
@@ -16,7 +16,7 @@ four.book(); four.format(); four.analyze(); four.save(); four.unbook();
 
 PerformanceAnalysis five(file,"");
 five.book(); five.format(); five.analyze(); five.save(); five.unbook();
-
+*/
 PerformanceOverlay figures(file);
 
 figures.book();
@@ -48,7 +48,7 @@ figures.book();
 figures.overlay("/TIMING_VS_FRAC");
 figures.save("/TIMING_VS_FRAC");
 figures.unbook();
-
+/*
 figures.book();
 figures.overlay("/EFFICIENCY_HLT");
 figures.save("/EFFICIENCY_HLT");
@@ -78,7 +78,7 @@ figures.book();
 figures.overlay("/EFFICIENCY_VSETA_3");
 figures.save("/EFFICIENCY_VSETA_3");
 figures.unbook();
-
+*/
 new TBrowser;
 //file->Close();
 

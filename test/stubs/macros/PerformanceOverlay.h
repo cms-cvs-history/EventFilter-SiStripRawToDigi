@@ -1,12 +1,7 @@
 #ifndef EventFilter_SiStripRawToDigi_PerformanceOverlay_H
 #define EventFilter_SiStripRawToDigi_PerformanceOverlay_H
 
-#include <string>
-#include "TTree.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include <vector>
-#include "EventFilter/SiStripRawToDigi/test/stubs/Overlay.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleAnalysis.h"
 
 class PerformanceOverlay {
 
@@ -23,7 +18,7 @@ public:
 private:
 
   TFile* file_;
-  Overlay* overlay_;
+  SimpleOverlay* overlay_;
 
 };
 
