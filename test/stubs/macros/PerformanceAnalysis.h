@@ -2,6 +2,7 @@
 #define EventFilter_SiStripRawToDigi_PerformanceAnalysis_H
 
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleAnalysis.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/macros/Plots.h"
 
 class PerformanceAnalysis {
 
@@ -10,7 +11,7 @@ public:
   PerformanceAnalysis(TFile*,std::string);
   ~PerformanceAnalysis();
 
-  enum Trigger {ELECTRON_SINGLE,ELECTRON_DOUBLE,TAU_SINGLE,TAU_DOUBLE,NONE};
+  enum Trigger {NONE=0,ELECTRON_SINGLE=1,ELECTRON_DOUBLE=2,TAU_SINGLE=3,TAU_DOUBLE=4};
 
   void book();
   void format();
@@ -20,38 +21,22 @@ public:
 
 private:
 
-  void electron(const std::vector<SimpleGenParticle>&, const std::vector<SimpleElectron>&);
+  void electron();
+  void tau();
+  const double occupancy();
 
-  void tau(const std::vector<SimpleGenParticle>&, const std::vector<SimpleJet>&);
-
-  static const bool electron1(std::vector<SimpleGenParticle>&);
-
-  static const bool electron2(std::vector<SimpleGenParticle>&);
-  
-  static const bool electron_match(const SimpleGenParticle&, const std::vector<SimpleElectron>&);
-  
-  static const bool tau_match(const SimpleGenParticle&, const std::vector<SimpleJet>&);
-
-  static const double occupancy(SimpleEventData&, unsigned int);
-
+  //File
   TFile* file_;
   TTree* tree_;
 
-  //Timing
-  TH1F* time_;
-  TProfile* timeVsocc_;
-  TProfile* timeVsdigis_;
-  TProfile* timeVsclusters_;
-  TProfile* timeVsclustersize_;
-  TProfile* timeVsfrac_;
+  //Data
+  SimpleEventData* data_;
+  double time_;
+  unsigned int nchans_;
+  unsigned int nunpackedchans_;
 
-  //Efficiency
-  SimpleEfficiency* eff_hlt_;
-  SimpleEfficiency* eff_vspt_1_;
-  SimpleEfficiency* eff_vspt_2_;
-  SimpleEfficiency* eff_vseta_1_;
-  SimpleEfficiency* eff_vseta_2_;
-  SimpleEfficiency* eff_vseta_3_;
+  //Timing
+  Plots plots_;
 };
 
 #endif
