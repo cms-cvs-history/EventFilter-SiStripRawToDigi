@@ -6,8 +6,10 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -31,7 +33,7 @@ namespace objectconverter {
   SimpleTrack track(const reco::Track&);
 
   SimpleJet jet(const reco::JetTag&, const reco::JetTag&);
-
+  
   SimpleJet jet(const reco::CaloJet&, const edm::RefVector<TrackCollection>&);
 
   SimpleElectron electron(const reco::PixelMatchGsfElectron&, const reco::ClusterShapeRef&);
