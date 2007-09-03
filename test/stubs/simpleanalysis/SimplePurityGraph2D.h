@@ -1,17 +1,17 @@
 #ifndef simpleanalysis_SimplePurityGraph2D
 #define simpleanalysis_SimplePurityGraph2D
 
-class SimplePurityGraph2D : public TObject {
+class SimplePurityGraph2D : public TNamed {
 
  public:
 
-  SimplePurityGraph2D() : significance_(0), purity_(0), xpoints_(0), ypoints_(0), xmin_(0), xmax_(0), ymin_(0), ymax_(0)
+  SimplePurityGraph2D() : TNamed(), significance_(0), purity_(0), xpoints_(0), ypoints_(0), xmin_(0), xmax_(0), ymin_(0), ymax_(0)
     { 
       significance_ = new TGraph2DErrors(xpoints_*ypoints_);
       purity_ = new TGraph2DErrors(xpoints_*ypoints_);
     }
 
-  SimplePurityGraph2D(SimpleEfficiencyGraph2D* x, SimpleEfficiencyGraph2D* y, SimpleEfficiencyGraph2D* z, double cx, double cy, double cz) : significance_(0), purity_(0), xpoints_(x->xpoints()), ypoints_(x->ypoints()), xmin_(x->xmin()), xmax_(x->xmax()), ymin_(x->ymin()), ymax_(x->ymax())
+  SimplePurityGraph2D(const char* name, const char* title, SimpleEfficiencyGraph2D* x, SimpleEfficiencyGraph2D* y, SimpleEfficiencyGraph2D* z, double cx, double cy, double cz) : TNamed(name,title), significance_(0), purity_(0), xpoints_(x->xpoints()), ypoints_(x->ypoints()), xmin_(x->xmin()), xmax_(x->xmax()), ymin_(x->ymin()), ymax_(x->ymax())
     {
       if (!SimpleEfficiencyGraph2D::comparable(x,y) || !SimpleEfficiencyGraph2D::comparable(y,z)) return;
       

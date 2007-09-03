@@ -1,17 +1,17 @@
 #ifndef simpleanalysis_SimplePurityGraph_H
 #define simpleanalysis_SimplePurityGraph_H
 
-class SimplePurityGraph : public TObject {
+class SimplePurityGraph : public TNamed {
   
  public:
 
-  SimplePurityGraph() : significance_(0), purity_(0), points_(0), xmin_(0),xmax_(0)
+  SimplePurityGraph() : TNamed(), significance_(0), purity_(0), points_(0), xmin_(0),xmax_(0)
   { 
     significance_ = new TGraphErrors();
     purity_ = new TGraphErrors();
   }
   
-  SimplePurityGraph(SimpleEfficiencyGraph* x, SimpleEfficiencyGraph* y, SimpleEfficiencyGraph* z, double cx, double cy, double cz) : significance_(0), purity_(0), points_(x->points()), xmin_(x->xmin()), xmax_(x->xmax())
+  SimplePurityGraph(const char* name, const char* title, SimpleEfficiencyGraph* x, SimpleEfficiencyGraph* y, SimpleEfficiencyGraph* z, double cx, double cy, double cz) : TNamed(name,title), significance_(0), purity_(0), points_(x->points()), xmin_(x->xmin()), xmax_(x->xmax())
   {
     if (!SimpleEfficiencyGraph::comparable(x,y) || !SimpleEfficiencyGraph::comparable(y,z)) return;
     

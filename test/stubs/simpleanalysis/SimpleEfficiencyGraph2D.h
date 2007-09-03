@@ -1,18 +1,18 @@
 #ifndef simpleanalysis_SimpleEfficiencyGraph2D_H
 #define simpleanalysis_SimpleEfficiencyGraph2D_H
 
-class SimpleEfficiencyGraph2D : public TObject {
+class SimpleEfficiencyGraph2D : public TNamed {
 
  public:
 
-  SimpleEfficiencyGraph2D() : selected_(0), all_(0), efficiency_(0), xpoints_(0), ypoints_(0), xmin_(0), xmax_(0), ymin_(0), ymax_(0) 
+  SimpleEfficiencyGraph2D() : TNamed(), selected_(0), all_(0), efficiency_(0), xpoints_(0), ypoints_(0), xmin_(0), xmax_(0), ymin_(0), ymax_(0) 
   { 
     selected_ = new TGraph2D();
     all_ = new TGraph2D();
     efficiency_ = new TGraph2DErrors();
   }
 
-  SimpleEfficiencyGraph2D(Int_t xpoints, Int_t ypoints, Double_t xmin, Double_t xmax, Double_t ymin, Double_t ymax) : selected_(0), all_(0), efficiency_(0), xpoints_(xpoints), ypoints_(ypoints), xmin_(xmin), xmax_(xmax), ymin_(ymin), ymax_(ymax)
+  SimpleEfficiencyGraph2D(const char* name, const  char* title, Int_t xpoints, Int_t ypoints, Double_t xmin, Double_t xmax, Double_t ymin, Double_t ymax) : TNamed(name,title), selected_(0), all_(0), efficiency_(0), xpoints_(xpoints), ypoints_(ypoints), xmin_(xmin), xmax_(xmax), ymin_(ymin), ymax_(ymax)
   {
     selected_ = new TGraph2D(xpoints_*ypoints_);
     all_ = new TGraph2D(xpoints_*ypoints_);

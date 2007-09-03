@@ -1,18 +1,18 @@
 #ifndef simpleanalysis_SimpleEfficiencyGraph_H
 #define simpleanalysis_SimpleEfficiencyGraph_H
 
-class SimpleEfficiencyGraph : public TObject {
+class SimpleEfficiencyGraph : public TNamed {
   
 public:
   
-  SimpleEfficiencyGraph() : selected(0), all(0), efficiency(0), points_(0), xmin_(0), xmax_(0) 
+  SimpleEfficiencyGraph() : TNamed(), selected(0), all(0), efficiency(0), points_(0), xmin_(0), xmax_(0) 
     { 
       selected = new TGraph();
       all = new TGraph();
       efficiency = new TGraphErrors();
     }
   
-  SimpleEfficiencyGraph(Int_t points, Double_t xmin, Double_t xmax) : selected(0), all(0), efficiency(0), points_(points), xmin_(xmin), xmax_(xmax) 
+  SimpleEfficiencyGraph(const char* name, const char* title, Int_t points, Double_t xmin, Double_t xmax) : TNamed(name,title), selected(0), all(0), efficiency(0), points_(points), xmin_(xmin), xmax_(xmax) 
     {
       selected = new TGraph(points);
       all = new TGraph(points);

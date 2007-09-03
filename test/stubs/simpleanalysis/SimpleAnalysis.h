@@ -8,7 +8,6 @@
 #include <sstream>
 #include <algorithm>
 
-#include "TObject.h"
 #include "TKey.h"
 #include "TDirectory.h"
 #include "TH1F.h"
