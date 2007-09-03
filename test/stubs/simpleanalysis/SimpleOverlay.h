@@ -54,9 +54,9 @@ class SimpleOverlay {
   
  /** style */
  
- Int_t color(unsigned int index) {return index+1;}
+ Int_t color(unsigned int index) {return (color_) ? index+1 : 1;}
  
- Int_t marker(unsigned int index) {return index+20;}
+ Int_t marker(unsigned int index) {return (marker_) ? index+20 : 20;}
 
   /** overlay */
 
@@ -65,7 +65,8 @@ class SimpleOverlay {
       for (unsigned int i=0;i<tgraphs.size();i++) {
 	tgraphs[i]->SetMarkerColor(color(i));
 	tlegend_->AddEntry(tgraphs[i],labels_[i].c_str(),"p");
-	(!i) ? tgraphs[i]->Draw(("AP"+option_).c_str()) : tgraphs[i]->Draw(("P"+option_).c_str());
+	if (i) tgraphs[i]->Draw(("P"+option_).c_str());
+	else tgraphs[i]->Draw(("AP"+option_).c_str()); 
       }
       if (legend_) tlegend_->Draw();
     }
@@ -90,18 +91,28 @@ class SimpleOverlay {
       graph->GetZaxis()->SetTitle(ztitle.c_str());
     }
 
-  static bool StrictWeakOrdering(TH1* one, TH1* two) {return one->GetMaximum() > two->GetMaximum();}
-
+  static unsigned int maximum(std::vector<TH1*> th1s) 
+    {    
+      unsigned int index = 0;
+      for (unsigned int i=0;i<th1s.size();i++) {
+	if (th1s[i]->GetMaximum() > th1s[index]->GetMaximum()) {
+	  index = i;
+	}
+      }
+      return index;
+    }
+  
   void histos(std::vector<TH1*> th1s)
     {
-      std::sort(th1s.begin(),th1s.end(),StrictWeakOrdering);
+      th1s[maximum(th1s)]->Draw(option_.c_str());
       for (unsigned int i=0;i<th1s.size();i++) {
 	th1s[i]->SetLineColor(color(i));
 	th1s[i]->SetMarkerColor(color(i));
-	tlegend_->AddEntry(th1s[i],labels_[i].c_str(),"l");
-	(i) ? th1s[i]->Draw(option_.c_str()) : th1s[i]->Draw(("SAME"+option_).c_str());
+	th1s[i]->SetMarkerStyle(marker(i));
+	tlegend_->AddEntry(th1s[i],labels_[i].c_str(),"p");
+	th1s[i]->Draw(("SAME"+option_).c_str());
       }
-      if (legend_) tlegend_->Draw();
+      if (legend_) tlegend_->Draw("SAME");
     }
 
 
