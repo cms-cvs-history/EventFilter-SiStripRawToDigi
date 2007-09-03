@@ -9,18 +9,18 @@
 #include <algorithm>
 
 #include "TKey.h"
+#include "TFile.h"
+#include "TTree.h"
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "TProfile.h"
-#include "TGraphErrors.h"
-#include "TLegend.h"
-#include "TMarker.h"
 #include "TGraph.h"
+#include "TGraphErrors.h"
 #include "TGraph2D.h"
 #include "TGraph2DErrors.h"
+#include "TLegend.h"
+#include "TMarker.h"
 #include "TCanvas.h"
-#include "TFile.h"
-#include "TTree.h"
 
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleConstants.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleOverlay.h"
