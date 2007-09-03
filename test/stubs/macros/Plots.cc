@@ -7,12 +7,12 @@ Plots::~Plots() {}
   
 void Plots::book() {
   
-  th1fs_[TIME] = new TH1F("Plots::time", "", 30,0.,0.15);
-  tprofiles_[TIMEVSOCCUPANCY] = new TProfile("Plots::timevsoccupancy", "", 50,0.,1.);
-  tprofiles_[TIMEVSDIGIS] = new TProfile("Plots::timevsdigis", "", 1000,50000.,150000.);
+  th1fs_[TIME] = new TH1F("Plots::time", "", 30,0.,5.);
+  tprofiles_[TIMEVSOCCUPANCY] = new TProfile("Plots::timevsoccupancy", "", 10,0.,2.);
+  tprofiles_[TIMEVSDIGIS] = new TProfile("Plots::timevsdigis", "", 100,50000.,150000.);
   tprofiles_[TIMEVSCLUSTERS] = new TProfile("Plots::timevsclusters", "", 100,0.,100000.);
   tprofiles_[TIMEVSCLUSTERSIZE] = new TProfile("Plots::timevsclustersize", "", 7,0.,7.);
-  tprofiles_[TIMEVSFRAC] = new TProfile("Plots::timevsfrac", "", 11,0.,1.1);
+  tprofiles_[TIMEVSFRAC] = new TProfile("Plots::timevsfrac", "", 10,0.,100.);
   efficiencies_[HLT] = new SimpleEfficiency("Plots::hlt", "", 1,0.,1.);
   efficiencies_[PT1] = new SimpleEfficiency("Plots::pt1", "", 20,0.,100.);
   efficiencies_[PT2] = new SimpleEfficiency("Plots::pt2", "", 20,0.,100.);
@@ -30,42 +30,42 @@ void Plots::unbook() {
 
 void Plots::format() {
 
-  th1fs_[TIME]->SetTitle("Event unpacking time.");
-  th1fs_[TIME]->GetXaxis()->SetTitle("Time [ s ]");
-  th1fs_[TIME]->GetYaxis()->SetTitle("Number of events");
-  tprofiles_[TIMEVSOCCUPANCY]->SetTitle("Event unpacking time vs Occupancy.");
-  tprofiles_[TIMEVSOCCUPANCY]->GetXaxis()->SetTitle("Occupancy [ % ]");
-  tprofiles_[TIMEVSOCCUPANCY]->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-  tprofiles_[TIMEVSDIGIS]->SetTitle("Event unpacking time vs Number of digis.");
+  th1fs_[TIME]->SetTitle("");
+  th1fs_[TIME]->GetXaxis()->SetTitle("time [ s ]");
+  th1fs_[TIME]->GetYaxis()->SetTitle("");
+  tprofiles_[TIMEVSOCCUPANCY]->SetTitle("");
+  tprofiles_[TIMEVSOCCUPANCY]->GetXaxis()->SetTitle("occupancy [ % ]");
+  tprofiles_[TIMEVSOCCUPANCY]->GetYaxis()->SetTitle("time [ s ]");
+  tprofiles_[TIMEVSDIGIS]->SetTitle("");
   tprofiles_[TIMEVSDIGIS]->GetXaxis()->SetTitle("digis");
-  tprofiles_[TIMEVSDIGIS]->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-  tprofiles_[TIMEVSCLUSTERS]->SetTitle("Event unpacking time vs Number of clusters.");
+  tprofiles_[TIMEVSDIGIS]->GetYaxis()->SetTitle("time [ s ]");
+  tprofiles_[TIMEVSCLUSTERS]->SetTitle("");
   tprofiles_[TIMEVSCLUSTERS]->GetXaxis()->SetTitle("clusters");
-  tprofiles_[TIMEVSCLUSTERS]->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-  tprofiles_[TIMEVSCLUSTERSIZE]->SetTitle("Event unpacking time vs Mean cluster size.");
+  tprofiles_[TIMEVSCLUSTERS]->GetYaxis()->SetTitle("time [ s ]");
+  tprofiles_[TIMEVSCLUSTERSIZE]->SetTitle("");
   tprofiles_[TIMEVSCLUSTERSIZE]->GetXaxis()->SetTitle("mean clusters size [ strips ]");
-  tprofiles_[TIMEVSCLUSTERSIZE]->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-  tprofiles_[TIMEVSFRAC]->SetTitle("Event unpacking time vs Fraction of SST unpacked.");
-  tprofiles_[TIMEVSFRAC]->GetXaxis()->SetTitle("Fraction of SST");
-  tprofiles_[TIMEVSFRAC]->GetYaxis()->SetTitle("Event unpacking time [ s ]");
-  efficiencies_[HLT]->get()->SetTitle("HLT efficiency");
+  tprofiles_[TIMEVSCLUSTERSIZE]->GetYaxis()->SetTitle("time [ s ]");
+  tprofiles_[TIMEVSFRAC]->SetTitle("");
+  tprofiles_[TIMEVSFRAC]->GetXaxis()->SetTitle("SST unpacked [ % ]");
+  tprofiles_[TIMEVSFRAC]->GetYaxis()->SetTitle("time [ s ]");
+  efficiencies_[HLT]->get()->SetTitle("");
   efficiencies_[HLT]->get()->GetXaxis()->SetTitle("");
-  efficiencies_[HLT]->get()->GetYaxis()->SetTitle("HLT Efficiency");
-  efficiencies_[PT1]->get()->SetTitle("Reconstruction efficiency");
-  efficiencies_[PT1]->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
-  efficiencies_[PT1]->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-  efficiencies_[PT2]->get()->SetTitle("Reconstruction efficiency");
-  efficiencies_[PT2]->get()->GetXaxis()->SetTitle("Electron P_{T} [GeV/c]");
-  efficiencies_[PT2]->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-  efficiencies_[ETA1]->get()->SetTitle("Reconstruction efficiency");
-  efficiencies_[ETA1]->get()->GetXaxis()->SetTitle("Electron #eta");
-  efficiencies_[ETA1]->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-  efficiencies_[ETA2]->get()->SetTitle("Reconstruction efficiency");
-  efficiencies_[ETA2]->get()->GetXaxis()->SetTitle("Electron #eta");
-  efficiencies_[ETA2]->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
-  efficiencies_[ETA3]->get()->SetTitle("Reconstruction efficiency");
-  efficiencies_[ETA3]->get()->GetXaxis()->SetTitle("Electron #eta");
-  efficiencies_[ETA3]->get()->GetYaxis()->SetTitle("Reconstruction Efficiency");
+  efficiencies_[HLT]->get()->GetYaxis()->SetTitle("efficiency");
+  efficiencies_[PT1]->get()->SetTitle("");
+  efficiencies_[PT1]->get()->GetXaxis()->SetTitle("electron P_{T} [ GeV/c ]");
+  efficiencies_[PT1]->get()->GetYaxis()->SetTitle("efficiency");
+  efficiencies_[PT2]->get()->SetTitle("");
+  efficiencies_[PT2]->get()->GetXaxis()->SetTitle("electron P_{T} [ GeV/c ]");
+  efficiencies_[PT2]->get()->GetYaxis()->SetTitle("efficiency");
+  efficiencies_[ETA1]->get()->SetTitle("");
+  efficiencies_[ETA1]->get()->GetXaxis()->SetTitle("electron #eta");
+  efficiencies_[ETA1]->get()->GetYaxis()->SetTitle("efficiency");
+  efficiencies_[ETA2]->get()->SetTitle("");
+  efficiencies_[ETA2]->get()->GetXaxis()->SetTitle("electron #eta");
+  efficiencies_[ETA2]->get()->GetYaxis()->SetTitle("efficiency");
+  efficiencies_[ETA3]->get()->SetTitle("");
+  efficiencies_[ETA3]->get()->GetXaxis()->SetTitle("electron #eta");
+  efficiencies_[ETA3]->get()->GetYaxis()->SetTitle("efficiency");
 }
 
 void Plots::normalise() {
@@ -84,12 +84,12 @@ void Plots::save(TDirectory* dir) {
   tprofiles_[TIMEVSCLUSTERS]->Write();
   tprofiles_[TIMEVSCLUSTERSIZE]->Write();
   tprofiles_[TIMEVSFRAC]->Write();
-  efficiencies_[HLT]->get()->Write();
-  efficiencies_[PT1]->get()->Write();
-  efficiencies_[PT2]->get()->Write();
-  efficiencies_[ETA1]->get()->Write();
-  efficiencies_[ETA2]->get()->Write();
-  efficiencies_[ETA3]->get()->Write();
+  efficiencies_[HLT]->Write();
+  efficiencies_[PT1]->Write();
+  efficiencies_[PT2]->Write();
+  efficiencies_[ETA1]->Write();
+  efficiencies_[ETA2]->Write();
+  efficiencies_[ETA3]->Write();
 }
 
 void Plots::read(TDirectory* dir) {

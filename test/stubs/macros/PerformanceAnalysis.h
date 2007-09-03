@@ -11,11 +11,9 @@ public:
   PerformanceAnalysis(TFile*,std::string);
   ~PerformanceAnalysis();
 
-  enum Trigger {NONE=0,ELECTRON_SINGLE=1,ELECTRON_DOUBLE=2,TAU_SINGLE=3,TAU_DOUBLE=4};
-
   void book();
   void format();
-  void analyze(Trigger=NONE);
+  void analyze();
   void save();
   void unbook();
 
@@ -35,7 +33,7 @@ private:
   unsigned int nchans_;
   unsigned int nunpackedchans_;
 
-  //Timing
+  //Plots
   Plots plots_;
 };
 

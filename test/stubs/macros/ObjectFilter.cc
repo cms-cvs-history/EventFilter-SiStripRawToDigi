@@ -9,7 +9,7 @@ const bool objectfilter::singleelectron(std::vector<SimpleGenParticle>& particle
 }
   
 const bool objectfilter::doubleelectron(std::vector<SimpleGenParticle>& particles) {
-  
+
   unsigned short count = 0;
   for (std::vector<SimpleGenParticle>::const_iterator ipart = particles.begin(); ipart != particles.end(); ipart++) {
     if ((abs(ipart->pid()) == 11) && (ipart->pt() > 12.) && (fabs(ipart->eta()) < constants::etaCut)) count++;

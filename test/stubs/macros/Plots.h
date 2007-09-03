@@ -11,7 +11,7 @@ class Plots {
 
   enum TProfileType{TIMEVSOCCUPANCY=0,TIMEVSDIGIS=1,TIMEVSCLUSTERS=2,TIMEVSCLUSTERSIZE=3,TIMEVSFRAC=4};
 
-  enum EfficiencyType{HLT=0,PT1=1,PT2=2,ETA1=1,ETA2=2,ETA3=3};
+  enum EfficiencyType{HLT=0,PT1=1,PT2=2,ETA1=3,ETA2=4,ETA3=5};
   
   Plots();
   ~Plots();

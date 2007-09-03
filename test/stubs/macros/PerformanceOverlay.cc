@@ -6,7 +6,10 @@ PerformanceOverlay::PerformanceOverlay(TFile* file) : file_(file), vplots_(), vl
 PerformanceOverlay::~PerformanceOverlay() {}
 
 void PerformanceOverlay::book() {
+
   overlay_ = new SimpleOverlay();
+  overlay_->option("E1");
+  overlay_->color(false);
 }
 
 void PerformanceOverlay::read(std::string name) {
@@ -24,7 +27,6 @@ void PerformanceOverlay::overlay() {
 
   vplots_.resize(5,Plots());
   vlabels_.resize(5,"");
-  overlay_->option("E1");
   utility::addDir(file_,"Overlay")->cd();
 
   overlay_->label(vlabels_[0],vlabels_[1],vlabels_[2],vlabels_[3],vlabels_[4]);
@@ -100,9 +102,13 @@ void PerformanceOverlay::overlay(Plots::TProfileType type) {
 
 void PerformanceOverlay::overlay(Plots::EfficiencyType type) {
 
-  std::vector<TH1*> vth1fs_(vplots_.size(),static_cast<TH1*>(0));
+  std::vector<TH1F*> vth1s(vplots_.size(),static_cast<TH1F*>(0));
   for (unsigned int i=0;i<vplots_.size();i++) {
-    if (vplots_[i].get(type)) vth1fs_[i] = vplots_[i].get(type)->get();
+    unsigned int j=vplots_.size()-1-i;
+    if (vplots_[j].get(type)) {
+      vplots_[j].get(type)->divide(vplots_[0].get(type));
+      vth1s[j] = vplots_[j].get(type)->get();
+    }
   }
-  overlay_->histos(vth1fs_[0],vth1fs_[1],vth1fs_[2],vth1fs_[3],vth1fs_[4]);
+  overlay_->histos(vth1s[0],vth1s[1],vth1s[2],vth1s[3],vth1s[4]);
 }

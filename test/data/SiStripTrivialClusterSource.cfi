@@ -1,6 +1,6 @@
 module ClusterSource = SiStripTrivialClusterSource 
 {
-    untracked double MinOccupancy = 0.0 
+    untracked double MinOccupancy = 0.0
     untracked double MaxOccupancy = 0.02
     untracked uint32 MinCluster = 4
     untracked uint32 MaxCluster = 4
