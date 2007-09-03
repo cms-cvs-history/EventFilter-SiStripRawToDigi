@@ -5,6 +5,6 @@ module SiStripRoI = SiStripRawToClustersRoI
     untracked bool Random = false
     untracked bool All = false 
     untracked bool Electron = true
-    untracked double DeltaEta = 0.2 
-    untracked double DeltaPhi = 0.2 
+    untracked double DeltaEta = 0.16
+    untracked double DeltaPhi = 0.16
 }
