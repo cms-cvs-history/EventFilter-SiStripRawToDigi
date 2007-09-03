@@ -56,7 +56,7 @@ void SiStripPerformance::endJob() {
 }
 
 void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup ) {
-  
+ 
   //Refresh performance record
   data_->clear();
   data_->event()++;
@@ -67,14 +67,14 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
     auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
     timer(*hltinfo);
   } catch(...) {;}
-  
+
   //SiStripDigis
   try {
     Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
     iEvent.getByLabel(sistripDigisModuleLabel_, sistripDigisProductLabel_, sistripDigis);
     sistripdigis(sistripDigis);
   } catch(...) {;}
- 
+
   //SiStripClusters
   try {
     Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
@@ -88,7 +88,7 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
     iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters );
     sistripclusters(sistripClusters);
   } catch(...) {;}
-  
+
   //Monte Carlo
   try {
     Handle<HepMCProduct> mcp;
@@ -128,7 +128,9 @@ void SiStripPerformance::timer(const HLTPerformanceInfo& hltinfo) {
   for (;imodule != hltinfo.endModules(); imodule++) {
     vector<string>::const_iterator iunpacking = unpackingModuleLabels_.begin();
     for (;iunpacking != unpackingModuleLabels_.end(); iunpacking++) {
-      if (imodule->name() == *iunpacking) time_+=imodule->time();
+      if (imodule->name() == *iunpacking) {
+	time_+=imodule->time();
+      }
     }
   }
 }
@@ -136,7 +138,7 @@ void SiStripPerformance::timer(const HLTPerformanceInfo& hltinfo) {
 void SiStripPerformance::allchannels() {
 
  for (uint32_t iregion = 0;iregion < cabling_->getRegionCabling().size();iregion++) {
-    for (uint32_t isubdet = 3;isubdet < cabling_->getRegionCabling()[iregion].size();isubdet++) {
+    for (uint32_t isubdet = 0;isubdet < cabling_->getRegionCabling()[iregion].size();isubdet++) {
       for (uint32_t ilayer = 0;ilayer < cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
 	for (SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {
 	  nchans_+=idet->second.size();
@@ -147,7 +149,8 @@ void SiStripPerformance::allchannels() {
 }
 
 void SiStripPerformance::regionalchannels(const Handle< edm::SiStripRefGetter<SiStripCluster> >& demandclusters) {
-  
+
+  nunpackedchans_=0;
   for (edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = demandclusters->begin();ielement != demandclusters->end();ielement++) { 
     for (SiStripRegionCabling::ElementCabling::const_iterator idet=cabling_->getRegionCabling()[SiStripRegionCabling::region(ielement->region())][SiStripRegionCabling::subdet(ielement->region())][SiStripRegionCabling::layer(ielement->region())].begin();idet!=cabling_->getRegionCabling()[SiStripRegionCabling::region(ielement->region())][SiStripRegionCabling::subdet(ielement->region())][SiStripRegionCabling::layer(ielement->region())].end();idet++) {
       nunpackedchans_+=idet->second.size();
@@ -196,12 +199,13 @@ void SiStripPerformance::particles(const Handle<HepMCProduct>& mcp) {
   const HepMC::GenEvent& gen = mcp->getHepMCData();
   for(int ibar=0; ibar < gen.particles_size(); ibar++) {
     HepMC::GenParticle* prt = gen.barcode_to_particle(ibar);
-    if (prt) data_->mc().push_back(objectconverter::particle(*prt,pdt_));
+    if (!prt) continue;
+    if (prt && prt->status()==3) data_->mc().push_back(objectconverter::particle(*prt,pdt_));
   }
 }
 
 void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& Electrons) {
- 
+
   reco::HLTFilterObjectWithRefs::const_iterator ielectron = Electrons->begin();
   for (; ielectron != Electrons->end(); ielectron++) {
     const reco::Electron& electron = dynamic_cast<const reco::Electron&>(*ielectron);
@@ -214,7 +218,9 @@ void SiStripPerformance::taus(const Handle<reco::IsolatedTauTagInfoCollection>& 
   reco::IsolatedTauTagInfoCollection::const_iterator itau = Taus->begin();
   for (; itau != Taus->end(); itau++) {
     const CaloJet& jet = dynamic_cast<const CaloJet&>(*(itau->jet()));
-    data_->jets().push_back(objectconverter::jet(jet,itau->jtaRef()->second));
+    if(itau->discriminator()) {
+      data_->jets().push_back(objectconverter::jet(jet,itau->jtaRef()->second));
+    }
   }
 }
 
