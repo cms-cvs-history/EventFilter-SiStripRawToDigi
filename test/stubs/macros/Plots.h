@@ -7,7 +7,7 @@ class Plots {
   
  public:
 
-  enum TH1FType{TIME=0};
+  enum TH1FType{TIME=0,FRAC=1};
 
   enum TProfileType{TIMEVSOCCUPANCY=0,TIMEVSDIGIS=1,TIMEVSCLUSTERS=2,TIMEVSCLUSTERSIZE=3,TIMEVSFRAC=4};
 

@@ -60,7 +60,6 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   //Refresh performance record
   data_->clear();
   data_->event()++;
-  nunpackedchans_ = nchans_;
   
   //Timing
   try {
@@ -136,8 +135,9 @@ void SiStripPerformance::timer(const HLTPerformanceInfo& hltinfo) {
 }
 
 void SiStripPerformance::allchannels() {
-
- for (uint32_t iregion = 0;iregion < cabling_->getRegionCabling().size();iregion++) {
+  
+  nchans_=0;
+  for (uint32_t iregion = 0;iregion < cabling_->getRegionCabling().size();iregion++) {
     for (uint32_t isubdet = 0;isubdet < cabling_->getRegionCabling()[iregion].size();isubdet++) {
       for (uint32_t ilayer = 0;ilayer < cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
 	for (SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {

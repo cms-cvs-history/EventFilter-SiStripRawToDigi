@@ -7,18 +7,19 @@ Plots::~Plots() {}
   
 void Plots::book() {
   
-  th1fs_[TIME] = new TH1F("Plots::time", "", 30,0.,5.);
-  tprofiles_[TIMEVSOCCUPANCY] = new TProfile("Plots::timevsoccupancy", "", 10,0.,2.);
-  tprofiles_[TIMEVSDIGIS] = new TProfile("Plots::timevsdigis", "", 100,50000.,150000.);
-  tprofiles_[TIMEVSCLUSTERS] = new TProfile("Plots::timevsclusters", "", 100,0.,100000.);
-  tprofiles_[TIMEVSCLUSTERSIZE] = new TProfile("Plots::timevsclustersize", "", 7,0.,7.);
-  tprofiles_[TIMEVSFRAC] = new TProfile("Plots::timevsfrac", "", 10,0.,100.);
-  efficiencies_[HLT] = new SimpleEfficiency("Plots::hlt", "", 1,0.,1.);
-  efficiencies_[PT1] = new SimpleEfficiency("Plots::pt1", "", 20,0.,100.);
-  efficiencies_[PT2] = new SimpleEfficiency("Plots::pt2", "", 20,0.,100.);
-  efficiencies_[ETA1] = new SimpleEfficiency("Plots::eta1", "", 30,-3.,3.);
-  efficiencies_[ETA2] = new SimpleEfficiency("Plots::eta2", "", 30,-3.,3.);
-  efficiencies_[ETA3] = new SimpleEfficiency("Plots::eta3", "", 30,-3.,3.);
+  th1fs_[TIME] = new TH1F("time", "", 30,0.,5.);
+  th1fs_[FRAC] = new TH1F("frac", "", 50,0.,100.);
+  tprofiles_[TIMEVSOCCUPANCY] = new TProfile("timevsoccupancy", "", 10,0.,2.);
+  tprofiles_[TIMEVSDIGIS] = new TProfile("timevsdigis", "", 100,50000.,150000.);
+  tprofiles_[TIMEVSCLUSTERS] = new TProfile("timevsclusters", "", 100,0.,100000.);
+  tprofiles_[TIMEVSCLUSTERSIZE] = new TProfile("timevsclustersize", "", 7,0.,7.);
+  tprofiles_[TIMEVSFRAC] = new TProfile("timevsfrac", "", 10,0.,100.);
+  efficiencies_[HLT] = new SimpleEfficiency("hlt", "", 1,0.,1.);
+  efficiencies_[PT1] = new SimpleEfficiency("pt1", "", 20,0.,100.);
+  efficiencies_[PT2] = new SimpleEfficiency("pt2", "", 20,0.,100.);
+  efficiencies_[ETA1] = new SimpleEfficiency("eta1", "", 30,-3.,3.);
+  efficiencies_[ETA2] = new SimpleEfficiency("eta2", "", 30,-3.,3.);
+  efficiencies_[ETA3] = new SimpleEfficiency("eta3", "", 30,-3.,3.);
 }
 
 void Plots::unbook() {
@@ -33,6 +34,9 @@ void Plots::format() {
   th1fs_[TIME]->SetTitle("");
   th1fs_[TIME]->GetXaxis()->SetTitle("time [ s ]");
   th1fs_[TIME]->GetYaxis()->SetTitle("");
+  th1fs_[FRAC]->SetTitle("");
+  th1fs_[FRAC]->GetXaxis()->SetTitle("fraction of SST [ % ]");
+  th1fs_[FRAC]->GetYaxis()->SetTitle("");
   tprofiles_[TIMEVSOCCUPANCY]->SetTitle("");
   tprofiles_[TIMEVSOCCUPANCY]->GetXaxis()->SetTitle("occupancy [ % ]");
   tprofiles_[TIMEVSOCCUPANCY]->GetYaxis()->SetTitle("time [ s ]");
@@ -78,34 +82,26 @@ void Plots::normalise() {
 void Plots::save(TDirectory* dir) {
 
   dir->cd();
-  th1fs_[TIME]->Write();
-  tprofiles_[TIMEVSOCCUPANCY]->Write();
-  tprofiles_[TIMEVSDIGIS]->Write();
-  tprofiles_[TIMEVSCLUSTERS]->Write();
-  tprofiles_[TIMEVSCLUSTERSIZE]->Write();
-  tprofiles_[TIMEVSFRAC]->Write();
-  efficiencies_[HLT]->Write();
-  efficiencies_[PT1]->Write();
-  efficiencies_[PT2]->Write();
-  efficiencies_[ETA1]->Write();
-  efficiencies_[ETA2]->Write();
-  efficiencies_[ETA3]->Write();
+  for (unsigned int i=0;i<th1fs_.size();i++) {if (th1fs_[i]) th1fs_[i]->Write();}
+  for (unsigned int i=0;i<tprofiles_.size();i++) {if (tprofiles_[i]) tprofiles_[i]->Write();}
+  for (unsigned int i=0;i<efficiencies_.size();i++) {if (efficiencies_[i]) efficiencies_[i]->Write();}
 }
 
 void Plots::read(TDirectory* dir) {
 
-  th1fs_[TIME] = dynamic_cast<TH1F*>(dir->Get("Plots::time"));
-  tprofiles_[TIMEVSOCCUPANCY] = dynamic_cast<TProfile*>(dir->Get("Plots::timevsoccupancy"));
-  tprofiles_[TIMEVSDIGIS] = dynamic_cast<TProfile*>(dir->Get("Plots::timevsdigis"));
-  tprofiles_[TIMEVSCLUSTERS] = dynamic_cast<TProfile*>(dir->Get("Plots::timevsclusters"));
-  tprofiles_[TIMEVSCLUSTERSIZE] = dynamic_cast<TProfile*>(dir->Get("Plots::timevsclustersize"));
-  tprofiles_[TIMEVSFRAC] = dynamic_cast<TProfile*>(dir->Get("Plots::timevsfrac"));
-  efficiencies_[HLT] = dynamic_cast<SimpleEfficiency*>(dir->Get("Plots::hlt"));
-  efficiencies_[PT1] = dynamic_cast<SimpleEfficiency*>(dir->Get("Plots::pt1"));
-  efficiencies_[PT2] = dynamic_cast<SimpleEfficiency*>(dir->Get("Plots::pt2"));
-  efficiencies_[ETA1] = dynamic_cast<SimpleEfficiency*>(dir->Get("Plots::eta1"));
-  efficiencies_[ETA2] = dynamic_cast<SimpleEfficiency*>(dir->Get("Plots::eta2"));
-  efficiencies_[ETA3] = dynamic_cast<SimpleEfficiency*>(dir->Get("Plots::eta3"));
+  th1fs_[TIME] = dynamic_cast<TH1F*>(dir->Get("time"));
+  th1fs_[FRAC] = dynamic_cast<TH1F*>(dir->Get("frac"));
+  tprofiles_[TIMEVSOCCUPANCY] = dynamic_cast<TProfile*>(dir->Get("timevsoccupancy"));
+  tprofiles_[TIMEVSDIGIS] = dynamic_cast<TProfile*>(dir->Get("timevsdigis"));
+  tprofiles_[TIMEVSCLUSTERS] = dynamic_cast<TProfile*>(dir->Get("timevsclusters"));
+  tprofiles_[TIMEVSCLUSTERSIZE] = dynamic_cast<TProfile*>(dir->Get("timevsclustersize"));
+  tprofiles_[TIMEVSFRAC] = dynamic_cast<TProfile*>(dir->Get("timevsfrac"));
+  efficiencies_[HLT] = dynamic_cast<SimpleEfficiency*>(dir->Get("hlt"));
+  efficiencies_[PT1] = dynamic_cast<SimpleEfficiency*>(dir->Get("pt1"));
+  efficiencies_[PT2] = dynamic_cast<SimpleEfficiency*>(dir->Get("pt2"));
+  efficiencies_[ETA1] = dynamic_cast<SimpleEfficiency*>(dir->Get("eta1"));
+  efficiencies_[ETA2] = dynamic_cast<SimpleEfficiency*>(dir->Get("eta2"));
+  efficiencies_[ETA3] = dynamic_cast<SimpleEfficiency*>(dir->Get("eta3"));
 }
 
 TH1F* Plots::get(TH1FType type) {return th1fs_[type];}

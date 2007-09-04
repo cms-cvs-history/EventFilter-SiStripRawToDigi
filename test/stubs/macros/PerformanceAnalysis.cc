@@ -51,6 +51,7 @@ void PerformanceAnalysis::analyze() {
 
     //Record timing
     plots_.get(Plots::TIME)->Fill(time_);
+    plots_.get(Plots::FRAC)->Fill(100.*(double)nunpackedchans_/(double)nchans_);
     plots_.get(Plots::TIMEVSOCCUPANCY)->Fill(occupancy(),time_);
     plots_.get(Plots::TIMEVSDIGIS)->Fill(data_->sistripdiginum(),time_);
     plots_.get(Plots::TIMEVSCLUSTERS)->Fill(data_->sistripclusternum(),time_);
