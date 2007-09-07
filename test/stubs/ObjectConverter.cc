@@ -1,7 +1,13 @@
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+
 #include "EventFilter/SiStripRawToDigi/test/stubs/ObjectConverter.h"
 
 SimpleGenParticle objectconverter::particle(const HepMC::GenParticle& particle, const edm::ESHandle<ParticleDataTable>& pdt) {
-  
+
   return SimpleGenParticle(particle.momentum().perp(), -1.0*log(tan(0.5*(particle.momentum().theta()))), particle.momentum().phi(), 0./*particle.production_vertex()->position().x()*/, 0./*particle.production_vertex()->position().y()*/, 0./*particle.production_vertex()->position().z()*/, particle.pdg_id(), static_cast<int>(pdt->particle(particle.pdg_id())->charge()));
 }
 
@@ -63,7 +69,6 @@ SimpleElectron objectconverter::electron(const reco::PixelMatchGsfElectron& elec
 SimpleElectron objectconverter::electron(const reco::Electron& electron) {
 
   SimpleSCluster simplescluster(electron.superCluster()->rawEnergy(), electron.superCluster()->energy(), electron.superCluster()->eta(), electron.superCluster()->phi(), constants::invalid, constants::invalid, constants::invalid, constants::invalid, constants::invalid, constants::invalid);
-  
   SimpleTrack simpletrack = track(*(electron.track()));
 
   return SimpleElectron(simpletrack,simplescluster,constants::invalid32);
