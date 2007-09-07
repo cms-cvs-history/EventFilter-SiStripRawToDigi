@@ -2,6 +2,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 #include "EventFilter/SiStripRawToDigi/test/stubs/ObjectConverter.h"
 
