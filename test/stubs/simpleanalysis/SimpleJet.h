@@ -14,14 +14,6 @@ class SimpleJet : public SimpleGenJet {
   const std::vector<SimpleTrack> tracks() const {return tracks_;}
   const double discriminator() const {return discriminator_;}
 
-  bool operator < (const SimpleJet& compare) const {
-
-    if (tag() && !compare.tag()) return true;
-    else if (compare.tag() && !tag()) return false;
-    else if (compare.hcluster().et() < hcluster().et()) return true;
-    else return false;
-  }
-
  private:
 
   std::vector<SimpleTrack> tracks_;
@@ -30,5 +22,9 @@ class SimpleJet : public SimpleGenJet {
   ClassDef(SimpleJet,1)
 
 };
+
+inline bool operator < (const SimpleJet& one,const SimpleJet& two) {
+  return ((one.tag() && !two.tag()) || (one.tag() == two.tag() && one.hcluster().et() < two.hcluster().et())) ? true : false;
+}
 
 #endif

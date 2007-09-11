@@ -19,7 +19,8 @@ SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
   electronsProductLabel_(pset.getUntrackedParameter<string>("ElectronProductLabel","")),
   tausModuleLabel_(pset.getUntrackedParameter<string>("TauModuleLabel","")),
   tausProductLabel_(pset.getUntrackedParameter<string>("TauProductLabel","")),
-  unpackingModuleLabels_(pset.getUntrackedParameter< vector< string> >("UnpackingModuleLabels")),
+  timingmodules_(pset.getUntrackedParameter< vector< string> >("TimingModules")),
+  timingpaths_(pset.getUntrackedParameter< vector< string> >("TimingPaths")),
   cabling_(),
   pdt_(),
   file_(0),
@@ -47,7 +48,7 @@ SiStripPerformance::~SiStripPerformance() {
 void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
   iSetup.getData(pdt_);
-  allchannels();
+  nchans_ = allchannels(*cabling_);
 }
 
 void SiStripPerformance::endJob() {
@@ -60,17 +61,20 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   //Refresh performance record
   data_->clear();
   data_->event()++;
+  nunpackedchans_ = constants::invalid32;
+  time_ = constants::invalid;
   
   //Timing
   try {
     auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
-    timer(*hltinfo);
+    time_ = moduletimer(*hltinfo, timingmodules_)+pathtimer(*hltinfo, timingpaths_);
   } catch(...) {;}
-
+ 
   //SiStripDigis
   try {
     Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
     iEvent.getByLabel(sistripDigisModuleLabel_, sistripDigisProductLabel_, sistripDigis);
+    nunpackedchans_ = allchannels(*cabling_);
     sistripdigis(sistripDigis);
   } catch(...) {;}
 
@@ -78,16 +82,16 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   try {
     Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
     iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters);
-    regionalchannels(sistripClusters);
+    nunpackedchans_ = regionalchannels(*cabling_,*sistripClusters);
     sistripclusters(sistripClusters);
   } catch(...) {;}
-
+ 
   try {
     Handle< DetSetVector<SiStripCluster> > sistripClusters;
     iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters );
     sistripclusters(sistripClusters);
   } catch(...) {;}
-
+  
   //Monte Carlo
   try {
     Handle<HepMCProduct> mcp;
@@ -120,42 +124,65 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   tree_->Fill();
 }
 
-void SiStripPerformance::timer(const HLTPerformanceInfo& hltinfo) {
-
-  time_=0.;  
-  HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo.beginModules();
-  for (;imodule != hltinfo.endModules(); imodule++) {
-    vector<string>::const_iterator iunpacking = unpackingModuleLabels_.begin();
-    for (;iunpacking != unpackingModuleLabels_.end(); iunpacking++) {
-      if (imodule->name() == *iunpacking) {
-	time_+=imodule->time();
-      }
-    }
+const double SiStripPerformance::moduletimer(HLTPerformanceInfo& hltinfo, const std::vector<std::string>& labels) {
+  
+  double time=0.;
+  vector<string>::const_iterator iname = labels.begin();
+  for (;iname != labels.end(); iname++) {
+    HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo.findModule(iname->c_str());
+    if (hltinfo.findModule(iname->c_str()) != hltinfo.endModules()) {time+=imodule->time();}
+    else {time = constants::invalid;}
   }
+  return time;
 }
 
-void SiStripPerformance::allchannels() {
+const double SiStripPerformance::pathtimer(HLTPerformanceInfo& hltinfo, const std::vector<std::string>& labels) {
   
-  nchans_=0;
-  for (uint32_t iregion = 0;iregion < cabling_->getRegionCabling().size();iregion++) {
-    for (uint32_t isubdet = 0;isubdet < cabling_->getRegionCabling()[iregion].size();isubdet++) {
-      for (uint32_t ilayer = 0;ilayer < cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
-	for (SiStripRegionCabling::ElementCabling::const_iterator idet = cabling_->getRegionCabling()[iregion][isubdet][ilayer].begin();idet!=cabling_->getRegionCabling()[iregion][isubdet][ilayer].end();idet++) {
-	  nchans_+=idet->second.size();
+  double time=0.;
+  vector<string>::const_iterator iname = labels.begin();
+  for (;iname != labels.end(); iname++) {
+    HLTPerformanceInfo::PathList::const_iterator ipath = hltinfo.findPath(iname->c_str());
+    if (ipath != hltinfo.endPaths()) {time+=ipath->time();}
+    else {time = constants::invalid;}
+  }
+  return time;
+}
+
+
+const uint32_t SiStripPerformance::allchannels(const SiStripRegionCabling& cabling) {
+  
+  uint32_t channels=0;
+  const Cabling& fullcabling = cabling.getRegionCabling();
+  for (uint32_t iregion = 0;iregion < fullcabling.size();iregion++) {
+    for (uint32_t isubdet = 0;isubdet < fullcabling[iregion].size();isubdet++) {
+      for (uint32_t ilayer = 0;ilayer < fullcabling[iregion][isubdet].size();ilayer++) {
+	const ElementCabling& elementcabling = fullcabling[iregion][isubdet][ilayer];
+	ElementCabling::const_iterator idet = elementcabling.begin();
+	for (;idet != elementcabling.end();idet++) {
+	  channels+=idet->second.size();
 	}
       }
     }
   }
+  return channels;
 }
 
-void SiStripPerformance::regionalchannels(const Handle< edm::SiStripRefGetter<SiStripCluster> >& demandclusters) {
+const uint32_t SiStripPerformance::regionalchannels(const SiStripRegionCabling& cabling, const edm::SiStripRefGetter<SiStripCluster>& demandclusters) {
 
-  nunpackedchans_=0;
-  for (edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = demandclusters->begin();ielement != demandclusters->end();ielement++) { 
-    for (SiStripRegionCabling::ElementCabling::const_iterator idet=cabling_->getRegionCabling()[SiStripRegionCabling::region(ielement->region())][SiStripRegionCabling::subdet(ielement->region())][SiStripRegionCabling::layer(ielement->region())].begin();idet!=cabling_->getRegionCabling()[SiStripRegionCabling::region(ielement->region())][SiStripRegionCabling::subdet(ielement->region())][SiStripRegionCabling::layer(ielement->region())].end();idet++) {
-      nunpackedchans_+=idet->second.size();
+  uint32_t regionalchannels=0;
+  const Cabling& fullcabling = cabling.getRegionCabling();
+  edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = demandclusters.begin();
+    for (;ielement != demandclusters.end();ielement++) { 
+      uint32_t region = SiStripRegionCabling::region(ielement->region());
+      uint32_t subdet = SiStripRegionCabling::subdet(ielement->region());
+      uint32_t layer = SiStripRegionCabling::layer(ielement->region());
+      const ElementCabling& elementcabling = fullcabling[region][subdet][layer];
+      ElementCabling::const_iterator idet = elementcabling.begin();
+      for (;idet!=elementcabling.end();idet++) {
+	regionalchannels+=idet->second.size();
+      }
     }
-  }
+  return regionalchannels;
 }
 
 void SiStripPerformance::sistripdigis(const edm::Handle< DetSetVector<SiStripDigi> >& digis) {
@@ -199,7 +226,6 @@ void SiStripPerformance::particles(const Handle<HepMCProduct>& mcp) {
   const HepMC::GenEvent& gen = mcp->getHepMCData();
   for(int ibar=0; ibar < gen.particles_size(); ibar++) {
     HepMC::GenParticle* prt = gen.barcode_to_particle(ibar);
-    if (!prt) continue;
     if (prt && prt->status()==3) data_->mc().push_back(objectconverter::particle(*prt,pdt_));
   }
 }

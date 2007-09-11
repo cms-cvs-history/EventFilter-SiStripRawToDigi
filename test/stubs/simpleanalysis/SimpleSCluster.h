@@ -36,11 +36,6 @@ class SimpleSCluster : public TObject {
 		+ (a.phi() - b.phi())*(a.phi() - b.phi()));
   }
 
-  bool operator < (const SimpleSCluster& compare) const {
-    if (compare.et() < et()) return true;
-    return false;
-  }
-
  private:
 
   double rawenergy_;
@@ -56,5 +51,9 @@ class SimpleSCluster : public TObject {
 
   ClassDef(SimpleSCluster,1)
 };
+
+inline bool operator < (const SimpleSCluster& one,const SimpleSCluster& two) {
+  return (one.et() < two.et()) ? true : false;
+}
 
 #endif

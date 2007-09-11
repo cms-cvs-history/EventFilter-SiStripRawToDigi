@@ -14,10 +14,6 @@ class SimpleTrigger : public TObject {
   const bool get(unsigned short bit) const {return trigger_[bit];}
   const std::vector<bool> trigger() const {return trigger_;}
 
-  bool operator == (const SimpleTrigger& compare) const {
-    return (compare.trigger() == trigger());
-  }
-
  private:
 
   std::vector<bool> trigger_;
@@ -25,4 +21,16 @@ class SimpleTrigger : public TObject {
   ClassDef(SimpleTrigger,1)
 };
 
+inline bool operator == (const SimpleTrigger& one,const SimpleTrigger& two) {
+    return (one.trigger() == two.trigger());
+  }
+
+inline std::ostream& operator<<(std::ostream& os, const SimpleTrigger& trigger) {
+  std::stringstream ss;
+  for (unsigned int i=0;i<trigger.size();i++) {
+    ss << "|" << trigger.get(i) << "|";
+  } 
+  os << ss.str();
+  return os;
+}
 #endif

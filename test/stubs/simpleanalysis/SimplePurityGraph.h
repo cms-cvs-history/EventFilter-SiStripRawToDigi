@@ -5,94 +5,94 @@ class SimplePurityGraph : public TNamed {
   
  public:
 
-  SimplePurityGraph() : TNamed(), significance_(0), purity_(0), points_(0), xmin_(0),xmax_(0)
+  /** Constructors */
+
+  SimplePurityGraph() : TNamed(), significance_(0), purity_(0), points_(0), xmin_(0), xmax_(0)
   { 
     significance_ = new TGraphErrors();
     purity_ = new TGraphErrors();
   }
-  
-  SimplePurityGraph(const char* name, const char* title, SimpleEfficiencyGraph* x, SimpleEfficiencyGraph* y, SimpleEfficiencyGraph* z, double cx, double cy, double cz) : TNamed(name,title), significance_(0), purity_(0), points_(x->points()), xmin_(x->xmin()), xmax_(x->xmax())
-  {
-    if (!SimpleEfficiencyGraph::comparable(x,y) || !SimpleEfficiencyGraph::comparable(y,z)) return;
-    
+
+  SimplePurityGraph(const char* name, const char* title, SimpleEfficiencyGraph* one, SimpleEfficiencyGraph* two, SimpleEfficiencyGraph* three, double cone, double ctwo, double cthree) : TNamed(name,title), significance_(0), purity_(0), points_(one->points()), xmin_(one->xmin()), xmax_(one->xmax())
+  {    
     purity_ = new TGraphErrors(points_);
     significance_ = new TGraphErrors(points_);
     
-    for (Int_t ipoint = 0; ipoint < points_; ipoint++) {
-      
-      purity_->SetPoint(ipoint,cut(ipoint),purity(x->get()->GetY()[ipoint], y->get()->GetY()[ipoint], z->get()->GetY()[ipoint],cx, cy, cz));
-      purity_->SetPointError(ipoint,cut(ipoint),dpurity(x->get()->GetY()[ipoint], y->get()->GetY()[ipoint], z->get()->GetY()[ipoint], x->get()->GetEY()[ipoint], y->get()->GetEY()[ipoint], z->get()->GetEY()[ipoint], cx, cy, cz));
-      significance_->SetPoint(ipoint,cut(ipoint),significance(x->get()->GetY()[ipoint], y->get()->GetY()[ipoint], z->get()->GetY()[ipoint],cx, cy, cz));
-      significance_->SetPointError(ipoint,cut(ipoint),dsignificance(x->get()->GetY()[ipoint], y->get()->GetY()[ipoint], z->get()->GetY()[ipoint], x->get()->GetEY()[ipoint], y->get()->GetEY()[ipoint], z->get()->GetEY()[ipoint], cx, cy, cz));
+    for (int ipoint = 0; ipoint < points_; ipoint++) {
+      double yone = one->get()->GetY()[ipoint];
+      double ytwo = two->get()->GetY()[ipoint];
+      double ythree = three->get()->GetY()[ipoint];
+      double done = one->get()->GetEY()[ipoint];
+      double dtwo = two->get()->GetEY()[ipoint];
+      double dthree = three->get()->GetEY()[ipoint];
+      double x = cut(ipoint);
+      purity_->SetPoint(ipoint,x,purity(yone,ytwo,ythree,cone,ctwo,cthree));
+      purity_->SetPointError(ipoint,x,dpurity(yone,ytwo,ythree,done,dtwo,dthree,cone,ctwo,cthree));
+      significance_->SetPoint(ipoint,x,significance(yone,ytwo,ythree,cone,ctwo,cthree));
+      significance_->SetPointError(ipoint,x,dsignificance(yone,ytwo,ythree,done,dtwo,dthree,cone,ctwo,cthree));
     }
   }
   
+  /** Destructor */
+
   ~SimplePurityGraph() 
   {
     if (purity_) delete purity_;
     if (significance_) delete significance_;
   }
   
+  /** Getters */
+
   TGraphErrors* const purity() {return purity_;}
   
-  TGraphErrors* const significnace() {return significance_;}
+  TGraphErrors* const significance() {return significance_;}
   
-  static void compare(TGraphErrors* result, SimpleEfficiencyGraph* efficiency, SimplePurityGraph* purity) 
+  /** Comparison */
+
+  static TGraphErrors* compare(SimpleEfficiencyGraph* efficiency, SimplePurityGraph* purity) 
     {
-      if (!comparable(result,purity) || !comparable(efficiency,purity)) return;
-   
-      for (Int_t ipoint = 0; ipoint < result->GetN(); ipoint++) {
+      TGraphErrors* result = new TGraphErrors(efficiency->get()->GetN());
+      for (int ipoint = 0; ipoint < efficiency->get()->GetN(); ipoint++) {
 	result->GetX()[ipoint] = efficiency->get()->GetY()[ipoint];
 	result->GetY()[ipoint] = purity->purity()->GetY()[ipoint];
 	result->GetEX()[ipoint] = efficiency->get()->GetEY()[ipoint];
 	result->GetEY()[ipoint] = purity->purity()->GetEY()[ipoint];
       }
+      return result;
     }
   
-  
-  static bool comparable(SimpleEfficiencyGraph* efficiency, SimplePurityGraph* purity) 
-    { 
-      if ((efficiency->points() == purity->points()) &&
-	  (efficiency->xmin() == purity->xmin()) &&
-	  (efficiency->xmax() == purity->xmax())) return true;
-      return false;
-    }
-  
-  static bool comparable(TGraphErrors* graph, SimplePurityGraph* purity) 
-    {
-      if (graph->GetN() == purity->points()) return true;
-      return false;
-    }
-  
-  static bool comparable(SimplePurityGraph* one, SimplePurityGraph* two) 
-    {
-      if ((one->points() == two->points()) &&
-	  (one->xmin() == two->xmin()) &&
-	  (one->xmax() == two->xmax())) return true;
-      return false;
-    }
-  
-  Double_t cut(Int_t ipoint) {return xmin_ + ipoint*(xmax_-xmin_)/points_;}
-  
-  Int_t point(Double_t cut) {return (Int_t)((cut - xmin_)*points_/(xmax_-xmin_) + .5);}
-  
-  Int_t points() {return points_;}
-  
-  Double_t xmin() {return xmin_;}
+  /** Utility */
 
-  Double_t xmax() {return xmax_;}
+  double cut(Int_t ipoint) {return xmin_ + ipoint*(xmax_-xmin_)/points_;}
   
-  static double purity(double x, double y, double z, double cx, double cy, double cz) {return ((x * cx) + (y * cy) + (z * cz) > 0.) ? x * cx / ((x * cx) + (y * cy) + (z * cz)) : 0.;} 
+  int point(Double_t cut) {return (Int_t)((cut - xmin_)*points_/(xmax_-xmin_) + .5);}
   
-  static double significance(double x, double y, double z, double cx, double cy, double cz) {return ((y * cy) + (z * cz) > 0.) ?  x * cx / sqrt((y * cy) + (z * cz)) : 0.;}
+  int points() {return points_;}
   
-  static double dpurity(double x, double y, double z, double dx, double dy, double dz, double cx, double cy, double cz) 
+  double xmin() {return xmin_;}
+
+  double xmax() {return xmax_;}
+  
+  static double purity(double one, double two, double three, double cone, double ctwo, double cthree) 
     {
-      double denom = (x*cx + (y*cy + z*cz)) * (x*cx + (y*cy + z*cz));
-      return ((denom) > 0.) ? sqrt((cx * cx * x * dx) * (cx * cx * x * dx)/(denom*denom) + (cx * cy * x * dy) * (cx * cy * x * dy) / (denom*denom)  + (cx * cz * x * dz) * (cx * cz * x * dz) / (denom*denom)) : 0.;
+      return ((one * cone) + (two * ctwo) + (three * cthree) > 0.) ? one * cone / ((one * cone) + (two * ctwo) + (three * cthree)) : 0.;
+    } 
+  
+  static double significance(double one, double two, double three, double cone, double ctwo, double cthree) 
+    {
+      return ((two * ctwo) + (three * cthree) > 0.) ?  one * cone / sqrt((two * ctwo) + (three * cthree)) : 0.;
     }
   
-  static double dsignificance(double x, double y, double z, double dx, double dy, double dz, double cx, double cy, double cz) { return 0.;}
+  static double dpurity(double yone, double ytwo, double ythree, double done, double dtwo, double dthree, double cone, double ctwo, double cthree) 
+    {
+      double denom = (yone*cone + (ytwo*ctwo + ythree*cthree)) * (yone*cone + (ytwo*ctwo + ythree*cthree));
+      return ((denom) > 0.) ? sqrt((cone * cone * yone * done) * (cone * cone * yone * done)/(denom*denom) + (cone * ctwo * yone * dtwo) * (cone * ctwo * yone * dtwo) / (denom*denom)  + (cone * cthree * yone * dthree) * (cone * cthree * yone * dthree) / (denom*denom)) : 0.;
+    }
+  
+  static double dsignificance(double yone, double ytwo, double ythree, double done, double dtwo, double dthree, double cone, double ctwo, double cthree) 
+    { 
+      return 0.;
+    }
   
  private:
   

@@ -5,31 +5,28 @@ class SimpleSiStripCluster : public TObject {
 
  public:
 
-  SimpleSiStripCluster() :   detId_(constants::invalid32), firstStrip_(constants::invalid16), amplitudes_(constants::invalid16), baryCenter_(constants::invalid) {}
+  SimpleSiStripCluster() :   detid_(constants::invalid32), firststrip_(constants::invalid16), amplitudes_(constants::invalid16), barycenter_(constants::invalid) {}
 
-  SimpleSiStripCluster(unsigned int DetId, unsigned short FirstStrip, unsigned short Amplitudes, double BaryCenter) :   detId_(DetId), firstStrip_(FirstStrip), amplitudes_(Amplitudes), baryCenter_(BaryCenter) {}
+  SimpleSiStripCluster(unsigned int detid, unsigned short firststrip, unsigned short amplitudes, double barycenter) :   detid_(detid), firststrip_(firststrip), amplitudes_(amplitudes), barycenter_(barycenter) {}
 
 
   virtual ~SimpleSiStripCluster() {}
 
-  const unsigned int detId() const {return detId_;}
-  const unsigned short firstStrip() const {return firstStrip_;}
+  const unsigned int detid() const {return detid_;}
+  const unsigned short firststrip() const {return firststrip_;}
   const unsigned short amplitudes() const {return amplitudes_;}
-  const double baryCenter() const {return baryCenter_;}
+  const double barycenter() const {return barycenter_;}
 
-  bool operator < (const SimpleSiStripCluster& compare) const {
-    if (compare.detId_ < detId_) return true;
-    else if ((compare.detId_ == detId_ &&
-	      compare.firstStrip_ < firstStrip_)) return true;
-    else return false;
-  }
-
-  unsigned int detId_;
-  unsigned short firstStrip_;
+  unsigned int detid_;
+  unsigned short firststrip_;
   unsigned short amplitudes_;
-  double baryCenter_;
+  double barycenter_;
 
   ClassDef(SimpleSiStripCluster,1)
 };
+
+inline bool operator < (const SimpleSiStripCluster& one,const SimpleSiStripCluster& two) {
+  return ((one.detid() < two.detid()) || (one.detid() == two.detid() && one.firststrip() < two.firststrip())) ? true : false;
+}
 
 #endif

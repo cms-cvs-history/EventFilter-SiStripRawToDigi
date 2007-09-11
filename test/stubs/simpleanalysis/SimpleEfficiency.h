@@ -5,6 +5,8 @@ class SimpleEfficiency : public TNamed {
 
  public:
   
+  /** Constructors */
+
   SimpleEfficiency() : TNamed(), nbins_(0), xmin_(0), xmax_(0), selected_(0), all_(0), efficiency_(0) 
     { 
       selected_ = new TH1F();
@@ -19,6 +21,8 @@ class SimpleEfficiency : public TNamed {
       efficiency_ = new TH1F(name,title,bins,xmin,xmax);
     }
   
+  /** Destructor */
+
   ~SimpleEfficiency() 
     {
       if (selected_) delete selected_;
@@ -26,35 +30,35 @@ class SimpleEfficiency : public TNamed {
       if (efficiency_) delete efficiency_;
     }
 
+  /** Calculate final efficiency */
+
   void calculate() 
     {
-      for (Int_t ibin = 0; ibin < nbins_; ibin++) {
-	if (all_->GetBinContent(ibin+1)) efficiency_->SetBinContent(ibin+1,selected_->GetBinContent(ibin+1)/all_->GetBinContent(ibin+1));
-	efficiency_->SetBinError(ibin+1,defficiency(selected_->GetBinContent(ibin+1)/all_->GetBinContent(ibin+1),all_->GetBinContent(ibin+1)));
+      for (int ibin = 0; ibin < nbins_; ibin++) {
+	double all = all_->GetBinContent(ibin+1);
+	double selected = selected_->GetBinContent(ibin+1)/all;
+	if (all) {
+	  efficiency_->SetBinContent(ibin+1,selected);
+	  efficiency_->SetBinError(ibin+1,defficiency(selected,all));
+	}
       }
     }
 
-  void select(Int_t bin, bool valid=true) 
+  /** Selection */
+
+  void select(int bin, bool valid=true) 
     {
       all_->AddBinContent(bin);
       if (valid) selected_->AddBinContent(bin);
     }
   
-  void select(Double_t value, bool valid=true) 
+  void select(double value, bool valid=true) 
     {
       all_->Fill(value);
       if (valid) selected_->Fill(value);
     }
   
-  TH1F* const get() {return efficiency_;}
-  
-  Int_t bins() {return nbins_;}
-  
-  Double_t xmin() {return xmin_;}
-  
-  Double_t xmax() {return xmax_;}
-  
-  void divide(SimpleEfficiency* denom) {efficiency_->Divide(denom->get());}
+  /** Comparison */
 
   static TGraphErrors* compare(SimpleEfficiency* one, SimpleEfficiency* two) 
     {
@@ -67,14 +71,30 @@ class SimpleEfficiency : public TNamed {
       }
       return result;
     }
+
+  /** Divide */
+
+  void divide(SimpleEfficiency* denom) {efficiency_->Divide(denom->get());}
+
+  /** Getter */
+
+  TH1F* const get() {return efficiency_;}
+
+  /** Utility */
+  
+  int bins() {return nbins_;}
+  
+  double xmin() {return xmin_;}
+  
+  double xmax() {return xmax_;}
   
   static double defficiency(double efficiency, double total) {return (total) ? sqrt(efficiency * (1. - efficiency)/total) : 0.;}
   
  private:
   
-  Int_t nbins_;
-  Double_t xmin_;
-  Double_t xmax_;
+  int nbins_;
+  double xmin_;
+  double xmax_;
   TH1F* selected_;
   TH1F* all_;
   TH1F* efficiency_;

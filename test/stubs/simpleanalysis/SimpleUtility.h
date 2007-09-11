@@ -104,16 +104,6 @@ namespace utility {
   void normalise(TH1F* h,double scale) {
     if (scale > 0.)  h->Scale(1./scale);
   }
-  
-}
-
-std::ostream& operator<<(std::ostream& os, const SimpleTrigger& trigger) {
-  std::stringstream ss;
-  for (unsigned int i=0;i<trigger.size();i++) {
-    ss << "|" << trigger.get(i) << "|";
-  } 
-  os << ss.str();
-  return os;
 }
 
 #endif

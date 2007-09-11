@@ -16,7 +16,7 @@ class SimpleElectron : public TObject {
   const int classification() const {return classification_;}
   const bool tag() const {return tag_;}
   const double edivp() const {return scluster().energy()/track().innerP();}
-  const double isolation(const std::vector<SimpleTrack>& tracks) const {return constants::invalid;}
+  const double isolation(const std::vector<SimpleTrack>& tracks) const {return (tracks.empty()) ? 0. : constants::invalid;}
   void tag(bool tag) {tag_ = tag;}
 
   static const double parentMass(const SimpleElectron& a, const SimpleElectron& b) {
@@ -31,14 +31,6 @@ class SimpleElectron : public TObject {
   return sqrt(2*sqrt(xa*xa + ya*ya + za*za)*sqrt(xb*xb + yb*yb + zb*zb)*(1-((xa*xb + ya*yb + za*zb)/(sqrt(xa*xa + ya*ya + za*za) * sqrt(xb*xb + yb*yb + zb*zb)))));
 }
 
-  bool operator < (const SimpleElectron& compare) const {
-
-    if (tag_ && !compare.tag()) return true;
-    else if (compare.tag() && !tag_) return false;
-    else if (compare.scluster().et() < scluster().et()) return true;
-    else return false;
-  }
-
  private:
 
   SimpleTrack track_;
@@ -49,5 +41,9 @@ class SimpleElectron : public TObject {
   ClassDef(SimpleElectron,1)
 
 };
+
+inline bool operator < (const SimpleElectron& one,const SimpleElectron& two) {
+  return ((one.tag() && !two.tag()) || (one.tag() == two.tag() && one.scluster().et() < two.scluster().et())) ? true : false;
+}
 
 #endif

@@ -18,6 +18,9 @@ class SiStripPerformance : public edm::EDAnalyzer {
 
   public:
 
+  typedef SiStripRegionCabling::Cabling Cabling;
+  typedef SiStripRegionCabling::ElementCabling ElementCabling;
+
   SiStripPerformance(const edm::ParameterSet&);
   ~SiStripPerformance();
 
@@ -27,12 +30,15 @@ class SiStripPerformance : public edm::EDAnalyzer {
 
  private:
 
-  //Cabling
-  void allchannels();
-  void regionalchannels(const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
+  /** Channels */
+  static const uint32_t allchannels(const SiStripRegionCabling&);
+  static const uint32_t regionalchannels(const SiStripRegionCabling&, const edm::SiStripRefGetter<SiStripCluster>&);
 
-  //Event
-  void timer(const HLTPerformanceInfo&);
+  /** Timers */
+  static const double moduletimer(HLTPerformanceInfo&, const std::vector<std::string>&);
+  static const double pathtimer(HLTPerformanceInfo&, const std::vector<std::string>&);
+
+  /** Event record methods */
   void particles(const edm::Handle<edm::HepMCProduct>&);
   void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&);
   void sistripclusters(const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
@@ -41,7 +47,7 @@ class SiStripPerformance : public edm::EDAnalyzer {
   void taus(const edm::Handle<IsolatedTauTagInfoCollection>&);
   void trigger(const edm::Handle<edm::TriggerResults>&);
 
-  //Configurations
+  /** Event data labels */
   std::string sistripDigisModuleLabel_;
   std::string sistripDigisProductLabel_;
   std::string sistripClustersModuleLabel_;
@@ -52,13 +58,16 @@ class SiStripPerformance : public edm::EDAnalyzer {
   std::string electronsProductLabel_;
   std::string tausModuleLabel_;
   std::string tausProductLabel_;
-  std::vector< std::string > unpackingModuleLabels_;
 
-  //Setup
+  /** Timing */
+  std::vector< std::string > timingmodules_;
+  std::vector< std::string > timingpaths_;
+
+  /** Setup */
   edm::ESHandle<SiStripRegionCabling> cabling_;	  
   edm::ESHandle<ParticleDataTable> pdt_;
  
-  //Event record
+  /** Record */
   TFile* file_;
   TTree* tree_;
   SimpleEventData* data_;

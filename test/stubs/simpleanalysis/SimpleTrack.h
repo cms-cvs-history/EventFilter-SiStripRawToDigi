@@ -11,11 +11,6 @@ class SimpleTrack : public TObject {
 
   virtual ~SimpleTrack() {}
 
-  bool operator < (const SimpleTrack& compare) const {
-    if (compare.innerpt_ < innerpt_) return true;
-    return false;
-  }
-
   const double innerPt() const {return innerpt_;}
   const double innerEta() const {return innereta_;}
   const double innerPhi() const { return innerphi_;}
@@ -53,5 +48,9 @@ class SimpleTrack : public TObject {
 
   ClassDef(SimpleTrack,1)
 };
+
+inline bool operator < (const SimpleTrack& one,const SimpleTrack& two) {
+  return (one.innerPt() < two.innerPt()) ? true : false;
+}
 
 #endif

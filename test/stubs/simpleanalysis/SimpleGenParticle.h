@@ -72,11 +72,6 @@ const double phiECAL() const {
   
   return phicorr;
 }
- 
- bool operator < (const SimpleGenParticle& compare) const {
-    if (compare.pt() < pt_) return true;
-    return false; 
-}
 
  private:
 
@@ -91,6 +86,10 @@ const double phiECAL() const {
 
   ClassDef(SimpleGenParticle,1)
 };
+
+inline bool operator < (const SimpleGenParticle& one,const SimpleGenParticle& two) {
+  return (one.pt() < two.pt()) ? true : false;
+}
 
 #endif
 

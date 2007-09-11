@@ -18,14 +18,6 @@ class SimpleGenJet : public TObject {
   const bool tag() const {return tag_;}
   void tag(bool tag) {tag_ = tag;}
 
-  bool operator < (const SimpleGenJet& compare) const {
-
-    if (tag_ && !compare.tag()) return true;
-    else if (compare.tag() && !tag_) return false;
-    else if (compare.hcluster().et() < hcluster().et()) return true;
-    else return false;
-  }
-
  private:
 
   double vx_;
@@ -37,5 +29,9 @@ class SimpleGenJet : public TObject {
   ClassDef(SimpleGenJet,1)
 
 };
+
+inline bool operator < (const SimpleGenJet& one,const SimpleGenJet& two) {
+  return ((one.tag() && !two.tag()) || (one.tag() == two.tag() && one.hcluster().et() < two.hcluster().et())) ? true : false;
+}
 
 #endif
