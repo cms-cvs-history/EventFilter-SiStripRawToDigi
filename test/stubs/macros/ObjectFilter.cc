@@ -1,20 +1,15 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/macros/ObjectFilter.h"
-
-const bool objectfilter::singleelectron(std::vector<SimpleGenParticle>& particles) {
   
-  for (std::vector<SimpleGenParticle>::const_iterator ipart = particles.begin(); ipart != particles.end(); ipart++) {
-    if ((abs(ipart->pid()) == 11) && (ipart->pt() > 26.) && (fabs(ipart->eta()) < constants::etaCut)) return true;
-  }
-  return false;
-}
-  
-const bool objectfilter::doubleelectron(std::vector<SimpleGenParticle>& particles) {
+const bool objectfilter::trigger(std::vector<SimpleGenParticle>& particles, unsigned int bit) {
 
   unsigned short count = 0;
-  for (std::vector<SimpleGenParticle>::const_iterator ipart = particles.begin(); ipart != particles.end(); ipart++) {
-    if ((abs(ipart->pid()) == 11) && (ipart->pt() > 12.) && (fabs(ipart->eta()) < constants::etaCut)) count++;
+  for (unsigned int i=0;i<particles.size();i++) {
+    if (bit == 4 && abs(particles[i].pid()) == 11 && particles[i].pt() > 12. && fabs(particles[i].eta()) < constants::etaCut) {
+      count++;
+    }
   }
-  return (count >= 2) ? true : false;
+  if (bit == 4 && count >=2) return true;
+  return false;
 }
   
 const unsigned int objectfilter::electron(std::vector<SimpleElectron>& electrons, const SimpleGenParticle& particle) {
