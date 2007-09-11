@@ -4,7 +4,5 @@ module ClusterSource = SiStripTrivialClusterSource
     untracked double MaxOccupancy = 0.02
     untracked uint32 MinCluster = 4
     untracked uint32 MaxCluster = 4
-    untracked bool MixClusters = true
     untracked uint32 Separation = 2
-    untracked bool MaxAdc = true
 }
