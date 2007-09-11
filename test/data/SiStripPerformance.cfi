@@ -19,5 +19,6 @@ module Performance = SiStripPerformance
     untracked string TriggerProductLabel = ""
 
     # timing
-    untracked vstring UnpackingModuleLabels = {"SiStripRawToClustersFacility","SiStripRoI","siStripMatchedRecHits"}
+    untracked vstring TimingModules = {""}
+    untracked vstring TimingPaths = {""}
 }
