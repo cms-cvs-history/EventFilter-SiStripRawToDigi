@@ -21,6 +21,7 @@
 #pragma link C++ class SimpleHCluster+;
 #pragma link C++ class SimpleGenJet+;
 #pragma link C++ class SimpleJet+;
+#pragma link C++ class SimpleMuon+;
 #pragma link C++ class SimpleElectron+;
 #pragma link C++ class SimpleSiStripDigi+;
 #pragma link C++ class SimpleSiStripCluster+;
