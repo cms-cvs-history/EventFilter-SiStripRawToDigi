@@ -11,7 +11,7 @@ void SiStripPerformancePlots::book() {
   th1fs_[FRAC] = new TH1F("frac", "", 50,0.,100.);
   th1fs_[CLUSTERSIZE] = new TH1F("clustersize", "", 50,0.,50.);
   th1fs_[OCCUPANCY] = new TH1F("occupancy", "", 50,0.,5.);
-  tprofiles_[TIMEVSOCCUPANCY] = new TProfile("timevsoccupancy", "", 20,0.,.4);
+  tprofiles_[TIMEVSOCCUPANCY] = new TProfile("timevsoccupancy", "", 20,0.,2.);
   tprofiles_[TIMEVSDIGIS] = new TProfile("timevsdigis", "", 100,50000.,150000.);
   tprofiles_[TIMEVSCLUSTERS] = new TProfile("timevsclusters", "", 100,0.,100000.);
   tprofiles_[TIMEVSCLUSTERSIZE] = new TProfile("timevsclustersize", "", 20,0.,20.);
