@@ -5,18 +5,25 @@ class SimpleMet : public TObject {
 
  public:
 
+  /** Constructors */
+
   SimpleMet() :  rawet_(constants::invalid), et_(constants::invalid) {}
+
   SimpleMet(double rawet, double et) : rawet_(rawet), et_(et) {}
+
+  /** Destructor */
+
   virtual ~SimpleMet() {}
 
-  const double rawet() const {return rawet_;}
-  const double et() const {return et_;} 
-  void reset() {rawet_ = constants::invalid; et_ = constants::invalid;}
+  /** Getters */
 
-  bool operator < (const SimpleMet& compare) const {
-    if (compare.et() < et()) return true;
-    return false;
-  }
+  const double rawet() const {return rawet_;}
+
+  const double et() const {return et_;} 
+
+  /** Setter */
+
+  void reset() {rawet_ = constants::invalid; et_ = constants::invalid;}
 
  private:
 
@@ -25,5 +32,10 @@ class SimpleMet : public TObject {
 
   ClassDef(SimpleMet,1)
 };
+
+  inline bool operator < (const SimpleMet& one, const SimpleMet& two)
+{
+  return (one.et() < two.et()) ? true : false;
+}
 
 #endif

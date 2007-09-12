@@ -38,6 +38,7 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleHCluster.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleGenJet.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleJet.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleMuon.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleElectron.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleSiStripDigi.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleSiStripCluster.h"

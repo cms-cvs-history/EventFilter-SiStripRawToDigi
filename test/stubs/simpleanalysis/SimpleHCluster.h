@@ -5,27 +5,46 @@ class SimpleHCluster : public TObject {
 
  public:
 
-  SimpleHCluster() : rawEnergy_(constants::invalid), energy_(constants::invalid), eta_(constants::invalid), phi_(constants::invalid) {;}
+  /** Constructor */
 
-  SimpleHCluster(double RawEnergy, double Energy, double Eta, double Phi) : rawEnergy_(RawEnergy), energy_(Energy), eta_(Eta), phi_(Phi) {;}
+  SimpleHCluster() : rawEnergy_(constants::invalid), energy_(constants::invalid), eta_(constants::invalid), phi_(constants::invalid) {}
 
-  virtual ~SimpleHCluster() {;}
+  SimpleHCluster(double RawEnergy, double Energy, double Eta, double Phi) : rawEnergy_(RawEnergy), energy_(Energy), eta_(Eta), phi_(Phi) {}
 
-  const double rawEt() const {return rawEnergy_ * sin(2*atan(exp(-eta_)));}
-  const double et() const {return energy_ * sin(2*atan(exp(-eta_)));}
+  /** Desctructor */
+ 
+  virtual ~SimpleHCluster() {}
+
+  /** Getters */
+
   const double eta() const {return eta_;}
+
   const double phi() const {return phi_;}
 
-  static const double dR(const SimpleHCluster& a,const SimpleHCluster& b) {
-    return sqrt((a.eta() - b.eta())*(a.eta() - b.eta()) 
-		+ (a.phi() - b.phi())*(a.phi() - b.phi()));
-  }
-  
-  static const double dR(const SimpleHCluster& a,const SimpleGenParticle& b) {
-    return sqrt((a.eta() - b.eta())*(a.eta() - b.eta()) 
-		+ (a.phi() - b.phi())*(a.phi() - b.phi()));
-  }
+  /** Utility */
 
+  const double rawEt() const 
+    {
+      return rawEnergy_ * sin(2*atan(exp(-eta_)));
+    }
+
+  const double et() const 
+    {
+      return energy_ * sin(2*atan(exp(-eta_)));
+    }
+
+  static const double dR(const SimpleHCluster& a,const SimpleHCluster& b) 
+    {
+      return sqrt((a.eta() - b.eta())*(a.eta() - b.eta()) 
+		  + (a.phi() - b.phi())*(a.phi() - b.phi()));
+    }
+  
+  static const double dR(const SimpleHCluster& a,const SimpleGenParticle& b) 
+    {
+      return sqrt((a.eta() - b.eta())*(a.eta() - b.eta()) 
+		  + (a.phi() - b.phi())*(a.phi() - b.phi()));
+    }
+  
  private:
 
   double rawEnergy_;
@@ -34,10 +53,10 @@ class SimpleHCluster : public TObject {
   double phi_;
 
   ClassDef(SimpleHCluster,1)
-
 };
 
-inline bool operator < (const SimpleHCluster& one,const SimpleHCluster& two) {
+inline bool operator < (const SimpleHCluster& one,const SimpleHCluster& two) 
+{
   return (one.et() < two.et()) ? true : false;
 }
 

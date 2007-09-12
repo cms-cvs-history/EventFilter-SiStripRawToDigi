@@ -5,13 +5,20 @@ class SimpleJet : public SimpleGenJet {
 
  public:
 
+  /** Constructors */
+
   SimpleJet() : SimpleGenJet(), tracks_(), discriminator_(constants::invalid) {;}
 
   SimpleJet(double vx, double vy, double vz, SimpleHCluster& hcluster, std::vector<SimpleTrack>& tracks, double discriminator) : SimpleGenJet(vx,vy,vz,hcluster), tracks_(tracks), discriminator_(discriminator) {;}
 
+  /** Decstructor */
+
     virtual ~SimpleJet() {;}
 
+    /** Getters */
+
   const std::vector<SimpleTrack> tracks() const {return tracks_;}
+
   const double discriminator() const {return discriminator_;}
 
  private:
