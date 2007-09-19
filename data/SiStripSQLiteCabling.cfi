@@ -1,0 +1,8 @@
+
+es_source SiStripDBCabling = PoolDBESSource { 
+    using CondDBSetup
+    string connect = "/local/sistripfedcablingCSA07.db"
+    FileInPath InPathCatalog = "CondCore/SQLiteData/data/localCondDBCatalog.xml"
+    string timetype = "runnumber"
+    VPSet toGet = {{ string record = "SiStripFedCablingRcd" string tag = "SiStripFedCabling_v1" }}
+}
