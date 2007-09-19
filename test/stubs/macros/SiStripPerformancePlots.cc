@@ -7,7 +7,7 @@ SiStripPerformancePlots::~SiStripPerformancePlots() {}
   
 void SiStripPerformancePlots::book() {
   
-  th1fs_[TIME] = new TH1F("time", "", 50,0.,.1);
+  th1fs_[TIME] = new TH1F("time", "", 20,0.,.4);
   th1fs_[FRAC] = new TH1F("frac", "", 50,0.,100.);
   th1fs_[CLUSTERSIZE] = new TH1F("clustersize", "", 50,0.,50.);
   th1fs_[OCCUPANCY] = new TH1F("occupancy", "", 50,0.,5.);
