@@ -27,7 +27,6 @@ figures.read("");
 figures.read("");
 figures.overlay();
 figures.unbook();
-
 file->Close();
 
 }
