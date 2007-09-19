@@ -35,7 +35,7 @@ void SiStripPerformanceAnalysis::timing() {
     const double clusternum = static_cast<double>(data_->sistripclusternum());
     const double clusterized = static_cast<double>(clusterizedstrips());
     const double fraction = (100.*nunpackedchans_)/nchans_;
-    const double csize = (clusternum) ? clusterized/clusternum : constants::invalid;
+    const double csize = (clusternum) ? clusterized/clusternum : 0.;
     const double occ = occupancy();
 
     plots_.get(SiStripPerformancePlots::TIME)->Fill(time_);
