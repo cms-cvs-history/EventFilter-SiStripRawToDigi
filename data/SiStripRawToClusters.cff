@@ -5,13 +5,13 @@ include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
 # raw-to-clusters regions of interest module
 include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersRoI.cfi"
 
-sequence sistriprawtoclusters = {SiStripRawToClustersFacility, SiStripRoI}
-
-# raw to clusters DSV builder (temporary, for compatibility with rech-hits converter)
+# raw to clusters DSV builder
 include "EventFilter/SiStripRawToDigi/test/data/SiStripClustersDSVBuilder.cfi"
 
 # dummy clusters loop (for unpacking)
 include "EventFilter/SiStripRawToDigi/test/data/SiStripRawToClustersDummyUnpacker.cfi"
+
+sequence sistriprawtoclusters = {SiStripRawToClustersFacility, SiStripRoI}
 
 sequence sistriprawtoclustersdsv = {SiStripRawToClustersFacility, SiStripRoI, siStripClusters}
 
