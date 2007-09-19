@@ -1,0 +1,5 @@
+module SiStripDigiToRaw = SiStripDigiToRawModule 
+{
+    string InputModuleLabel = "siStripDigis"
+    untracked string FedReadoutMode = "ZERO_SUPPRESSED"
+}
