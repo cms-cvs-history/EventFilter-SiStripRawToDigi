@@ -17,7 +17,7 @@ cd $WNDIR;
 
 #config directories
 CONN=$1/src/CalibTracker/SiStripConnectivity/data;
-TEST=$1/src/EventFilter/SiStripRawToDigi/test/data;
+TEST=$1/src/EventFilter/SiStripRawToDigi/test;
 TESTDATA=$1/src/EventFilter/SiStripRawToDigi/test/data;
 
 #useful values
@@ -29,10 +29,10 @@ string='"'
 endline=' #'
 
 #run
-for divisions in 1 2 3 4 5 10 20 50 100 500 1000 
+for divisions in 1 2 3 4 5 10 20 50 100 200 500
 do
 name=$string$divisions$string;
-value=$delta;
+value=$divisions;
 replace "$namefield" "$namefield$equals$name$endline" -- $TESTDATA/SiStripPerformance.cfi;
 replace "$etafield" "$etafield$equals$value$endline" -- $CONN/SiStripRegionConnectivity.cfi;
 replace "$phifield" "$phifield$equals$value$endline" -- $CONN/SiStripRegionConnectivity.cfi;
