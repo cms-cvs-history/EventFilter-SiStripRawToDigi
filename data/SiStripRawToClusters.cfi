@@ -8,4 +8,4 @@ module SiStripRawToClustersFacility = SiStripRawToClusters {
 
 }
 
-replace SiStripRawToClustersFacility.ProductLabel = "DigiToRaw"
+replace SiStripRawToClustersFacility.ProductLabel = "SiStripDigiToRaw"
