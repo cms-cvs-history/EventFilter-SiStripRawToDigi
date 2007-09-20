@@ -44,20 +44,18 @@ class SiStripPerformance : public edm::EDAnalyzer {
   void sistripclusters(const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
   void sistripclusters(const edm::Handle< edm::DetSetVector<SiStripCluster> >&);
   void electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
-  void taus(const edm::Handle<IsolatedTauTagInfoCollection>&);
+  void muons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
+  void jets(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
   void trigger(const edm::Handle<edm::TriggerResults>&);
 
   /** Event data labels */
-  std::string sistripDigisModuleLabel_;
-  std::string sistripDigisProductLabel_;
-  std::string sistripClustersModuleLabel_;
-  std::string sistripClustersProductLabel_;
-  std::string mcModuleLabel_;
-  std::string mcProductLabel_;
-  std::string electronsModuleLabel_;
-  std::string electronsProductLabel_;
-  std::string tausModuleLabel_;
-  std::string tausProductLabel_;
+  std::string sistripDigisLabel_;
+  std::string sistripClustersLabel_;
+  std::string particlesLabel_;
+  std::string electronsLabel_;
+  std::string muonsLabel_;
+  std::string tausLabel_;
+  std::string bjetsLabel_;
 
   /** Timing */
   std::vector< std::string > timingmodules_;

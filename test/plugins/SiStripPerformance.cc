@@ -9,16 +9,13 @@ using namespace edm;
 
 SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
 
-  sistripDigisModuleLabel_(pset.getUntrackedParameter<string>("SiStripDigisModuleLabel","")),
-  sistripDigisProductLabel_(pset.getUntrackedParameter<string>("SiStripDigisProductLabel","")),
-  sistripClustersModuleLabel_(pset.getUntrackedParameter<string>("SiStripClustersModuleLabel","")),
-  sistripClustersProductLabel_(pset.getUntrackedParameter<string>("SiStripClustersProductLabel","")),
-  mcModuleLabel_(pset.getUntrackedParameter<string>("McModuleLabel","")),
-  mcProductLabel_(pset.getUntrackedParameter<string>("McProductLabel","")),
-  electronsModuleLabel_(pset.getUntrackedParameter<string>("ElectronModuleLabel","")),
-  electronsProductLabel_(pset.getUntrackedParameter<string>("ElectronProductLabel","")),
-  tausModuleLabel_(pset.getUntrackedParameter<string>("TauModuleLabel","")),
-  tausProductLabel_(pset.getUntrackedParameter<string>("TauProductLabel","")),
+  sistripDigisLabel_(pset.getUntrackedParameter<string>("SiStripDigisLabel","")),
+  sistripClustersLabel_(pset.getUntrackedParameter<string>("SiStripClustersLabel","")),
+  particlesLabel_(pset.getUntrackedParameter<string>("ParticlesLabel","")),
+  electronsLabel_(pset.getUntrackedParameter<string>("ElectronsLabel","")),
+  muonsLabel_(pset.getUntrackedParameter<string>("MuonsLabel","")),
+  tausLabel_(pset.getUntrackedParameter<string>("TausLabel","")),
+  bjetsLabel_(pset.getUntrackedParameter<string>("BjetsLabel","")),
   timingmodules_(pset.getUntrackedParameter< vector< string> >("TimingModules")),
   timingpaths_(pset.getUntrackedParameter< vector< string> >("TimingPaths")),
   cabling_(),
@@ -73,7 +70,7 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   //SiStripDigis
   try {
     Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
-    iEvent.getByLabel(sistripDigisModuleLabel_, sistripDigisProductLabel_, sistripDigis);
+    iEvent.getByLabel(sistripDigisLabel_, sistripDigisLabel_, sistripDigis);
     nunpackedchans_ = allchannels(*cabling_);
     sistripdigis(sistripDigis);
   } catch(...) {;}
@@ -81,38 +78,52 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   //SiStripClusters
   try {
     Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
-    iEvent.getByLabel(sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters);
+    iEvent.getByLabel(sistripClustersLabel_, sistripClustersLabel_, sistripClusters);
     nunpackedchans_ = regionalchannels(*cabling_,*sistripClusters);
     sistripclusters(sistripClusters);
   } catch(...) {;}
  
   try {
     Handle< DetSetVector<SiStripCluster> > sistripClusters;
-    iEvent.getByLabel( sistripClustersModuleLabel_, sistripClustersProductLabel_, sistripClusters );
+    iEvent.getByLabel( sistripClustersLabel_, sistripClustersLabel_, sistripClusters );
     sistripclusters(sistripClusters);
   } catch(...) {;}
   
   //Monte Carlo
   try {
     Handle<HepMCProduct> mcp;
-    iEvent.getByLabel(mcModuleLabel_,mcProductLabel_, mcp);
+    iEvent.getByLabel(particlesLabel_,particlesLabel_, mcp);
     particles(mcp);
   } catch(...) {;}
   
   //Electrons
   try {
     Handle<reco::HLTFilterObjectWithRefs> Electrons;
-    iEvent.getByLabel( electronsModuleLabel_, electronsProductLabel_, Electrons );
+    iEvent.getByLabel( electronsLabel_, Electrons );
     electrons(Electrons);
   } catch(...) {;}
   
+  //Muons
+  try {
+    Handle<reco::HLTFilterObjectWithRefs> Muons;
+    iEvent.getByLabel( muonsLabel_, Muons );
+    muons(Muons);
+  } catch(...) {;}
+
   //Taus
   try {
-    Handle<IsolatedTauTagInfoCollection> Taus;
-    iEvent.getByLabel( tausModuleLabel_, tausProductLabel_, Taus );
-    taus(Taus);
+    Handle<reco::HLTFilterObjectWithRefs> Taus;
+    iEvent.getByLabel( tausLabel_, Taus );
+    jets(Taus);
   } catch(...) {;}
-  
+
+  //Bjets
+  try {
+    Handle<reco::HLTFilterObjectWithRefs> Bjets;
+    iEvent.getByLabel( bjetsLabel_, Bjets );
+    jets(Bjets);
+  } catch(...) {;}
+
   //Trigger
   try {
     Handle<TriggerResults> Trigger;
@@ -230,23 +241,27 @@ void SiStripPerformance::particles(const Handle<HepMCProduct>& mcp) {
   }
 }
 
-void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& Electrons) {
+void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
 
-  reco::HLTFilterObjectWithRefs::const_iterator ielectron = Electrons->begin();
-  for (; ielectron != Electrons->end(); ielectron++) {
-    const reco::Electron& electron = dynamic_cast<const reco::Electron&>(*ielectron);
-    data_->electrons().push_back(objectconverter::electron(electron));
+  reco::HLTFilterObjectWithRefs::const_iterator ielectron = collection->begin();
+  for (; ielectron != collection->end(); ielectron++) {
+    data_->electrons().push_back(objectconverter::electron(*ielectron));
   }
 }
 
-void SiStripPerformance::taus(const Handle<reco::IsolatedTauTagInfoCollection>& Taus) {
+void SiStripPerformance::muons(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
+
+  reco::HLTFilterObjectWithRefs::const_iterator imuon = collection->begin();
+  for (; imuon != collection->end(); imuon++) {
+    data_->muons().push_back(objectconverter::muon(*imuon));
+  }
+}
+
+void SiStripPerformance::jets(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
  
-  reco::IsolatedTauTagInfoCollection::const_iterator itau = Taus->begin();
-  for (; itau != Taus->end(); itau++) {
-    const CaloJet& jet = dynamic_cast<const CaloJet&>(*(itau->jet()));
-    if(itau->discriminator()) {
-      data_->jets().push_back(objectconverter::jet(jet,itau->jtaRef()->second));
-    }
+  reco::HLTFilterObjectWithRefs::const_iterator ijet = collection->begin();
+  for (; ijet != collection->end(); ijet++) {
+    data_->jets().push_back(objectconverter::jet(*ijet));
   }
 }
 
