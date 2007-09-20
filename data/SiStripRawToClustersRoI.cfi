@@ -1,10 +1,16 @@
+include "EventFilter/SiStripRawToDigi/data/SiStripRoIDimensions.cfi"
+include "EventFilter/SiStripRawToDigi/data/SiStripRoILabels.cfi"
+
 module SiStripRoI = SiStripRawToClustersRoI 
 {
     untracked string InputModuleLabel = "SiStripRawToClustersFacility"
     untracked int32 Layers = -1 
+    untracked bool Global = false
     untracked bool Random = false
-    untracked bool All = true 
-    untracked bool Electron = false
-    untracked double DeltaEta = 0.16 
-    untracked double DeltaPhi = 0.16 
+    untracked bool Electrons = true
+    untracked bool Muons = false
+    untracked bool Taus = false
+    untracked bool Bjets = false
+    using SiStripRoIDimensions
+    using SiStripRoILabels
 }
