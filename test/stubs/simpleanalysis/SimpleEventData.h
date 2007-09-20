@@ -5,7 +5,7 @@ class SimpleEventData : public TObject {
 
  public:
 
-  SimpleEventData() : mc_(), mcjets_(), mcmet_(0.,0.), sistripdigis_(), sistripclusters_(), tracks_(), electrons_(), jets_(), trigger_(), met_(0.,0.), event_(0), channel_() {}
+  SimpleEventData() : mc_(), mcjets_(), mcmet_(0.,0.), sistripdigis_(), sistripclusters_(), tracks_(), electrons_(), muons_(), jets_(), trigger_(), met_(0.,0.), event_(0), channel_() {}
   virtual ~SimpleEventData() {}
    
   /** Monte Carlo */
@@ -20,6 +20,7 @@ class SimpleEventData : public TObject {
   std::vector<SimpleSiStripCluster>& sistripclusters() {return sistripclusters_;}
   std::vector<SimpleTrack>& tracks() {return tracks_;}
   std::vector<SimpleElectron>& electrons() {return electrons_;}
+  std::vector<SimpleMuon>& muons() {return muons_;}
   std::vector<SimpleJet>& jets() {return jets_;}
   SimpleTrigger& trigger() {return trigger_;}
   SimpleMet& met() {return met_;}
@@ -37,6 +38,7 @@ class SimpleEventData : public TObject {
     sistripclusters_.clear();
     tracks_.clear();
     electrons_.clear();
+    muons_.clear();
     jets_.clear();
     trigger_.reset();
     met_.reset();
@@ -49,6 +51,7 @@ class SimpleEventData : public TObject {
     std::sort(sistripclusters_.begin(),sistripclusters_.end());
     std::sort(tracks_.begin(),tracks_.end());
     std::sort(electrons_.begin(),electrons_.end());
+    std::sort(muons_.begin(),muons_.end());
     std::sort(jets_.begin(),jets_.end());
   }
   
@@ -103,6 +106,15 @@ class SimpleEventData : public TObject {
     }
     return count;
   }
+
+  unsigned int muonnum(const double cut=0) {
+    unsigned int count=0;
+    for (unsigned int i = 0; i < electrons_.size(); i++) {
+      if ((muons_[i].track().innerPt() > cut) && (muons_[i].tag())) count++;
+      else {break;}
+    }
+    return count;
+  }
   
   unsigned int jetnum(const double cut=0) {
     unsigned int count=0;
@@ -138,6 +150,7 @@ class SimpleEventData : public TObject {
  std::vector<SimpleSiStripCluster> sistripclusters_;
  std::vector<SimpleTrack> tracks_;
  std::vector<SimpleElectron> electrons_;
+ std::vector<SimpleMuon> muons_;
  std::vector<SimpleJet> jets_;
  SimpleTrigger trigger_;
  SimpleMet met_;

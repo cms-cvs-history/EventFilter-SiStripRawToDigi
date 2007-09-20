@@ -9,7 +9,7 @@ class SimpleElectron : public TObject {
 
   SimpleElectron() : track_(), scluster_(), classification_(constants::invalid32), tag_(false) {}
 
-  SimpleElectron(SimpleTrack& track, SimpleSCluster& scluster, int classification) : track_(track), scluster_(scluster), classification_(classification), tag_(false) {}
+  SimpleElectron(SimpleTrack track, SimpleSCluster scluster, int classification) : track_(track), scluster_(scluster), classification_(classification), tag_(false) {}
 
   /** Desctructor */
 

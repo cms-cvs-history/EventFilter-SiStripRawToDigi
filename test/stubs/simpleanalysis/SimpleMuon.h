@@ -9,7 +9,7 @@ class SimpleMuon : public TObject {
 
   SimpleMuon() : track_(), tag_(false) {}
 
-  SimpleMuon(SimpleTrack& track) : track_(track), tag_(false) {}
+  SimpleMuon(SimpleTrack track) : track_(track), tag_(false) {}
   
   /** Destructor */
   

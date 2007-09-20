@@ -9,7 +9,7 @@ class SimpleJet : public SimpleGenJet {
 
   SimpleJet() : SimpleGenJet(), tracks_(), discriminator_(constants::invalid) {;}
 
-  SimpleJet(double vx, double vy, double vz, SimpleHCluster& hcluster, std::vector<SimpleTrack>& tracks, double discriminator) : SimpleGenJet(vx,vy,vz,hcluster), tracks_(tracks), discriminator_(discriminator) {;}
+  SimpleJet(double vx, double vy, double vz, SimpleHCluster hcluster, std::vector<SimpleTrack> tracks, double discriminator) : SimpleGenJet(vx,vy,vz,hcluster), tracks_(tracks), discriminator_(discriminator) {;}
 
   /** Decstructor */
 

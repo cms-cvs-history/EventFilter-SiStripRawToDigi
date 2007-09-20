@@ -9,7 +9,7 @@ class SimpleGenJet : public TObject {
 
   SimpleGenJet() : vx_(constants::invalid), vy_(constants::invalid), vz_(constants::invalid), hcluster_(), tag_(false) {}
 
-  SimpleGenJet(double vx, double vy, double vz, SimpleHCluster& hcluster) : vx_(vx), vy_(vy), vz_(vz), hcluster_(hcluster), tag_(false) {}
+  SimpleGenJet(double vx, double vy, double vz, SimpleHCluster hcluster) : vx_(vx), vy_(vy), vz_(vz), hcluster_(hcluster), tag_(false) {}
 
   /** Desctructor */
 
