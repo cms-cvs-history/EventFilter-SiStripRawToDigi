@@ -1,0 +1,13 @@
+block SiStripRoILabels = {
+
+    untracked string electronBarrelModule = "hltHybridSuperClustersL1Isolated"
+    untracked string electronBarrelProduct = ""
+    untracked string electronEndcapModule = "hltIslandSuperClustersL1Isolated"
+    untracked string electronEndcapProduct = "islandEndcapSuperClusters"
+    untracked string muonModule = ""
+    untracked string muonProduct = ""
+    untracked string tauModule = ""
+    untracked string tauProduct = ""
+    untracked string bjetModule = ""
+    untracked string bjetProduct = ""
+}
