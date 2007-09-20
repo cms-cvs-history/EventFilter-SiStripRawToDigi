@@ -1,0 +1,11 @@
+block SiStripRoIDimensions = {
+
+    untracked double ElectronDeta = 0.16
+    untracked double ElectronDphi = 0.16 
+    untracked double MuonDeta = 0.2 
+    untracked double MuonDphi = 0.2 
+    untracked double TauDeta = 0.2 
+    untracked double TauDphi = 0.2 
+    untracked double BjetDeta = 0.2 
+    untracked double BjetDphi = 0.2 
+}
