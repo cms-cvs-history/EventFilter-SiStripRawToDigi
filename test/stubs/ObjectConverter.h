@@ -20,11 +20,15 @@
 
 namespace objectconverter {
 
+  /** Generator level */
+
   SimpleGenParticle particle(const HepMC::GenParticle&, const edm::ESHandle<ParticleDataTable>&);
 
   SimpleGenJet jet(const reco::GenJet&);
 
   SimpleMet met(const reco::GenMET&);
+
+  /** Reconstructed */
 
   SimpleSiStripDigi sistripdigi(const SiStripDigi&, const unsigned int);
 
@@ -32,16 +36,19 @@ namespace objectconverter {
 
   SimpleTrack track(const reco::Track&);
 
-  SimpleJet jet(const reco::JetTag&, const reco::JetTag&);
-  
-  SimpleJet jet(const reco::CaloJet&, const edm::RefVector<TrackCollection>&);
+  SimpleJet jet(const reco::JetTag&, const reco::JetTag&);  
 
   SimpleElectron electron(const reco::PixelMatchGsfElectron&, const reco::ClusterShapeRef&);
-
-  SimpleElectron electron(const reco::Electron&);
 
   SimpleMet met(const reco::CaloMET&, const reco::CaloMET&);
 
   SimpleTrigger trigger(const edm::TriggerResults&);
 
+  /** Reconstructed - from four vectors */
+
+  SimpleElectron electron(const reco::Candidate&);
+
+  SimpleMuon muon(const reco::Candidate&);
+
+  SimpleJet jet(const reco::Candidate&);
 }

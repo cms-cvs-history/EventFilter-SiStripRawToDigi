@@ -7,12 +7,10 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/ObjectConverter.h"
 
 SimpleGenParticle objectconverter::particle(const HepMC::GenParticle& particle, const edm::ESHandle<ParticleDataTable>& pdt) {
-
-  return SimpleGenParticle(particle.momentum().perp(), -1.0*log(tan(0.5*(particle.momentum().theta()))), particle.momentum().phi(), 0./*particle.production_vertex()->position().x()*/, 0./*particle.production_vertex()->position().y()*/, 0./*particle.production_vertex()->position().z()*/, particle.pdg_id(), static_cast<int>(pdt->particle(particle.pdg_id())->charge()));
+  return SimpleGenParticle(particle.momentum().perp(), -1.0*log(tan(0.5*(particle.momentum().theta()))), particle.momentum().phi(), 0., 0., 0., particle.pdg_id(), static_cast<int>(pdt->particle(particle.pdg_id())->charge()));
 }
 
 SimpleGenJet objectconverter::jet(const reco::GenJet& jet) {
-  
   SimpleHCluster simplehcluster(constants::invalid, jet.energy(), jet.eta(), jet.phi());
   return SimpleGenJet(jet.vertex().X(), jet.vertex().Y(), jet.vertex().Z(), simplehcluster);
 }
@@ -34,44 +32,16 @@ SimpleTrack objectconverter::track(const reco::Track& track) {
 }
   
 SimpleJet objectconverter::jet(const reco::JetTag& jet, const reco::JetTag& rawjet) {
-  
   std::vector<SimpleTrack> simpletracks;
-  for (edm::RefVector<TrackCollection>::iterator itrack = jet.tracks().begin();itrack != jet.tracks().end();itrack++) {
-    simpletracks.push_back(SimpleTrack(itrack->get()->momentum().Rho(), itrack->get()->momentum().Eta(), itrack->get()->momentum().Phi(), itrack->get()->vertex().X(), itrack->get()->vertex().Y(), itrack->get()->vertex().Z(), itrack->get()->outerMomentum().Rho(), itrack->get()->outerMomentum().Eta(), itrack->get()->outerMomentum().Phi(), itrack->get()->outerPosition().X(), itrack->get()->outerPosition().Y(), itrack->get()->outerPosition().Z(), itrack->get()->charge(), itrack->get()->found()));	
-  }
-  
-  SimpleHCluster simplehcluster(rawjet.jet().get()->energy(),jet.jet().get()->energy(),jet.jet().get()->eta(),jet.jet().get()->phi());
-
+  for (unsigned int i=0;i<jet.tracks().size();i++) {simpletracks.push_back(track(jet.tracks()[i]));}
+  SimpleHCluster(rawjet.jet().get()->energy(),jet.jet().get()->energy(),jet.jet().get()->eta(),jet.jet().get()->phi());
   return SimpleJet(jet.jet().get()->vertex().X(), jet.jet().get()->vertex().Y(), jet.jet().get()->vertex().Z(), simplehcluster, simpletracks, jet.discriminator());
 }
 
-SimpleJet objectconverter::jet(const reco::CaloJet& jet, const edm::RefVector<TrackCollection>& trackcollection) {
-
-  std::vector<SimpleTrack> simpletracks;
-  for (edm::RefVector<TrackCollection>::const_iterator itrack=trackcollection.begin();itrack!=trackcollection.end();++itrack) {
-    simpletracks.push_back(track(**itrack));
-  }
-  
-  SimpleHCluster simplehcluster(jet.energy(),constants::invalid,jet.eta(),jet.phi());
-
-  return SimpleJet(jet.vertex().X(),jet.vertex().Y(),jet.vertex().Z(),simplehcluster,simpletracks,constants::invalid);
-}
-
 SimpleElectron objectconverter::electron(const reco::PixelMatchGsfElectron& electron, const reco::ClusterShapeRef& shape) {
-  
   SimpleSCluster simplescluster(electron.superCluster().get()->rawEnergy(), electron.caloEnergy(), electron.superCluster().get()->eta(), electron.superCluster().get()->phi(), electron.hadronicOverEm(), shape->e2x2(), shape->e3x3(), shape->e5x5(), shape->eMax(), shape->covEtaEta());
-  
   SimpleTrack simpletrack(electron.trackMomentumAtVtx().Rho(), electron.trackMomentumAtVtx().Eta(), electron.trackMomentumAtVtx().Phi(), electron.TrackPositionAtVtx().X(), electron.TrackPositionAtVtx().Y(), electron.TrackPositionAtVtx().Z(), electron.trackMomentumAtCalo().Rho(), electron.trackMomentumAtCalo().Eta(), electron.trackMomentumAtCalo().Phi(), electron.TrackPositionAtCalo().X(), electron.TrackPositionAtCalo().Y(), electron.TrackPositionAtCalo().Z(), electron.gsfTrack().get()->charge(), electron.gsfTrack().get()->found());
-  
   return SimpleElectron(simpletrack,simplescluster,electron.classification());
-}
-
-SimpleElectron objectconverter::electron(const reco::Electron& electron) {
-
-  SimpleSCluster simplescluster(electron.superCluster()->rawEnergy(), electron.superCluster()->energy(), electron.superCluster()->eta(), electron.superCluster()->phi(), constants::invalid, constants::invalid, constants::invalid, constants::invalid, constants::invalid, constants::invalid);
-  SimpleTrack simpletrack = track(*(electron.track()));
-
-  return SimpleElectron(simpletrack,simplescluster,constants::invalid32);
 }
 
 SimpleMet objectconverter::met(const reco::CaloMET& rawmet, const reco::CaloMET& met) {
@@ -79,10 +49,22 @@ SimpleMet objectconverter::met(const reco::CaloMET& rawmet, const reco::CaloMET&
 }
 
 SimpleTrigger objectconverter::trigger(const edm::TriggerResults& trigger) {
-  
   SimpleTrigger simpletrigger(trigger.size());
-  for (unsigned int i=0;i<trigger.size();i++) {
-    simpletrigger.set(i,(trigger.at(i).state() == edm::hlt::Pass));
-  }
+  for (unsigned int i=0;i<trigger.size();i++) {simpletrigger.set(i,(trigger.at(i).state() == edm::hlt::Pass));}
   return simpletrigger;
+}
+
+SimpleElectron objectconverter::electron(const reco::Candidate& candidate) {
+  SimpleSCluster simplescluster(candidate.energy(), constants::invalid, candidate.eta(), candidate.phi(), constants::invalid, constants::invalid, constants::invalid, constants::invalid, constants::invalid, constants::invalid);
+  return SimpleElectron(SimpleTrack(),simplescluster,constants::invalid32);
+}
+
+SimpleMuon objectconverter::muon(const reco::Candidate& candidate) {
+  SimpleTrack track(candidate.pt(),candidate.eta(),candidate.phi(),candidate.vx(),candidate.vy(),candidate.vz(),constants::invalid,constants::invalid,constants::invalid,constants::invalid,constants::invalid,constants::invalid,constants::invalid32,constants::invalid16);
+  return SimpleMuon(track);
+}
+
+SimpleJet objectconverter::jet(const reco::Candidate& candidate) {
+  SimpleHCluster simplehcluster(candidate.energy(),constants::invalid,candidate.eta(),candidate.phi());
+  return SimpleJet(candidate.vx(),candidate.vy(),candidate.vz(),simplehcluster,std::vector<SimpleTrack>(),constants::invalid);
 }
