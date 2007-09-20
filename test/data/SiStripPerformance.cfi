@@ -6,17 +6,13 @@ module Performance = SiStripPerformance
     untracked string TreeName = "Tree"
     
     # edproduct labels
-    untracked string SiStripDigisModuleLabel = "siStripDigis"
-    untracked string SiStripDigisProductLabel = ""
-    untracked string SiStripClustersModuleLabel = "SiStripRoI"
-    untracked string SiStripClustersProductLabel = ""
-    untracked string McModuleLabel = "source"
-    untracked string McProductLabel = ""
-    untracked string ElectronModuleLabel = "hltL1IsoDoubleElectronEoverpFilter"
-    untracked string ElectronProductLabel = ""
-    untracked string TauModuleLabel = "isolatedL3SingleTau"
-    untracked string TauProductLabel = ""
-    untracked string TriggerProductLabel = ""
+    untracked string SiStripDigisLabel = "siStripDigis"
+    untracked string SiStripClustersLabel = "SiStripRoI"
+    untracked string ParticlesLabel = "source"
+    untracked string ElectronsLabel = "hltL1IsoDoubleElectronTrackIsolFilter"
+    untracked string MuonsLabel = "DiMuonIsoL3IsoFiltered"
+    untracked string TausLabel = "filterL3DoubleTau"
+    untracked string BjetsLabel = "hltL3b"
 
     # timing
     untracked vstring TimingModules = {""}
