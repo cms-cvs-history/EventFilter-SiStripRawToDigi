@@ -10,7 +10,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/ObjectConverter.h"
 

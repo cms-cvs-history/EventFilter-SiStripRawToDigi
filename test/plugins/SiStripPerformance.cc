@@ -1,6 +1,5 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformance.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 
 using namespace std;
