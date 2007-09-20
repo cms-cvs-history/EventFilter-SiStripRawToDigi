@@ -1,11 +1,10 @@
+
 include "CommonTools/SiStripClusterization/data/SiStripClusterization.cfi"
 
 module SiStripRawToClustersFacility = SiStripRawToClusters {
 
-    untracked string ProductLabel = "source"
+    untracked string ProductLabel = "rawDataCollector"
     untracked string ProductInstance = ""
     using SiStripClusterization
-
 }
 
-replace SiStripRawToClustersFacility.ProductLabel = "SiStripDigiToRaw"
