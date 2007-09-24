@@ -1,11 +1,11 @@
 block SiStripRoIDimensions = {
 
-    untracked double ElectronDeta = 0.16
-    untracked double ElectronDphi = 0.16 
-    untracked double MuonDeta = 0.2 
-    untracked double MuonDphi = 0.2 
-    untracked double TauDeta = 0.2 
-    untracked double TauDphi = 0.2 
-    untracked double BjetDeta = 0.2 
-    untracked double BjetDphi = 0.2 
+    untracked double ElectronEtaWindow = 0.16 
+    untracked double ElectronPhiWindow = 0.16
+    untracked double MuonEtaWindow = 0.0  
+    untracked double MuonPhiWindow = 0.0  
+    untracked double TauEtaWindow = 0.0 
+    untracked double TauPhiWindow = 0.0
+    untracked double BjetEtaWindow = 0.0
+    untracked double BjetPhiWindow = 0.0
 }
