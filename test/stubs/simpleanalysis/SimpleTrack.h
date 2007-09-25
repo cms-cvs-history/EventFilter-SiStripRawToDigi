@@ -53,6 +53,16 @@ class SimpleTrack : public TObject {
 
   const double brem() const {return (innerP() - outerP())/innerP();}
 
+  static const double dR(const SimpleTrack& a,const SimpleTrack& b) 
+    {
+      return sqrt((a.innerEta() - b.innerEta())*(a.innerEta() - b.innerEta()) + (a.innerPhi() - b.innerPhi())*(a.innerPhi() - b.innerPhi()));
+    }
+  
+  static const double dR(const SimpleTrack& a,const SimpleGenParticle& b) 
+    {
+      return sqrt((a.innerEta() - b.eta())*(a.innerEta() - b.eta()) + (a.innerPhi() - b.phi())*(a.innerPhi() - b.phi()));
+    }
+
  private:
 
   double innerpt_;

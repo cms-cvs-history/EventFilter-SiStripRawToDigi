@@ -60,20 +60,20 @@ class SimpleGenParticle : public TObject {
   
   const double etaECAL() const 
     {
-      float zhit =  constants::rEcal*sinh(eta_) + vz_;
+      float zhit =  constants::radius*sinh(eta_) + vz_;
       
-      if (fabs(zhit) < constants::zEcal) {
+      if (fabs(zhit) < constants::length) {
 	float thetahit = 0.0;
-	if (zhit!=0.0) thetahit = atan(constants::rEcal/zhit);
+	if (zhit!=0.0) thetahit = atan(constants::radius/zhit);
 	if (thetahit<0.) thetahit = thetahit + constants::pi;
 	float etahit = -log(tan(0.5*thetahit));
 	return etahit;
       } 
       
       else {
-	float rhit = (constants::zEcal-vz_) / sinh(eta_);
+	float rhit = (constants::length-vz_) / sinh(eta_);
 	float thetahit = 0.0;
-	if (rhit!=0.0) thetahit = atan(rhit/constants::zEcal);
+	if (rhit!=0.0) thetahit = atan(rhit/constants::length);
 	if (thetahit<0.) thetahit = thetahit + constants::pi;
 	float etahit = -log(tan(0.5*thetahit));
 	return etahit;
@@ -83,7 +83,7 @@ class SimpleGenParticle : public TObject {
   const double phiECAL() const 
     {
       double phicorr;
-      if( fabs(eta_) <=  constants::ecEcal) {
+      if( fabs(eta_) <=  constants::endcap) {
 	phicorr = phi_ - asin(constants::bend/pt_)*charge_;
 	if (phicorr >  constants::pi) {phicorr -= 2.*constants::pi;}
 	else if (phicorr < -1.*constants::pi) {phicorr += 2.*constants::pi;}}
