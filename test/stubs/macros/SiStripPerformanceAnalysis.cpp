@@ -1,6 +1,6 @@
 {
 
-TFile* file = new TFile("","UPDATE");
+TFile* file = new TFile("Output.root","UPDATE");
 
 SiStripPerformanceAnalysis one(file,"");
 one.book(); one.format(); one.timing(); one.save(); one.unbook();
