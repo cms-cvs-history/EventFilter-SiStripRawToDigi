@@ -1,16 +1,36 @@
-include "EventFilter/SiStripRawToDigi/data/SiStripRoIDimensions.cfi"
-include "EventFilter/SiStripRawToDigi/data/SiStripRoILabels.cfi"
 
 module SiStripRoI = SiStripRawToClustersRoI 
 {
     untracked string InputModuleLabel = "SiStripRawToClustersFacility"
     untracked int32 Layers = -1 
-    untracked bool Global = true 
+
+    # define objects of interest
+    untracked bool Global = true
     untracked bool Random = false
     untracked bool Electrons = false
     untracked bool Muons = false
     untracked bool Taus = false
     untracked bool Bjets = false
-    using SiStripRoIDimensions
-    using SiStripRoILabels
+
+    # define tracker windows
+    untracked double ElectronEtaWindow = 0.16
+    untracked double ElectronPhiWindow = 0.16 
+    untracked double MuonEtaWindow = 0.2 
+    untracked double MuonPhiWindow = 0.2  
+    untracked double TauEtaWindow = 0.2 
+    untracked double TauPhiWindow = 0.2
+    untracked double BjetEtaWindow = 0.2
+    untracked double BjetPhiWindow = 0.2
+
+    # define module labels
+    untracked string electronBarrelModule = "hltHybridSuperClustersL1Isolated"
+    untracked string electronBarrelProduct = ""
+    untracked string electronEndcapModule = "hltIslandSuperClustersL1Isolated"
+    untracked string electronEndcapProduct = "islandEndcapSuperClusters"
+    untracked string muonModule = "hltL2Muons"
+    untracked string muonProduct = ""
+    untracked string tauModule = "l2TauJetsProvider"
+    untracked string tauProduct = "DoubleTau"
+    untracked string bjetModule = "iterativeCone5CaloJets"
+    untracked string bjetProduct = ""
 }
