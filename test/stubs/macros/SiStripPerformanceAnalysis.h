@@ -16,6 +16,7 @@ public:
   void timing();
   void trigger(unsigned int);
   void electron(unsigned int);
+  void muon(unsigned int);
   void save();
   void unbook();
 

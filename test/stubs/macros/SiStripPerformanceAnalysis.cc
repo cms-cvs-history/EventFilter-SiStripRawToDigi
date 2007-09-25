@@ -73,18 +73,62 @@ void SiStripPerformanceAnalysis::electron(unsigned int bit) {
     
     for (std::vector<SimpleGenParticle>::const_iterator ipart=data_->mc().begin();ipart!=data_->mc().end();ipart++) {
       
-      if (objectfilter::trigger(data_->mc(),bit) && data_->electrons().size() && abs(ipart->pid()) == 11 && fabs(ipart->eta()) > constants::etaCut) {
+      if (objectfilter::trigger(data_->mc(),bit) && data_->electrons().size() && abs(ipart->pid()) == 11 && fabs(ipart->eta()) > constants::tracker) {
 	
 	unsigned int index = objectfilter::electron(data_->electrons(),*ipart);
 	double delta = SimpleSCluster::dR(data_->electrons()[index].scluster(),*ipart);
-	bool matched = (delta < constants::dRelec) ? true : false;
+	bool matched = (delta < constants::dRelectron) ? true : false;
 	
-	if (fabs(ipart->eta()) < constants::ecEcal) {
+	if (fabs(ipart->eta()) < constants::endcap) {
 	  if (matched) plots_.get(SiStripPerformancePlots::PT1)->select(ipart->pt());
 	  else plots_.get(SiStripPerformancePlots::PT1)->select(ipart->pt(),false);
 	}
 	
-	if (fabs(ipart->eta()) > constants::ecEcal) {
+	if (fabs(ipart->eta()) > constants::endcap) {
+	  if (matched) plots_.get(SiStripPerformancePlots::PT2)->select(ipart->pt());
+	  else plots_.get(SiStripPerformancePlots::PT2)->select(ipart->pt(),false);
+	}
+	
+	if (ipart->pt() < 40.) {
+	  if (matched) plots_.get(SiStripPerformancePlots::ETA1)->select(ipart->eta());
+	  else plots_.get(SiStripPerformancePlots::ETA1)->select(ipart->eta(),false);
+	}
+	
+	if ((ipart->pt() > 40.) && (ipart->pt() < 100.)) {
+	  if (matched) plots_.get(SiStripPerformancePlots::ETA2)->select(ipart->eta());
+	  else plots_.get(SiStripPerformancePlots::ETA2)->select(ipart->eta(),false);
+	}
+	
+	if (ipart->pt() > 100.) {
+	  if (matched) plots_.get(SiStripPerformancePlots::ETA3)->select(ipart->eta());
+	  else plots_.get(SiStripPerformancePlots::ETA3)->select(ipart->eta(),false);
+	}
+      }
+    }
+  }  
+}
+
+void SiStripPerformanceAnalysis::muon(unsigned int bit) {
+
+ for (unsigned int ievent=0;ievent<tree_->GetEntries();ievent++) {
+    
+    tree_->GetEntry(ievent); 
+    data_->order();
+
+    for (std::vector<SimpleGenParticle>::const_iterator ipart=data_->mc().begin();ipart!=data_->mc().end();ipart++) {
+
+      if (objectfilter::trigger(data_->mc(),bit) && data_->muons().size() && abs(ipart->pid()) == 13 && fabs(ipart->eta()) > constants::tracker) {
+
+	unsigned int index = objectfilter::muon(data_->muons(),*ipart);
+	double delta = SimpleTrack::dR(data_->muons()[index].track(),*ipart);
+	bool matched = (delta < constants::dRmuon) ? true : false;
+	
+	if (fabs(ipart->eta()) < constants::endcap) {
+	  if (matched) plots_.get(SiStripPerformancePlots::PT1)->select(ipart->pt());
+	  else plots_.get(SiStripPerformancePlots::PT1)->select(ipart->pt(),false);
+	}
+	
+	if (fabs(ipart->eta()) > constants::endcap) {
 	  if (matched) plots_.get(SiStripPerformancePlots::PT2)->select(ipart->pt());
 	  else plots_.get(SiStripPerformancePlots::PT2)->select(ipart->pt(),false);
 	}
