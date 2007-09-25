@@ -69,7 +69,7 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   //SiStripDigis
   try {
     Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
-    iEvent.getByLabel(sistripDigisLabel_, sistripDigisLabel_, sistripDigis);
+    iEvent.getByLabel(sistripDigisLabel_,sistripDigis);
     nunpackedchans_ = allchannels(*cabling_);
     sistripdigis(sistripDigis);
   } catch(...) {;}
@@ -77,56 +77,56 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   //SiStripClusters
   try {
     Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
-    iEvent.getByLabel(sistripClustersLabel_, sistripClustersLabel_, sistripClusters);
+    iEvent.getByLabel(sistripClustersLabel_,sistripClusters);
     nunpackedchans_ = regionalchannels(*cabling_,*sistripClusters);
     sistripclusters(sistripClusters);
   } catch(...) {;}
  
   try {
     Handle< DetSetVector<SiStripCluster> > sistripClusters;
-    iEvent.getByLabel( sistripClustersLabel_, sistripClustersLabel_, sistripClusters );
+    iEvent.getByLabel(sistripClustersLabel_,sistripClusters);
     sistripclusters(sistripClusters);
   } catch(...) {;}
   
   //Monte Carlo
   try {
     Handle<HepMCProduct> mcp;
-    iEvent.getByLabel(particlesLabel_,particlesLabel_, mcp);
+    iEvent.getByLabel(particlesLabel_,mcp);
     particles(mcp);
   } catch(...) {;}
   
   //Electrons
   try {
     Handle<reco::HLTFilterObjectWithRefs> Electrons;
-    iEvent.getByLabel( electronsLabel_, Electrons );
+    iEvent.getByLabel(electronsLabel_,Electrons);
     electrons(Electrons);
   } catch(...) {;}
   
   //Muons
   try {
     Handle<reco::HLTFilterObjectWithRefs> Muons;
-    iEvent.getByLabel( muonsLabel_, Muons );
+    iEvent.getByLabel(muonsLabel_,Muons);
     muons(Muons);
   } catch(...) {;}
 
   //Taus
   try {
     Handle<reco::HLTFilterObjectWithRefs> Taus;
-    iEvent.getByLabel( tausLabel_, Taus );
+    iEvent.getByLabel(tausLabel_,Taus);
     jets(Taus);
   } catch(...) {;}
 
   //Bjets
   try {
     Handle<reco::HLTFilterObjectWithRefs> Bjets;
-    iEvent.getByLabel( bjetsLabel_, Bjets );
+    iEvent.getByLabel(bjetsLabel_,Bjets);
     jets(Bjets);
   } catch(...) {;}
 
   //Trigger
   try {
     Handle<TriggerResults> Trigger;
-    iEvent.getByType( Trigger );
+    iEvent.getByType(Trigger);
     trigger(Trigger);
   } catch(...) {;}
 
@@ -249,7 +249,7 @@ void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& 
 }
 
 void SiStripPerformance::muons(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
-
+ 
   reco::HLTFilterObjectWithRefs::const_iterator imuon = collection->begin();
   for (; imuon != collection->end(); imuon++) {
     data_->muons().push_back(objectconverter::muon(*imuon));
@@ -257,7 +257,7 @@ void SiStripPerformance::muons(const Handle<reco::HLTFilterObjectWithRefs>& coll
 }
 
 void SiStripPerformance::jets(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
- 
+
   reco::HLTFilterObjectWithRefs::const_iterator ijet = collection->begin();
   for (; ijet != collection->end(); ijet++) {
     data_->jets().push_back(objectconverter::jet(*ijet));
