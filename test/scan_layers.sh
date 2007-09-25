@@ -15,10 +15,15 @@ source /afs/cern.ch/cms/sw/cmsset_default.sh;
 eval `scramv1 runtime -sh`;
 cd $WNDIR;
 
-#config directories
-DATA=$1/src/EventFilter/SiStripRawToDigi/data;
-TEST=$1/src/HLTrigger/Configuration/test;
-TESTDATA=$1/src/EventFilter/SiStripRawToDigi/test/data;
+#config files
+ROI=$1/src/EventFilter/SiStripRawToDigi/data/SiStripRawToClustersRoI.cfi;
+PERFORMANCE=$1/src/EventFilter/SiStripRawToDigi/test/data/SiStripPerformance.cfi;
+RUN=$1/src/HLTrigger/Configuration/test/HLTtable.cfg;
+
+#backup config files
+cp $ROI tmp1.txt;
+cp $PERFORMANCE tmp2.txt;
+cp $RUN tmp3.txt;
 
 #useful values
 namefield='TreeName'
@@ -32,10 +37,15 @@ for layers in 1 2 3 4 5 6 7 8 9 10 11 12 -1
 do
 name=$string$layers$string;
 value=$layers;
-replace "$namefield" "$namefield$equals$name$endline" -- $TESTDATA/SiStripPerformance.cfi;
-replace "$layersfield" "$layersfield$equals$value$endline" -- $DATA/SiStripRawToClustersRoI.cfi;
-cmsRun $TEST/HLTtable.cfg;
+replace "$layersfield" "$layersfield$equals$value$endline" -- $ROI;
+replace "$namefield" "$namefield$equals$name$endline" -- $PERFORMANCE;
+cmsRun $RUN;
 done
+
+#revert config files
+mv tmp1.txt $ROI;
+mv tmp2.txt $PERFORMANCE;
+mv tmp3.txt $RUN;
 
 #save root files
 rfcp $3 $2;

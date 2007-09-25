@@ -15,10 +15,15 @@ source /afs/cern.ch/cms/sw/cmsset_default.sh;
 eval `scramv1 runtime -sh`;
 cd $WNDIR;
 
-#config directories
-CONN=$1/src/CalibTracker/SiStripConnectivity/data;
-TEST=$1/src/EventFilter/SiStripRawToDigi/test;
-TESTDATA=$1/src/EventFilter/SiStripRawToDigi/test/data;
+#config files
+CONNECTIVITY=$1/src/CalibTracker/SiStripConnectivity/data/SiStripRegionConnectivity.cfi;
+PERFORMANCE=$1/src/EventFilter/SiStripRawToDigi/test/data/SiStripPerformance.cfi;
+RUN=$1/src/EventFilter/SiStripRawToDigi/test/TrivialRegionalDigi2Raw2RecHits.cfg;
+
+#backup config files
+cp $CONNECTIVITY tmp1.txt;
+cp $PERFORMANCE tmp2.txt;
+cp $RUN tmp3.txt;
 
 #useful values
 namefield='TreeName'
@@ -33,11 +38,16 @@ for divisions in 1 2 3 4 5 10 20 50 100 200 500
 do
 name=$string$divisions$string;
 value=$divisions;
-replace "$namefield" "$namefield$equals$name$endline" -- $TESTDATA/SiStripPerformance.cfi;
-replace "$etafield" "$etafield$equals$value$endline" -- $CONN/SiStripRegionConnectivity.cfi;
-replace "$phifield" "$phifield$equals$value$endline" -- $CONN/SiStripRegionConnectivity.cfi;
-cmsRun $TEST/TrivialRegionalDigi2Raw2RecHits.cfg;
+replace "$namefield" "$namefield$equals$name$endline" -- $PERFORMANCE;
+replace "$etafield" "$etafield$equals$value$endline" -- $CONNECTIVITY;
+replace "$phifield" "$phifield$equals$value$endline" -- $CONNECTIVITY;
+cmsRun $RUN;
 done
+
+#revert config files
+mv tmp1.txt $CONNECTIVITY;
+mv tmp2.txt $PERFORMANCE;
+mv tmp3.txt $RUN;
 
 #save root files
 rfcp $3 $2
