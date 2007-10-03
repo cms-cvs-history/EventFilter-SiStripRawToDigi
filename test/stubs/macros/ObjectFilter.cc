@@ -4,16 +4,20 @@ const bool objectfilter::trigger(std::vector<SimpleGenParticle>& particles, unsi
 
   unsigned short count = 0;
   for (unsigned int i=0;i<particles.size();i++) {
-    //Double electron
-    if ((bit == 34 && abs(particles[i].pid()) == 11 && particles[i].pt() > 12. && fabs(particles[i].eta()) < constants::tracker) ||
-	//Double muon
-	(bit == 49 && abs(particles[i].pid()) == 13 && particles[i].pt() > 10. && fabs(particles[i].eta()) < constants::tracker) ||
-	//Single tau 
-	(bit == 71 && abs(particles[i].pid()) == 15 && particles[i].pt() > 15. && fabs(particles[i].eta()) < constants::tracker)) {
+    //Double isolated electron
+    if ((bit == 34 && abs(particles[i].pid()) == 11 && particles[i].pt() > 10. && fabs(particles[i].eta()) < constants::tracker) ||
+	//Double relaxed muon
+	(bit == 49 && abs(particles[i].pid()) == 13 && particles[i].pt() > 3. && fabs(particles[i].eta()) < constants::tracker) ||
+	//Double bjet
+	(bit == 60 && abs(particles[i].pid()) == 5 && particles[i].pt() > 120. && fabs(particles[i].eta()) < constants::tracker) ||
+	//Single taujet 
+	(bit == 71 && abs(particles[i].pid()) == 15 && particles[i].pt() > 15. && fabs(particles[i].eta()) < constants::tracker) ||
+	//Double taujet 
+	(bit == 73 && abs(particles[i].pid()) == 15 && particles[i].pt() > 15. && fabs(particles[i].eta()) < constants::tracker)) {
       count++;
     }
   }
-  return ((bit == 34 && count >= 2) || (bit == 49 && count >= 2) || (bit == 71 && count >= 1)) ? true : false;
+  return ((bit == 34 && count >= 2) || (bit == 49 && count >= 2) || (bit == 60 && count >= 2) || (bit == 71 && count >= 1) || (bit == 73 && count >= 2)) ? true : false;
 }
   
 const unsigned int objectfilter::electron(std::vector<SimpleElectron>& electrons, const SimpleGenParticle& particle) {
