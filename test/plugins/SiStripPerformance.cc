@@ -8,15 +8,15 @@ using namespace edm;
 
 SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
 
-  sistripDigisLabel_(pset.getUntrackedParameter<string>("SiStripDigisLabel","")),
-  sistripClustersLabel_(pset.getUntrackedParameter<string>("SiStripClustersLabel","")),
-  particlesLabel_(pset.getUntrackedParameter<string>("ParticlesLabel","")),
-  electronsLabel_(pset.getUntrackedParameter<string>("ElectronsLabel","")),
-  muonsLabel_(pset.getUntrackedParameter<string>("MuonsLabel","")),
-  tausLabel_(pset.getUntrackedParameter<string>("TausLabel","")),
-  bjetsLabel_(pset.getUntrackedParameter<string>("BjetsLabel","")),
-  timingmodules_(pset.getUntrackedParameter< vector< string> >("TimingModules")),
-  timingpaths_(pset.getUntrackedParameter< vector< string> >("TimingPaths")),
+  sistripDigis_(pset.getParameter<edm::InputTag>("SiStripDigis")),
+  sistripClusters_(pset.getParameter<edm::InputTag>("SiStripClusters")),
+  particles_(pset.getParameter<edm::InputTag>("Particles")),
+  electronFilter_(pset.getParameter<edm::InputTag>("ElectronFilter")),
+  muonFilter_(pset.getParameter<edm::InputTag>("MuonFilter")),
+  taujetFilter_(pset.getParameter<edm::InputTag>("TauJetFilter")),
+  bjetFilter_(pset.getParameter<edm::InputTag>("BJetFilter")),
+  timingmodules_(pset.getParameter< vector< string> >("TimingModules")),
+  timingpaths_(pset.getParameter< vector< string> >("TimingPaths")),
   cabling_(),
   pdt_(),
   file_(0),
@@ -44,7 +44,7 @@ SiStripPerformance::~SiStripPerformance() {
 void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
   iSetup.getData(pdt_);
-  nchans_ = allchannels(*cabling_);
+  nchans_ = channels(*cabling_);
 }
 
 void SiStripPerformance::endJob() {
@@ -66,60 +66,59 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
     time_ = moduletimer(*hltinfo, timingmodules_)+pathtimer(*hltinfo, timingpaths_);
   } catch(...) {;}
  
-  //SiStripDigis
+  //SiStripDigis and SiStripClusters
   try {
     Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
-    iEvent.getByLabel(sistripDigisLabel_,sistripDigis);
-    nunpackedchans_ = allchannels(*cabling_);
-    sistripdigis(sistripDigis);
-  } catch(...) {;}
-
-  //SiStripClusters
-  try {
-    Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
-    iEvent.getByLabel(sistripClustersLabel_,sistripClusters);
-    nunpackedchans_ = regionalchannels(*cabling_,*sistripClusters);
-    sistripclusters(sistripClusters);
-  } catch(...) {;}
- 
-  try {
     Handle< DetSetVector<SiStripCluster> > sistripClusters;
-    iEvent.getByLabel(sistripClustersLabel_,sistripClusters);
+    iEvent.getByLabel(sistripDigis_,sistripDigis);
+    iEvent.getByLabel(sistripClusters_,sistripClusters);
+    nunpackedchans_ = channels(*cabling_);
+    sistripdigis(sistripDigis);
     sistripclusters(sistripClusters);
   } catch(...) {;}
   
+  try {
+    Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
+    Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
+    iEvent.getByLabel(sistripDigis_,sistripDigis);
+    iEvent.getByLabel(sistripClusters_,sistripClusters);
+    nunpackedchans_ = channels(*cabling_,*sistripClusters);
+    sistripdigis(sistripDigis, sistripClusters);
+    sistripclusters(sistripClusters);
+ } catch(...) {;}
+ 
   //Monte Carlo
   try {
     Handle<HepMCProduct> mcp;
-    iEvent.getByLabel(particlesLabel_,mcp);
+    iEvent.getByLabel(particles_,mcp);
     particles(mcp);
   } catch(...) {;}
   
   //Electrons
   try {
     Handle<reco::HLTFilterObjectWithRefs> Electrons;
-    iEvent.getByLabel(electronsLabel_,Electrons);
+    iEvent.getByLabel(electronFilter_,Electrons);
     electrons(Electrons);
   } catch(...) {;}
   
   //Muons
   try {
     Handle<reco::HLTFilterObjectWithRefs> Muons;
-    iEvent.getByLabel(muonsLabel_,Muons);
+    iEvent.getByLabel(muonFilter_,Muons);
     muons(Muons);
   } catch(...) {;}
 
   //Taus
   try {
     Handle<reco::HLTFilterObjectWithRefs> Taus;
-    iEvent.getByLabel(tausLabel_,Taus);
+    iEvent.getByLabel(taujetFilter_,Taus);
     jets(Taus);
   } catch(...) {;}
 
   //Bjets
   try {
     Handle<reco::HLTFilterObjectWithRefs> Bjets;
-    iEvent.getByLabel(bjetsLabel_,Bjets);
+    iEvent.getByLabel(bjetFilter_,Bjets);
     jets(Bjets);
   } catch(...) {;}
 
@@ -159,7 +158,7 @@ const double SiStripPerformance::pathtimer(HLTPerformanceInfo& hltinfo, const st
 }
 
 
-const uint32_t SiStripPerformance::allchannels(const SiStripRegionCabling& cabling) {
+const uint32_t SiStripPerformance::channels(const SiStripRegionCabling& cabling) {
   
   uint32_t channels=0;
   const Cabling& fullcabling = cabling.getRegionCabling();
@@ -177,7 +176,7 @@ const uint32_t SiStripPerformance::allchannels(const SiStripRegionCabling& cabli
   return channels;
 }
 
-const uint32_t SiStripPerformance::regionalchannels(const SiStripRegionCabling& cabling, const edm::SiStripRefGetter<SiStripCluster>& demandclusters) {
+const uint32_t SiStripPerformance::channels(const SiStripRegionCabling& cabling, const edm::SiStripRefGetter<SiStripCluster>& demandclusters) {
 
   uint32_t regionalchannels=0;
   const Cabling& fullcabling = cabling.getRegionCabling();
@@ -203,6 +202,27 @@ void SiStripPerformance::sistripdigis(const edm::Handle< DetSetVector<SiStripDig
     DetSet<SiStripDigi>::const_iterator idigi = idetset->begin();
     for (;idigi!=idetset->end();++idigi) {
       data_->sistripdigis().push_back(objectconverter::sistripdigi(*idigi,idetset->id));
+    }
+  }
+}
+
+void SiStripPerformance::sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >& digis, const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >& clusters) {
+  
+  const Cabling& fullcabling = cabling_->getRegionCabling();
+  edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = clusters->begin();
+  for (;ielement != clusters->end();ielement++) { 
+    uint32_t region = SiStripRegionCabling::region(ielement->region());
+    uint32_t subdet = SiStripRegionCabling::subdet(ielement->region());
+    uint32_t layer = SiStripRegionCabling::layer(ielement->region());
+    const ElementCabling& elementcabling = fullcabling[region][subdet][layer];
+    ElementCabling::const_iterator idet = elementcabling.begin();
+    for (;idet!=elementcabling.end();idet++) {
+      DetSetVector<SiStripDigi>::const_iterator idetset = digis->find(idet->first);
+      if (idetset==digis->end()) continue;
+      DetSet<SiStripDigi>::const_iterator idigi = idetset->begin();
+      for (;idigi!=idetset->end();++idigi) {
+	data_->sistripdigis().push_back(objectconverter::sistripdigi(*idigi,idetset->id));
+      }     
     }
   }
 }

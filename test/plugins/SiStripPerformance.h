@@ -30,8 +30,8 @@ class SiStripPerformance : public edm::EDAnalyzer {
  private:
 
   /** Channels */
-  static const uint32_t allchannels(const SiStripRegionCabling&);
-  static const uint32_t regionalchannels(const SiStripRegionCabling&, const edm::SiStripRefGetter<SiStripCluster>&);
+  static const uint32_t channels(const SiStripRegionCabling&);
+  static const uint32_t channels(const SiStripRegionCabling&, const edm::SiStripRefGetter<SiStripCluster>&);
 
   /** Timers */
   static const double moduletimer(HLTPerformanceInfo&, const std::vector<std::string>&);
@@ -40,6 +40,7 @@ class SiStripPerformance : public edm::EDAnalyzer {
   /** Event record methods */
   void particles(const edm::Handle<edm::HepMCProduct>&);
   void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&);
+  void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&, const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
   void sistripclusters(const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
   void sistripclusters(const edm::Handle< edm::DetSetVector<SiStripCluster> >&);
   void electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
@@ -47,14 +48,14 @@ class SiStripPerformance : public edm::EDAnalyzer {
   void jets(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
   void trigger(const edm::Handle<edm::TriggerResults>&);
 
-  /** Event data labels */
-  std::string sistripDigisLabel_;
-  std::string sistripClustersLabel_;
-  std::string particlesLabel_;
-  std::string electronsLabel_;
-  std::string muonsLabel_;
-  std::string tausLabel_;
-  std::string bjetsLabel_;
+  /** Input tags */
+  edm::InputTag sistripDigis_;
+  edm::InputTag sistripClusters_;
+  edm::InputTag particles_;
+  edm::InputTag electronFilter_;
+  edm::InputTag muonFilter_;
+  edm::InputTag taujetFilter_;
+  edm::InputTag bjetFilter_;
 
   /** Timing */
   std::vector< std::string > timingmodules_;
