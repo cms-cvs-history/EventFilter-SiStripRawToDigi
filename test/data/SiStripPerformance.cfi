@@ -1,20 +1,20 @@
 
 module Performance = SiStripPerformance
-{ 
+{     
+    # input tags
+    InputTag SiStripDigis = siStripDigis
+    InputTag SiStripClusters = SiStripRoI
+    InputTag Particles = source
+    InputTag ElectronFilter = hltL1IsoDoubleElectronTrackIsolFilter
+    InputTag MuonFilter = DiMuonIsoL3IsoFiltered
+    InputTag TauJetFilter = filterL3DoubleTau
+    InputTag BJetFilter = hltL3b
+
+    # timing
+    vstring TimingModules = {""}
+    vstring TimingPaths = {""}
+
     # root file
     untracked string FileName = "Output.root"
     untracked string TreeName = "Tree"
-    
-    # edproduct labels
-    untracked string SiStripDigisLabel = "siStripDigis"
-    untracked string SiStripClustersLabel = "SiStripRoI"
-    untracked string ParticlesLabel = "source"
-    untracked string ElectronsLabel = "hltL1IsoDoubleElectronTrackIsolFilter"
-    untracked string MuonsLabel = "DiMuonIsoL3IsoFiltered"
-    untracked string TausLabel = "filterL3DoubleTau"
-    untracked string BjetsLabel = "hltL3b"
-
-    # timing
-    untracked vstring TimingModules = {""}
-    untracked vstring TimingPaths = {""}
 }
