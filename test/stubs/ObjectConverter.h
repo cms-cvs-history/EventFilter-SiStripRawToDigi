@@ -37,8 +37,6 @@ namespace objectconverter {
 
   SimpleTrack track(const reco::PixelMatchGsfElectron&);
 
-  std::vector<SimpleTrack> tracks(const reco::JetTag&);
-
   SimpleSCluster supercluster(const reco::PixelMatchGsfElectron&, const reco::ClusterShapeRef&);
 
   SimpleHCluster hcluster(const reco::JetTag& jet, const reco::JetTag& rawjet);

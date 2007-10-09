@@ -36,16 +36,6 @@ SimpleTrack objectconverter::track(const reco::PixelMatchGsfElectron& electron)
   return SimpleTrack(electron.trackMomentumAtVtx().Rho(), electron.trackMomentumAtVtx().Eta(), electron.trackMomentumAtVtx().Phi(), electron.TrackPositionAtVtx().X(), electron.TrackPositionAtVtx().Y(), electron.TrackPositionAtVtx().Z(), electron.trackMomentumAtCalo().Rho(), electron.trackMomentumAtCalo().Eta(), electron.trackMomentumAtCalo().Phi(), electron.TrackPositionAtCalo().X(), electron.TrackPositionAtCalo().Y(), electron.TrackPositionAtCalo().Z(), electron.gsfTrack().get()->charge(), electron.gsfTrack().get()->found());
 }
 
-std::vector<SimpleTrack> objectconverter::tracks(const reco::JetTag& jet)
-{
-  std::vector<SimpleTrack> simpletracks;
-  for (unsigned int i=0;i<jet.tracks().size();i++) {
-    const reco::Track& tk = *(jet.tracks()[i]); 
-    simpletracks.push_back(track(tk));
-  }
-  return simpletracks;
-}
-
 SimpleSCluster objectconverter::supercluster(const reco::PixelMatchGsfElectron& electron, const reco::ClusterShapeRef& shape)
 {
    return SimpleSCluster(electron.superCluster().get()->rawEnergy(), electron.caloEnergy(), electron.superCluster().get()->eta(), electron.superCluster().get()->phi(), electron.hadronicOverEm(), shape->e2x2(), shape->e3x3(), shape->e5x5(), shape->eMax(), shape->covEtaEta());
@@ -53,12 +43,12 @@ SimpleSCluster objectconverter::supercluster(const reco::PixelMatchGsfElectron& 
 
 SimpleHCluster objectconverter::hcluster(const reco::JetTag& jet, const reco::JetTag& rawjet)
 {
- return SimpleHCluster(rawjet.jet().get()->energy(),jet.jet().get()->energy(),jet.jet().get()->eta(),jet.jet().get()->phi());
+  return SimpleHCluster(rawjet.first.get()->energy(),jet.first.get()->energy(),jet.first.get()->eta(),jet.first.get()->phi());
 }
 
 SimpleJet objectconverter::jet(const reco::JetTag& jet, const reco::JetTag& rawjet) 
 {
-  return SimpleJet(jet.jet().get()->vertex().X(), jet.jet().get()->vertex().Y(), jet.jet().get()->vertex().Z(), hcluster(jet,rawjet), tracks(jet), jet.discriminator());
+  return SimpleJet(jet.first.get()->vertex().X(), jet.first.get()->vertex().Y(), jet.first.get()->vertex().Z(), hcluster(jet,rawjet), std::vector<SimpleTrack>(), jet.second);
 }
 
 SimpleMet objectconverter::met(const reco::CaloMET& rawmet, const reco::CaloMET& met) 
