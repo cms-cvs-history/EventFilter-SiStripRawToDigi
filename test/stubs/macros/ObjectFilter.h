@@ -5,7 +5,7 @@
 
 namespace objectfilter {
   
-  const bool trigger(std::vector<SimpleGenParticle>&, unsigned int);
+  const bool trigger(std::vector<SimpleGenParticle>&, std::vector<SimpleGenJet>&, unsigned int);
   
   const unsigned int electron(std::vector<SimpleElectron>&, const SimpleGenParticle&);
 

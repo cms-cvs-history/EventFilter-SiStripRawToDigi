@@ -1,23 +1,32 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/macros/ObjectFilter.h"
   
-const bool objectfilter::trigger(std::vector<SimpleGenParticle>& particles, unsigned int bit) {
+const bool objectfilter::trigger(std::vector<SimpleGenParticle>& particles, std::vector<SimpleGenJet>& genjets, unsigned int bit) {
 
-  unsigned short count = 0;
+  unsigned short particlecount = 0;
   for (unsigned int i=0;i<particles.size();i++) {
     //Double isolated electron
     if ((bit == 34 && abs(particles[i].pid()) == 11 && particles[i].pt() > 10. && fabs(particles[i].eta()) < constants::tracker) ||
 	//Double relaxed muon
 	(bit == 49 && abs(particles[i].pid()) == 13 && particles[i].pt() > 3. && fabs(particles[i].eta()) < constants::tracker) ||
-	//Double bjet
-	(bit == 60 && abs(particles[i].pid()) == 5 && particles[i].pt() > 120. && fabs(particles[i].eta()) < constants::tracker) ||
-	//Single taujet 
+	//B-jet path 4
+	(bit == 63 && abs(particles[i].pid()) == 5 && particles[i].pt() > 35. && fabs(particles[i].eta()) < constants::tracker) ||
+	//Single tau
 	(bit == 71 && abs(particles[i].pid()) == 15 && particles[i].pt() > 15. && fabs(particles[i].eta()) < constants::tracker) ||
-	//Double taujet 
+	//Double tau 
 	(bit == 73 && abs(particles[i].pid()) == 15 && particles[i].pt() > 15. && fabs(particles[i].eta()) < constants::tracker)) {
-      count++;
+      particlecount++;
     }
   }
-  return ((bit == 34 && count >= 2) || (bit == 49 && count >= 2) || (bit == 60 && count >= 2) || (bit == 71 && count >= 1) || (bit == 73 && count >= 2)) ? true : false;
+
+  unsigned short genjetcount = 0;
+  for (unsigned int i=0;i<genjets.size();i++) {
+    //B-jet path 4
+    if ((bit == 63 && genjets[i].hcluster().et() > 120.)) {
+      genjetcount++;
+    }
+  }
+
+  return ((bit == 34 && particlecount >= 2) || (bit == 49 && particlecount >= 2) || (bit == 63 && particlecount >= 1 && genjetcount >= 2) || (bit == 71 && particlecount >= 1) || (bit == 73 && particlecount >= 2)) ? true : false;
 }
   
 const unsigned int objectfilter::electron(std::vector<SimpleElectron>& electrons, const SimpleGenParticle& particle) {
