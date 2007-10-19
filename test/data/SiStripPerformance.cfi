@@ -1,13 +1,14 @@
 
 module Performance = SiStripPerformance
 {     
-    # input tags
-    InputTag SiStripDigis = siStripDigis
-    InputTag SiStripClusters = SiStripRoI
+   # input tags
     InputTag Particles = source
+    InputTag GenJets = iterativeCone5GenJets
+    InputTag SiStripDigis = siStripDigis
+    InputTag SiStripClusters = siStripClusters
     InputTag ElectronFilter = hltL1IsoDoubleElectronTrackIsolFilter
     InputTag MuonFilter = DiMuonIsoL3IsoFiltered
-    InputTag TauJetFilter = filterL3DoubleTau
+    InputTag TauJetFilter = filterL3SingleTau
     InputTag BJetFilter = hltL3b
 
     # timing
