@@ -7,8 +7,11 @@ class SimpleOverlay {
 
   SimpleOverlay(): tcanvas_(0), tlegend_(0), option_(""), legend_(true), color_(true), marker_(true), labels_()
     {
-      tcanvas_ = new TCanvas("", "",200,10,700,500);
+      tcanvas_ = new TCanvas();
       tlegend_ = new TLegend(0.7,0.56,0.9,0.69);
+      tlegend_->SetTextFont(42);
+      tlegend_->SetTextSize(0.04);
+      tlegend_->SetFillColor(10);
     }
   
   ~SimpleOverlay() { delete tcanvas_; delete tlegend_; }
@@ -114,7 +117,6 @@ class SimpleOverlay {
       }
       if (legend_) tlegend_->Draw("SAME");
     }
-
 
   void histos(TH1* one, TH1* two=0, TH1* three=0, TH1* four=0, TH1* five=0) 
     {

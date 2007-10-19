@@ -19,6 +19,7 @@
 #include "TGraph2D.h"
 #include "TGraph2DErrors.h"
 #include "TLegend.h"
+#include "TLegendEntry.h"
 #include "TMarker.h"
 #include "TCanvas.h"
 

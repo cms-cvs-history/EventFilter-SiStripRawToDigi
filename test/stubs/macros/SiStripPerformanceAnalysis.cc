@@ -37,7 +37,7 @@ void SiStripPerformanceAnalysis::timing() {
     const double fraction = (100.*nunpackedchans_)/nchans_;
     const double csize = (clusternum) ? clusterized/clusternum : 0.;
     const double occ = occupancy();
-
+ 
     plots_.get(SiStripPerformancePlots::TIME)->Fill(time_);
     plots_.get(SiStripPerformancePlots::FRAC)->Fill(fraction);
     plots_.get(SiStripPerformancePlots::OCCUPANCY)->Fill(occ);
@@ -58,7 +58,7 @@ void SiStripPerformanceAnalysis::trigger(unsigned int bit) {
     tree_->GetEntry(ievent); 
     data_->order();
 
-    if (!objectfilter::trigger(data_->mc(),bit)) continue;
+    if (!objectfilter::trigger(data_->mc(),data_->mcjets(),bit)) continue;
     if (data_->trigger().get(bit)) plots_.get(SiStripPerformancePlots::HLT)->select(1);
     else plots_.get(SiStripPerformancePlots::HLT)->select(1,false);
   }
@@ -73,7 +73,7 @@ void SiStripPerformanceAnalysis::electron(unsigned int bit) {
     
     for (std::vector<SimpleGenParticle>::const_iterator ipart=data_->mc().begin();ipart!=data_->mc().end();ipart++) {
       
-      if (objectfilter::trigger(data_->mc(),bit) && data_->electrons().size() && abs(ipart->pid()) == 11 && fabs(ipart->eta()) > constants::tracker) {
+      if (data_->trigger().get(bit) && data_->electrons().size() && abs(ipart->pid()) == 11 && fabs(ipart->eta()) < constants::tracker) {
 	
 	unsigned int index = objectfilter::electron(data_->electrons(),*ipart);
 	double delta = SimpleSCluster::dR(data_->electrons()[index].scluster(),*ipart);
@@ -117,7 +117,7 @@ void SiStripPerformanceAnalysis::muon(unsigned int bit) {
 
     for (std::vector<SimpleGenParticle>::const_iterator ipart=data_->mc().begin();ipart!=data_->mc().end();ipart++) {
 
-      if (objectfilter::trigger(data_->mc(),bit) && data_->muons().size() && abs(ipart->pid()) == 13 && fabs(ipart->eta()) > constants::tracker) {
+      if (data_->trigger().get(bit) && data_->muons().size() && abs(ipart->pid()) == 13 && fabs(ipart->eta()) > constants::tracker) {
 
 	unsigned int index = objectfilter::muon(data_->muons(),*ipart);
 	double delta = SimpleTrack::dR(data_->muons()[index].track(),*ipart);
