@@ -29,7 +29,7 @@ const bool objectfilter::trigger(std::vector<SimpleGenParticle>& particles, std:
   return ((bit == 34 && particlecount >= 2) || (bit == 49 && particlecount >= 2) || (bit == 63 && particlecount >= 1 && genjetcount >= 2) || (bit == 71 && particlecount >= 1) || (bit == 73 && particlecount >= 2)) ? true : false;
 }
   
-const unsigned int objectfilter::electron(std::vector<SimpleElectron>& electrons, const SimpleGenParticle& particle) {
+const unsigned int objectfilter::electron(const std::vector<SimpleElectron>& electrons, const SimpleGenParticle& particle) {
   
   unsigned int index = 0;
   double dR = constants::large;
@@ -42,7 +42,7 @@ const unsigned int objectfilter::electron(std::vector<SimpleElectron>& electrons
  return index;
 }
 
-const unsigned int objectfilter::muon(std::vector<SimpleMuon>& muons, const SimpleGenParticle& particle) {
+const unsigned int objectfilter::muon(const std::vector<SimpleMuon>& muons, const SimpleGenParticle& particle) {
   
   unsigned int index = 0;
   double dR = constants::large;
@@ -55,7 +55,7 @@ const unsigned int objectfilter::muon(std::vector<SimpleMuon>& muons, const Simp
  return index;
 }
 
-const unsigned int objectfilter::jet(std::vector<SimpleJet>& jets, const SimpleGenParticle& particle) {
+const unsigned int objectfilter::jet(const std::vector<SimpleJet>& jets, const SimpleGenParticle& particle) {
   
   unsigned int index = 0;
   double dR = constants::large;
