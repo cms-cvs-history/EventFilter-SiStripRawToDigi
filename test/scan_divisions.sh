@@ -18,7 +18,7 @@ cd $WNDIR;
 #config files
 CONNECTIVITY=$1/src/CalibTracker/SiStripConnectivity/data/SiStripRegionConnectivity.cfi;
 PERFORMANCE=$1/src/EventFilter/SiStripRawToDigi/test/data/SiStripPerformance.cfi;
-RUN=$1/src/EventFilter/SiStripRawToDigi/test/TrivialRegionalDigi2Raw2RecHits.cfg;
+RUN=$1/src/EventFilter/SiStripRawToDigi/test/RegionalDigi2Raw2RecHits.cfg;
 
 #backup config files
 cp $CONNECTIVITY tmp1.txt;
@@ -34,13 +34,14 @@ string='"'
 endline=' #'
 
 #run
-for divisions in 1 2 3 4 5 10 20 50 100 200 500
+for divisions in 1 10 20 30 40 50 60 70 80 90 100
 do
 name=$string$divisions$string;
 value=$divisions;
 replace "$namefield" "$namefield$equals$name$endline" -- $PERFORMANCE;
 replace "$etafield" "$etafield$equals$value$endline" -- $CONNECTIVITY;
 replace "$phifield" "$phifield$equals$value$endline" -- $CONNECTIVITY;
+echo "scan_divisions.sh: Run setting " $name
 cmsRun $RUN;
 done
 
