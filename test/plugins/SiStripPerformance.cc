@@ -5,12 +5,15 @@
 using namespace std;
 using namespace sistrip;
 using namespace edm;
+using namespace reco;
+using namespace service;
 
-SiStripPerformance::SiStripPerformance( const ParameterSet& pset ) :
+SiStripPerformance::SiStripPerformance(const ParameterSet& pset) :
 
+  particles_(pset.getParameter<edm::InputTag>("Particles")),
+  genJets_(pset.getParameter<edm::InputTag>("GenJets")),
   sistripDigis_(pset.getParameter<edm::InputTag>("SiStripDigis")),
   sistripClusters_(pset.getParameter<edm::InputTag>("SiStripClusters")),
-  particles_(pset.getParameter<edm::InputTag>("Particles")),
   electronFilter_(pset.getParameter<edm::InputTag>("ElectronFilter")),
   muonFilter_(pset.getParameter<edm::InputTag>("MuonFilter")),
   taujetFilter_(pset.getParameter<edm::InputTag>("TauJetFilter")),
@@ -41,7 +44,7 @@ SiStripPerformance::~SiStripPerformance() {
   file_->Close();
 }
 
-void SiStripPerformance::beginJob( const EventSetup& iSetup ) {
+void SiStripPerformance::beginJob(const EventSetup& iSetup) {
   iSetup.get<SiStripRegionCablingRcd>().get(cabling_);
   iSetup.getData(pdt_);
   nchans_ = channels(*cabling_);
@@ -52,7 +55,7 @@ void SiStripPerformance::endJob() {
   tree_->Write();
 }
 
-void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup ) {
+void SiStripPerformance::analyze(const Event& iEvent,const EventSetup& iSetup) {
  
   //Refresh performance record
   data_->clear();
@@ -62,13 +65,27 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
   
   //Timing
   try {
-    auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
+    auto_ptr<HLTPerformanceInfo> hltinfo = Service<PathTimerService>().operator->()->getInfo();
     time_ = moduletimer(*hltinfo, timingmodules_)+pathtimer(*hltinfo, timingpaths_);
   } catch(...) {;}
  
-  //SiStripDigis and SiStripClusters
+  //Particles
   try {
-    Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
+    Handle<HepMCProduct> mcp;
+    iEvent.getByLabel(particles_,mcp);
+    particles(mcp);
+  } catch(...) {;}
+
+  //Gen-Jets
+  try {
+    Handle< vector<GenJet> > genJets;
+    iEvent.getByLabel(genJets_,genJets);
+    jets(genJets);
+  } catch(...) {;}
+
+  //Offline SiStripDigis and SiStripClusters
+  try {
+    Handle< DetSetVector<SiStripDigi> > sistripDigis;
     Handle< DetSetVector<SiStripCluster> > sistripClusters;
     iEvent.getByLabel(sistripDigis_,sistripDigis);
     iEvent.getByLabel(sistripClusters_,sistripClusters);
@@ -77,47 +94,41 @@ void SiStripPerformance::analyze( const Event& iEvent,const EventSetup& iSetup )
     sistripclusters(sistripClusters);
   } catch(...) {;}
   
+  //Online SiStripDigis and SiStripClusters
   try {
-    Handle< edm::DetSetVector<SiStripDigi> > sistripDigis;
-    Handle< edm::SiStripRefGetter<SiStripCluster> > sistripClusters;
+    Handle< DetSetVector<SiStripDigi> > sistripDigis;
+    Handle<RefGetter> sistripClusters;
     iEvent.getByLabel(sistripDigis_,sistripDigis);
     iEvent.getByLabel(sistripClusters_,sistripClusters);
     nunpackedchans_ = channels(*cabling_,*sistripClusters);
     sistripdigis(sistripDigis, sistripClusters);
     sistripclusters(sistripClusters);
  } catch(...) {;}
- 
-  //Monte Carlo
-  try {
-    Handle<HepMCProduct> mcp;
-    iEvent.getByLabel(particles_,mcp);
-    particles(mcp);
-  } catch(...) {;}
   
   //Electrons
   try {
-    Handle<reco::HLTFilterObjectWithRefs> Electrons;
+    Handle<HLTFilterObjectWithRefs> Electrons;
     iEvent.getByLabel(electronFilter_,Electrons);
     electrons(Electrons);
   } catch(...) {;}
   
   //Muons
   try {
-    Handle<reco::HLTFilterObjectWithRefs> Muons;
+    Handle<HLTFilterObjectWithRefs> Muons;
     iEvent.getByLabel(muonFilter_,Muons);
     muons(Muons);
   } catch(...) {;}
 
   //Taus
   try {
-    Handle<reco::HLTFilterObjectWithRefs> Taus;
+    Handle<HLTFilterObjectWithRefs> Taus;
     iEvent.getByLabel(taujetFilter_,Taus);
     jets(Taus);
   } catch(...) {;}
 
   //Bjets
   try {
-    Handle<reco::HLTFilterObjectWithRefs> Bjets;
+    Handle<HLTFilterObjectWithRefs> Bjets;
     iEvent.getByLabel(bjetFilter_,Bjets);
     jets(Bjets);
   } catch(...) {;}
@@ -176,11 +187,11 @@ const uint32_t SiStripPerformance::channels(const SiStripRegionCabling& cabling)
   return channels;
 }
 
-const uint32_t SiStripPerformance::channels(const SiStripRegionCabling& cabling, const edm::SiStripRefGetter<SiStripCluster>& demandclusters) {
+const uint32_t SiStripPerformance::channels(const SiStripRegionCabling& cabling, const RefGetter& demandclusters) {
 
   uint32_t regionalchannels=0;
   const Cabling& fullcabling = cabling.getRegionCabling();
-  edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = demandclusters.begin();
+  RefGetter::const_iterator ielement = demandclusters.begin();
     for (;ielement != demandclusters.end();ielement++) { 
       uint32_t region = SiStripRegionCabling::region(ielement->region());
       uint32_t subdet = SiStripRegionCabling::subdet(ielement->region());
@@ -194,11 +205,28 @@ const uint32_t SiStripPerformance::channels(const SiStripRegionCabling& cabling,
   return regionalchannels;
 }
 
-void SiStripPerformance::sistripdigis(const edm::Handle< DetSetVector<SiStripDigi> >& digis) {
+void SiStripPerformance::particles(const Handle<HepMCProduct>& collection) {
+
+  const HepMC::GenEvent& gen = collection->getHepMCData();
+  for(int ibar=0; ibar < gen.particles_size(); ibar++) {
+    HepMC::GenParticle* prt = gen.barcode_to_particle(ibar);
+    if (prt && prt->status()==3) data_->mc().push_back(objectconverter::particle(*prt,pdt_));
+  }
+}
+
+void SiStripPerformance::jets(const Handle< vector<GenJet> >& collection) {
+
+  vector<GenJet>::const_iterator ijet = collection->begin();
+  for (;ijet!=collection->end();ijet++) {
+    data_->mcjets().push_back(objectconverter::jet(*ijet));
+  }
+}
+
+void SiStripPerformance::sistripdigis(const Handle< DetSetVector<SiStripDigi> >& collection) {
  
   data_->sistripdigis().reserve(100000);
-  DetSetVector<SiStripDigi>::const_iterator idetset = digis->begin();
-  for (;idetset!=digis->end();++idetset) {
+  DetSetVector<SiStripDigi>::const_iterator idetset = collection->begin();
+  for (;idetset!=collection->end();++idetset) {
     DetSet<SiStripDigi>::const_iterator idigi = idetset->begin();
     for (;idigi!=idetset->end();++idigi) {
       data_->sistripdigis().push_back(objectconverter::sistripdigi(*idigi,idetset->id));
@@ -206,10 +234,10 @@ void SiStripPerformance::sistripdigis(const edm::Handle< DetSetVector<SiStripDig
   }
 }
 
-void SiStripPerformance::sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >& digis, const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >& clusters) {
+void SiStripPerformance::sistripdigis(const Handle< DetSetVector<SiStripDigi> >& digis, const Handle<RefGetter>& clusters) {
   
   const Cabling& fullcabling = cabling_->getRegionCabling();
-  edm::SiStripRefGetter<SiStripCluster>::const_iterator ielement = clusters->begin();
+  RefGetter::const_iterator ielement = clusters->begin();
   for (;ielement != clusters->end();ielement++) { 
     uint32_t region = SiStripRegionCabling::region(ielement->region());
     uint32_t subdet = SiStripRegionCabling::subdet(ielement->region());
@@ -227,11 +255,11 @@ void SiStripPerformance::sistripdigis(const edm::Handle< edm::DetSetVector<SiStr
   }
 }
 
-void SiStripPerformance::sistripclusters(const Handle< edm::SiStripRefGetter<SiStripCluster> >& clusters) {
+void SiStripPerformance::sistripclusters(const Handle<RefGetter>& collection) {
   
   data_->sistripclusters().reserve(100000);
-  edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = clusters->begin();
-  for(;iregion!=clusters->end();++iregion) {
+  RefGetter::const_iterator iregion = collection->begin();
+  for(;iregion!=collection->end();++iregion) {
     vector<SiStripCluster>::const_iterator icluster = iregion->begin();
     for (;icluster!=iregion->end();icluster++) {
       data_->sistripclusters().push_back(objectconverter::sistripcluster(*icluster));
@@ -239,11 +267,11 @@ void SiStripPerformance::sistripclusters(const Handle< edm::SiStripRefGetter<SiS
   }
 }
 
-void SiStripPerformance::sistripclusters(const Handle< DetSetVector<SiStripCluster> >& clusters) {
+void SiStripPerformance::sistripclusters(const Handle< DetSetVector<SiStripCluster> >& collection) {
   
   data_->sistripclusters().reserve(100000);
-  DetSetVector<SiStripCluster>::const_iterator idetset = clusters->begin();
-  for (;idetset!=clusters->end();++idetset) {
+  DetSetVector<SiStripCluster>::const_iterator idetset = collection->begin();
+  for (;idetset!=collection->end();++idetset) {
     DetSet<SiStripCluster>::const_iterator icluster = idetset->begin();
     for (;icluster!=idetset->end();++icluster) {
       data_->sistripclusters().push_back(objectconverter::sistripcluster(*icluster));
@@ -251,40 +279,31 @@ void SiStripPerformance::sistripclusters(const Handle< DetSetVector<SiStripClust
   }
 }
 
-void SiStripPerformance::particles(const Handle<HepMCProduct>& mcp) {
+void SiStripPerformance::electrons(const Handle<HLTFilterObjectWithRefs>& collection) {
 
-  const HepMC::GenEvent& gen = mcp->getHepMCData();
-  for(int ibar=0; ibar < gen.particles_size(); ibar++) {
-    HepMC::GenParticle* prt = gen.barcode_to_particle(ibar);
-    if (prt && prt->status()==3) data_->mc().push_back(objectconverter::particle(*prt,pdt_));
-  }
-}
-
-void SiStripPerformance::electrons(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
-
-  reco::HLTFilterObjectWithRefs::const_iterator ielectron = collection->begin();
+  HLTFilterObjectWithRefs::const_iterator ielectron = collection->begin();
   for (; ielectron != collection->end(); ielectron++) {
     data_->electrons().push_back(objectconverter::electron(*ielectron));
   }
 }
 
-void SiStripPerformance::muons(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
+void SiStripPerformance::muons(const Handle<HLTFilterObjectWithRefs>& collection) {
  
-  reco::HLTFilterObjectWithRefs::const_iterator imuon = collection->begin();
+  HLTFilterObjectWithRefs::const_iterator imuon = collection->begin();
   for (; imuon != collection->end(); imuon++) {
     data_->muons().push_back(objectconverter::muon(*imuon));
   }
 }
 
-void SiStripPerformance::jets(const Handle<reco::HLTFilterObjectWithRefs>& collection) {
+void SiStripPerformance::jets(const Handle<HLTFilterObjectWithRefs>& collection) {
 
-  reco::HLTFilterObjectWithRefs::const_iterator ijet = collection->begin();
+  HLTFilterObjectWithRefs::const_iterator ijet = collection->begin();
   for (; ijet != collection->end(); ijet++) {
     data_->jets().push_back(objectconverter::jet(*ijet));
   }
 }
 
-void SiStripPerformance::trigger(const Handle<TriggerResults>& Trigger) {
-  data_->trigger() = objectconverter::trigger(*Trigger);
+void SiStripPerformance::trigger(const Handle<TriggerResults>& collection) {
+  data_->trigger() = objectconverter::trigger(*collection);
 }
 

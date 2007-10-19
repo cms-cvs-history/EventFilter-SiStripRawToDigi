@@ -19,6 +19,7 @@ class SiStripPerformance : public edm::EDAnalyzer {
 
   typedef SiStripRegionCabling::Cabling Cabling;
   typedef SiStripRegionCabling::ElementCabling ElementCabling;
+  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripPerformance(const edm::ParameterSet&);
   ~SiStripPerformance();
@@ -29,19 +30,20 @@ class SiStripPerformance : public edm::EDAnalyzer {
 
  private:
 
-  /** Channels */
-  static const uint32_t channels(const SiStripRegionCabling&);
-  static const uint32_t channels(const SiStripRegionCabling&, const edm::SiStripRefGetter<SiStripCluster>&);
-
   /** Timers */
   static const double moduletimer(HLTPerformanceInfo&, const std::vector<std::string>&);
   static const double pathtimer(HLTPerformanceInfo&, const std::vector<std::string>&);
 
+  /** Channels */
+  static const uint32_t channels(const SiStripRegionCabling&);
+  static const uint32_t channels(const SiStripRegionCabling&, const RefGetter&);
+
   /** Event record methods */
   void particles(const edm::Handle<edm::HepMCProduct>&);
+  void jets(const edm::Handle< std::vector<reco::GenJet> >&);
   void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&);
-  void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&, const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
-  void sistripclusters(const edm::Handle< edm::SiStripRefGetter<SiStripCluster> >&);
+  void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&, const edm::Handle< RefGetter >&);
+  void sistripclusters(const edm::Handle<RefGetter>&);
   void sistripclusters(const edm::Handle< edm::DetSetVector<SiStripCluster> >&);
   void electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
   void muons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
@@ -49,9 +51,10 @@ class SiStripPerformance : public edm::EDAnalyzer {
   void trigger(const edm::Handle<edm::TriggerResults>&);
 
   /** Input tags */
+  edm::InputTag particles_;
+  edm::InputTag genJets_;
   edm::InputTag sistripDigis_;
   edm::InputTag sistripClusters_;
-  edm::InputTag particles_;
   edm::InputTag electronFilter_;
   edm::InputTag muonFilter_;
   edm::InputTag taujetFilter_;
