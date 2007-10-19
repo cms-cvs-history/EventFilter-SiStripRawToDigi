@@ -15,10 +15,10 @@ module SiStripRoI = SiStripRawToClustersRoI
     # define tracker windows
     untracked double ElectronEtaWindow = 0.16
     untracked double ElectronPhiWindow = 0.16 
-    untracked double MuonEtaWindow = 0.2 
-    untracked double MuonPhiWindow = 0.2  
-    untracked double TauJetEtaWindow = 0.2 
-    untracked double TauJetPhiWindow = 0.2
+    untracked double MuonEtaWindow = 0.16
+    untracked double MuonPhiWindow = 0.16 
+    untracked double TauJetEtaWindow = 0.5 
+    untracked double TauJetPhiWindow = 0.5
     untracked double BJetEtaWindow = 0.2
     untracked double BJetPhiWindow = 0.2
 
@@ -26,6 +26,6 @@ module SiStripRoI = SiStripRawToClustersRoI
     InputTag ElectronBarrelL2 = hltHybridSuperClustersL1Isolated
     InputTag ElectronEndcapL2 = hltIslandSuperClustersL1Isolated:islandEndcapSuperClusters
     InputTag MuonL2 = hltL2Muons
-    InputTag TauJetL2 = l2TauJetsProvider:DoubleTau
+    InputTag TauJetL2 = l2TauJetsProvider:SingleTau
     InputTag BJetL2 = iterativeCone5CaloJets
 }
