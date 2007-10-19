@@ -96,7 +96,7 @@ class SimplePurityGraph : public TNamed {
     { 
       double A = done*done;
       double B = cone*cone*yone*yone;
-      double C = ctwo*ctwo*dtwo*two + cthree*cthree*dthree*dthree;
+      double C = ctwo*ctwo*dtwo*dtwo + cthree*cthree*dthree*dthree;
       double D = 4*(ctwo*ytwo + cthree*ythree)*(ctwo*ytwo + cthree*ythree);
       double E = sqrt(ctwo*ytwo + cthree*ythree);
       return (B*D > 0.) ? sqrt(A/B + C/D)*E : 0.;
