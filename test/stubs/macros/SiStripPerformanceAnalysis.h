@@ -25,6 +25,11 @@ private:
   /** Utility */
   const double occupancy();
   const unsigned int clusterizedstrips();
+  const bool matched(const std::vector<SimpleElectron>&,const SimpleGenParticle&);
+  const bool matched(const std::vector<SimpleMuon>&,const SimpleGenParticle&);
+
+  /** Fill */
+  void reconstruction(const SimpleGenParticle&,const bool);
 
   /** Storage */
   TFile* file_;
