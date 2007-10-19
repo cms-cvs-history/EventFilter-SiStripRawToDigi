@@ -108,7 +108,7 @@ void SiStripPerformanceFigures::overlay(SiStripPerformancePlots::EfficiencyType 
     if (vplots_[j].get(type)) {
       vplots_[j].get(type)->divide(vplots_[0].get(type));
       vth1s[j] = vplots_[j].get(type)->get();
-      std::cout << vth1s[j]->GetBinContent(1) << ";" << vth1s[j]->GetBinError(1) << std::endl;
+      /*std::cout << vth1s[j]->GetBinContent(1) << ";" << vth1s[j]->GetBinError(1) << std::endl;*/
     }
   }
   overlay_->histos(vth1s[0],vth1s[1],vth1s[2],vth1s[3],vth1s[4]);
