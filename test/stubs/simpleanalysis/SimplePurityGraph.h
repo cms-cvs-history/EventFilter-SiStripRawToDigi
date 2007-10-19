@@ -85,14 +85,21 @@ class SimplePurityGraph : public TNamed {
   
   static double dpurity(double yone, double ytwo, double ythree, double done, double dtwo, double dthree, double cone, double ctwo, double cthree) 
     {
-      double denom = (yone*cone + (ytwo*ctwo + ythree*cthree)) * (yone*cone + (ytwo*ctwo + ythree*cthree));
-      return ((denom) > 0.) ? sqrt((cone * cone * yone * done) * (cone * cone * yone * done)/(denom*denom) + (cone * ctwo * yone * dtwo) * (cone * ctwo * yone * dtwo) / (denom*denom)  + (cone * cthree * yone * dthree) * (cone * cthree * yone * dthree) / (denom*denom)) : 0.;
+      double A = yone*cone + (ytwo*ctwo + ythree*cthree);
+      double B = cone * cone * yone * done;
+      double C = cone * ctwo * yone * dtwo;
+      double D = cone * cthree * yone * dthree;
+      return (A > 0.) ? sqrt(B*B/A*A*A*A + C*C/A*A*A*A  + D*D/A*A*A*A) : 0.;
     }
   
   static double dsignificance(double yone, double ytwo, double ythree, double done, double dtwo, double dthree, double cone, double ctwo, double cthree) 
     { 
-      //@@ Add implementation!
-      return yone*ytwo*ythree*done*dtwo*dthree*cone*ctwo*cthree*0.;
+      double A = done*done;
+      double B = cone*cone*yone*yone;
+      double C = ctwo*ctwo*dtwo*two + cthree*cthree*dthree*dthree;
+      double D = 4*(ctwo*ytwo + cthree*ythree)*(ctwo*ytwo + cthree*ythree);
+      double E = sqrt(ctwo*ytwo + cthree*ythree);
+      return (B*D > 0.) ? sqrt(A/B + C/D)*E : 0.;
     }
   
  private:
