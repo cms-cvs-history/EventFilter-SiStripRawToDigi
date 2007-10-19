@@ -91,7 +91,8 @@ class SimplePurityGraph : public TNamed {
   
   static double dsignificance(double yone, double ytwo, double ythree, double done, double dtwo, double dthree, double cone, double ctwo, double cthree) 
     { 
-      return 0.;
+      //@@ Add implementation!
+      return yone*ytwo*ythree*done*dtwo*dthree*cone*ctwo*cthree*0.;
     }
   
  private:
