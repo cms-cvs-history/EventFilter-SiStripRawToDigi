@@ -1,5 +1,4 @@
-include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTstandard.cff"
-//include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTdsvbuilder.cff"
+//include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTstandard.cff"
+include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTdsvbuilder.cff"
 //include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTglobal.cff"
 //include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTondemand.cff"
-
