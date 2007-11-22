@@ -1,13 +1,5 @@
-# raw-to-clusters facility
-include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
-replace SiStripRawToClustersFacility.ProductLabel = "rawDataCollector"
+include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTstandard.cff"
+//include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTdsvbuilder.cff"
+//include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTglobal.cff"
+//include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersHLTondemand.cff"
 
-# raw-to-clusters regions of interest module
-include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersRoI.cfi"
-
-# DetSetVector builder
-module siStripClusters = SiStripClustersDSVBuilder {
-   untracked string InputModuleLabel = "SiStripRoI"
-}
-
-sequence SiStripRawToClusters = { SiStripRawToClustersFacility, SiStripRoI, siStripClusters }
