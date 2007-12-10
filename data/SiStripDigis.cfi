@@ -1,6 +1,6 @@
 module SiStripDigis = SiStripRawToDigiModule 
 {
-    untracked string ProductLabel = "SiStripDigiToRaw"
+    untracked string ProductLabel = "rawDataCollector"
     untracked bool CreateDigis = true
     untracked int32 AppendedBytes = 0
     untracked int32 FedBufferDumpFreq = 0

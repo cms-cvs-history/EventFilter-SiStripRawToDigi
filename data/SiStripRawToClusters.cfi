@@ -3,7 +3,7 @@ include "CommonTools/SiStripClusterization/data/SiStripClusterization.cfi"
 
 module SiStripRawToClustersFacility = SiStripRawToClusters {
 
-    untracked string ProductLabel = "SiStripDigiToRaw"
+    untracked string ProductLabel = "rawDataCollector"
     untracked string ProductInstance = ""
     using SiStripClusterization
 }
