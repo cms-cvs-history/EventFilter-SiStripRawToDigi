@@ -1,6 +1,5 @@
 # raw-to-clusters facility
 include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
-replace SiStripRawToClustersFacility.ProductLabel = "source"
 
 # module to produce refgetter for on demand tracking
 module siStripClusters = measurementTrackerSiStripRefGetterProducer from "RecoTracker/MeasurementDet/data/MeasurementTrackerSiStripRefGetterProducer.cfi"

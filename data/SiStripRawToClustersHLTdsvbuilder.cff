@@ -1,6 +1,5 @@
 # raw-to-clusters facility
 include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
-replace SiStripRawToClustersFacility.ProductLabel = "source"
 
 # raw-to-clusters regions of interest module
 include "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersRoI.cfi"

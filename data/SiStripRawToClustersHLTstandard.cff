@@ -1,6 +1,5 @@
 # raw-to-digi module
 include "EventFilter/SiStripRawToDigi/data/SiStripDigis.cfi"
-replace SiStripDigis.ProductLabel = "source"
 
 # zero-suppressor module for raw modes
 include "RecoLocalTracker/SiStripZeroSuppression/data/SiStripZeroSuppression.cfi"
