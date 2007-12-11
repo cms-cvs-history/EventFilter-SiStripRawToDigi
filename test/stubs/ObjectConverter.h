@@ -11,11 +11,12 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/simpleanalysis/SimpleAnalysis.h"
+
 
 namespace objectconverter {
 
@@ -35,13 +36,13 @@ namespace objectconverter {
 
   SimpleTrack track(const reco::Track&);
 
-  SimpleTrack track(const reco::GsfElectron&);
+  SimpleTrack track(const reco::PixelMatchGsfElectron&);
 
-  SimpleSCluster supercluster(const reco::GsfElectron&, const reco::ClusterShapeRef&);
+  SimpleSCluster supercluster(const reco::PixelMatchGsfElectron&, const reco::ClusterShapeRef&);
 
   SimpleHCluster hcluster(const reco::JetTag& jet, const reco::JetTag& rawjet);
 
-  SimpleElectron electron(const reco::GsfElectron&, const reco::ClusterShapeRef&);
+  SimpleElectron electron(const reco::PixelMatchGsfElectron&, const reco::ClusterShapeRef&);
 
   SimpleJet jet(const reco::JetTag&, const reco::JetTag&);  
 

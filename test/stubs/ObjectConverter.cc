@@ -1,5 +1,6 @@
 #include "EventFilter/SiStripRawToDigi/test/stubs/ObjectConverter.h"
 
+
 SimpleGenParticle objectconverter::particle(const HepMC::GenParticle& particle, const edm::ESHandle<ParticleDataTable>& pdt) 
 {
   return SimpleGenParticle(particle.momentum().perp(), -1.0*log(tan(0.5*(particle.momentum().theta()))), particle.momentum().phi(), 0., 0., 0., particle.pdg_id(), static_cast<int>(pdt->particle(particle.pdg_id())->charge()));
@@ -31,12 +32,12 @@ SimpleTrack objectconverter::track(const reco::Track& track)
   return SimpleTrack(track.momentum().Rho(), track.momentum().Eta(), track.momentum().Phi(), track.vertex().X(), track.vertex().Y(), track.vertex().Z(), track.outerMomentum().Rho(), track.outerMomentum().Eta(), track.outerMomentum().Phi(), track.outerPosition().X(), track.outerPosition().Y(), track.outerPosition().Z(), track.charge(), track.found());
 }
   
-SimpleTrack objectconverter::track(const reco::GsfElectron& electron)
+SimpleTrack objectconverter::track(const reco::PixelMatchGsfElectron& electron)
 {
   return SimpleTrack(electron.trackMomentumAtVtx().Rho(), electron.trackMomentumAtVtx().Eta(), electron.trackMomentumAtVtx().Phi(), electron.TrackPositionAtVtx().X(), electron.TrackPositionAtVtx().Y(), electron.TrackPositionAtVtx().Z(), electron.trackMomentumAtCalo().Rho(), electron.trackMomentumAtCalo().Eta(), electron.trackMomentumAtCalo().Phi(), electron.TrackPositionAtCalo().X(), electron.TrackPositionAtCalo().Y(), electron.TrackPositionAtCalo().Z(), electron.gsfTrack().get()->charge(), electron.gsfTrack().get()->found());
 }
 
-SimpleSCluster objectconverter::supercluster(const reco::GsfElectron& electron, const reco::ClusterShapeRef& shape)
+SimpleSCluster objectconverter::supercluster(const reco::PixelMatchGsfElectron& electron, const reco::ClusterShapeRef& shape)
 {
    return SimpleSCluster(electron.superCluster().get()->rawEnergy(), electron.caloEnergy(), electron.superCluster().get()->eta(), electron.superCluster().get()->phi(), electron.hadronicOverEm(), shape->e2x2(), shape->e3x3(), shape->e5x5(), shape->eMax(), shape->covEtaEta());
 }
@@ -56,7 +57,7 @@ SimpleMet objectconverter::met(const reco::CaloMET& rawmet, const reco::CaloMET&
   return SimpleMet(rawmet.et(),met.et());
 }
 
-SimpleElectron objectconverter::electron(const reco::GsfElectron& electron, const reco::ClusterShapeRef& shape) 
+SimpleElectron objectconverter::electron(const reco::PixelMatchGsfElectron& electron, const reco::ClusterShapeRef& shape) 
 {
   return SimpleElectron(track(electron),supercluster(electron,shape),electron.classification());
 }
