@@ -1,4 +1,0 @@
-module SiStripUnpacker = SiStripRawToClustersDummyUnpacker 
-{
-    untracked string InputModuleLabel = "SiStripRoI"
-}

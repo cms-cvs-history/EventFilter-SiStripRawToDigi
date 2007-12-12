@@ -1,4 +1,0 @@
-module siStripClustersDSV = SiStripClustersDSVBuilder 
-{
-    untracked string InputModuleLabel = "siStripClusters"
-}
