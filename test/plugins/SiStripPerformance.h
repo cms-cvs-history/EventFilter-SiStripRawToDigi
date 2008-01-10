@@ -9,7 +9,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "EventFilter/SiStripRawToDigi/test/stubs/ObjectConverter.h"
 
@@ -45,9 +45,9 @@ class SiStripPerformance : public edm::EDAnalyzer {
   void sistripdigis(const edm::Handle< edm::DetSetVector<SiStripDigi> >&, const edm::Handle< RefGetter >&);
   void sistripclusters(const edm::Handle<RefGetter>&);
   void sistripclusters(const edm::Handle< edm::DetSetVector<SiStripCluster> >&);
-  void electrons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
-  void muons(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
-  void jets(const edm::Handle<reco::HLTFilterObjectWithRefs>&);
+  void electrons(); // const edm::Handle<reco::HLTFilterObjectWithRefs>&); 
+  void muons(); // const edm::Handle<reco::HLTFilterObjectWithRefs>&); 
+  void jets(); // const edm::Handle<reco::HLTFilterObjectWithRefs>&); 
   void trigger(const edm::Handle<edm::TriggerResults>&);
 
   /** Input tags */

@@ -106,32 +106,32 @@ void SiStripPerformance::analyze(const Event& iEvent,const EventSetup& iSetup) {
  } catch(...) {;}
   
   //Electrons
-  try {
-    Handle<HLTFilterObjectWithRefs> Electrons;
-    iEvent.getByLabel(electronFilter_,Electrons);
-    electrons(Electrons);
-  } catch(...) {;}
+//   try {
+//     Handle<HLTFilterObjectWithRefs> Electrons;
+//     iEvent.getByLabel(electronFilter_,Electrons);
+//     electrons(Electrons);
+//   } catch(...) {;}
   
   //Muons
-  try {
-    Handle<HLTFilterObjectWithRefs> Muons;
-    iEvent.getByLabel(muonFilter_,Muons);
-    muons(Muons);
-  } catch(...) {;}
+//   try {
+//     Handle<HLTFilterObjectWithRefs> Muons;
+//     iEvent.getByLabel(muonFilter_,Muons);
+//     muons(Muons);
+//   } catch(...) {;}
 
   //Taus
-  try {
-    Handle<HLTFilterObjectWithRefs> Taus;
-    iEvent.getByLabel(taujetFilter_,Taus);
-    jets(Taus);
-  } catch(...) {;}
+//   try {
+//     Handle<HLTFilterObjectWithRefs> Taus;
+//     iEvent.getByLabel(taujetFilter_,Taus);
+//     jets(Taus);
+//   } catch(...) {;}
 
   //Bjets
-  try {
-    Handle<HLTFilterObjectWithRefs> Bjets;
-    iEvent.getByLabel(bjetFilter_,Bjets);
-    jets(Bjets);
-  } catch(...) {;}
+//   try {
+//     Handle<HLTFilterObjectWithRefs> Bjets;
+//     iEvent.getByLabel(bjetFilter_,Bjets);
+//     jets(Bjets);
+//   } catch(...) {;}
 
   //Trigger
   try {
@@ -279,28 +279,28 @@ void SiStripPerformance::sistripclusters(const Handle< DetSetVector<SiStripClust
   }
 }
 
-void SiStripPerformance::electrons(const Handle<HLTFilterObjectWithRefs>& collection) {
+void SiStripPerformance::electrons() { // const Handle<HLTFilterObjectWithRefs>& collection) {
 
-  HLTFilterObjectWithRefs::const_iterator ielectron = collection->begin();
-  for (; ielectron != collection->end(); ielectron++) {
-    data_->electrons().push_back(objectconverter::electron(*ielectron));
-  }
+//   HLTFilterObjectWithRefs::const_iterator ielectron = collection->begin();
+//   for (; ielectron != collection->end(); ielectron++) {
+//     data_->electrons().push_back(objectconverter::electron(*ielectron));
+//   }
 }
 
-void SiStripPerformance::muons(const Handle<HLTFilterObjectWithRefs>& collection) {
+void SiStripPerformance::muons() { // const Handle<HLTFilterObjectWithRefs>& collection) {
  
-  HLTFilterObjectWithRefs::const_iterator imuon = collection->begin();
-  for (; imuon != collection->end(); imuon++) {
-    data_->muons().push_back(objectconverter::muon(*imuon));
-  }
+//   HLTFilterObjectWithRefs::const_iterator imuon = collection->begin();
+//   for (; imuon != collection->end(); imuon++) {
+//     data_->muons().push_back(objectconverter::muon(*imuon));
+//   }
 }
 
-void SiStripPerformance::jets(const Handle<HLTFilterObjectWithRefs>& collection) {
+void SiStripPerformance::jets() { // const Handle<HLTFilterObjectWithRefs>& collection) {
 
-  HLTFilterObjectWithRefs::const_iterator ijet = collection->begin();
-  for (; ijet != collection->end(); ijet++) {
-    data_->jets().push_back(objectconverter::jet(*ijet));
-  }
+//   HLTFilterObjectWithRefs::const_iterator ijet = collection->begin();
+//   for (; ijet != collection->end(); ijet++) {
+//     data_->jets().push_back(objectconverter::jet(*ijet));
+//   }
 }
 
 void SiStripPerformance::trigger(const Handle<TriggerResults>& collection) {
