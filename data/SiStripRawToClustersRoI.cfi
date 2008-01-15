@@ -1,7 +1,7 @@
 
 module SiStripRoI = SiStripRawToClustersRoI 
 {
-    untracked string InputModuleLabel = "SiStripRawToClustersFacility"
+    # layers of interest
     untracked int32 Layers = -1 
 
     # define objects of interest
@@ -23,6 +23,7 @@ module SiStripRoI = SiStripRawToClustersRoI
     untracked double BJetPhiWindow = 0.2
 
     # define input tags
+    InputTag SiStripLazyGetter = SiStripRawToClustersFacility
     InputTag ElectronBarrelL2 = hltHybridSuperClustersL1Isolated
     InputTag ElectronEndcapL2 = hltIslandSuperClustersL1Isolated:islandEndcapSuperClusters
     InputTag MuonL2 = hltL2Muons
