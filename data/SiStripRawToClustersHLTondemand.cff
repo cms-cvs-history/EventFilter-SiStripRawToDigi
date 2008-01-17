@@ -8,5 +8,6 @@ replace siStripClusters.measurementTrackerName = ""
 # modify measurementTracker (which is hopefully included in the configuration from elsewhere) to use refGetter
 replace MeasurementTracker.Regional = true
 replace MeasurementTracker.OnDemand = true
+replace MeasurementTracker.stripLazyGetterProducer = "SiStripRawToClustersFacility"
 
 sequence SiStripRawToClusters = { SiStripRawToClustersFacility, siStripClusters }
