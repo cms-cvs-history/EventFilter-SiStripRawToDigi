@@ -1,0 +1,8 @@
+# raw-to-digi module
+#include "EventFilter/SiStripRawToDigi/data/SiStripDigis.cfi"
+module  siStripDigis = SiStripDigis from "EventFilter/SiStripRawToDigi/data/SiStripDigis.cfi"
+
+# zero-suppressor module for raw modes
+#include "RecoLocalTracker/SiStripZeroSuppression/data/SiStripZeroSuppression.cfi"
+
+sequence SiStripRawToDigis = { siStripDigis} #, siStripZeroSuppression}
