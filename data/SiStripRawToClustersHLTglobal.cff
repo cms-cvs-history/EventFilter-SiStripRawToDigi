@@ -6,5 +6,6 @@ module siStripClusters = SiStripRoI from "EventFilter/SiStripRawToDigi/data/SiSt
 
 # modify measurementTracker (which is hopefully included in the configuration from elsewhere) to use refGetter
 replace MeasurementTracker.Regional = true
+replace MeasurementTracker.stripLazyGetterProducer = "SiStripRawToClustersFacility"
 
 sequence SiStripRawToClusters = { SiStripRawToClustersFacility, siStripClusters }
