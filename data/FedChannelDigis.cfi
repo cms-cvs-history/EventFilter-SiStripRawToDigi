@@ -8,6 +8,7 @@ module FedChannelDigis = SiStripRawToDigiModule
     untracked int32 FedEventDumpFreq = 0
     untracked bool UseFedKey = true
     untracked int32 TriggerFedId = -1
+    untracked bool Quiet = false
 }
 
 // CreateDigis: specifies whether "real" or "pseudo" digis are created
