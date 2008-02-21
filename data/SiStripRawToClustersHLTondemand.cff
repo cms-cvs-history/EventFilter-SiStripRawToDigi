@@ -5,7 +5,8 @@ include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
 module siStripClusters = measurementTrackerSiStripRefGetterProducer from "RecoTracker/MeasurementDet/data/MeasurementTrackerSiStripRefGetterProducer.cfi"
 replace siStripClusters.measurementTrackerName = ""
 
-# modify measurementTracker (which is hopefully included in the configuration from elsewhere) to use refGetter
+# modify measurementTracker to use refGetter
+include "RecoTracker/MeasurementDet/data/MeasurementTrackerESProducer.cfi"
 replace MeasurementTracker.Regional = true
 replace MeasurementTracker.OnDemand = true
 replace MeasurementTracker.stripLazyGetterProducer = "SiStripRawToClustersFacility"
