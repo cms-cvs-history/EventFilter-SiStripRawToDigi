@@ -4,7 +4,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-//#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -64,9 +64,6 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 					    RawDigis& virgin_raw,
 					    RawDigis& proc_raw,
 					    Digis& zero_suppr ) {
-
-  typedef std::vector<edm::DetSet<SiStripDigi> > digi_work_vector;
-  digi_work_vector zero_suppr_vector;
 
   // Check if FEDs found in cabling map and event data
   if ( cabling.feds().empty() ) {
@@ -224,27 +221,19 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
       
-      //       // Determine whether FED key is inferred from cabling or channel loop
-      //       uint32_t fed_key = 0;
-      //       SiStripFedKey fed_path;
-      //       if ( summary.runType() == sistrip::FED_CABLING ) {
-      // 	fed_path = SiStripFedKey( *ifed, 
-      // 				  SiStripFedKey::feUnit(chan),
-      // 				  SiStripFedKey::feChan(chan) );
-      //       } else { 
-      // 	fed_path = SiStripFedKey( iconn->fedId(), 
-      // 				  SiStripFedKey::feUnit(iconn->fedCh()),
-      // 				  SiStripFedKey::feChan(iconn->fedCh()) );
-      //       }
-      //       fed_key = fed_path.key();
-      
       // Determine whether FED key is inferred from cabling or channel loop
       uint32_t fed_key = 0;
+      SiStripFedKey fed_path;
       if ( summary.runType() == sistrip::FED_CABLING ) {
-	fed_key = ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ );
+	fed_path = SiStripFedKey( *ifed, 
+				  SiStripFedKey::feUnit(chan),
+				  SiStripFedKey::feChan(chan) );
       } else { 
-	fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+	fed_path = SiStripFedKey( iconn->fedId(), 
+				  SiStripFedKey::feUnit(iconn->fedCh()),
+				  SiStripFedKey::feChan(iconn->fedCh()) );
       }
+      fed_key = fed_path.key();
       
       // Determine whether DetId or FED key should be used to index digi containers
       uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : iconn->detId();
@@ -253,6 +242,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : iconn->apvPairNumber();
 
       if ( mode == sistrip::FED_SCOPE_MODE ) {
+
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
 	std::vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
 
@@ -325,11 +315,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	}
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR ) { 
-
-        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(1000); }
-        zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
-	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
-
+	
+	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert(key);
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try{ 
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -351,10 +338,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR_LITE ) { 
 	
-        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(1000); }
-        zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
-	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
-
+	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert(key);
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try {
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -418,36 +402,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   event_++;
   
   if ( first_ ) { first_ = false; }
- 
-  if (!zero_suppr_vector.empty()) {
-    // step 1: sort
-    std::sort(zero_suppr_vector.begin(), zero_suppr_vector.end());
-    // step 2: build output & merge
-    std::vector<edm::DetSet<SiStripDigi> >::iterator it = zero_suppr_vector.begin(), end = zero_suppr_vector.end();
-    
-    std::vector<edm::DetSet<SiStripDigi> > sorted_and_merged;
-    sorted_and_merged.reserve(zero_suppr_vector.size());
-
-    edm::det_id_type detid, oldid = 0;
-    for (std::vector<edm::DetSet<SiStripDigi> >::iterator it = zero_suppr_vector.begin(), end = zero_suppr_vector.end(); 
-            it != end; ++it) {
-        detid = it->detId();
-        if (oldid == detid) {
-            sorted_and_merged.back().data.insert(sorted_and_merged.back().end(), it->begin(), it->end());
-        } else {
-            sorted_and_merged.push_back(edm::DetSet<SiStripDigi>(detid));
-            sorted_and_merged.back().swap(*it);
-            oldid = detid;
-        }
-    }
-    
-    for (std::vector<edm::DetSet<SiStripDigi> >::iterator it = sorted_and_merged.begin(), end = sorted_and_merged.end(); 
-            it != end; ++it) {
-        std::sort(it->begin(), it->end());
-    }
-    edm::DetSetVector<SiStripDigi> zero_suppr_dsv(sorted_and_merged, true); 
-    zero_suppr.swap(zero_suppr_dsv);
-  } 
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -739,8 +694,8 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
 
     ss << "Byte->   4 5 6 7 0 1 2 3\n";
     for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
-      unsigned int temp0 = buffer_u32[i*2] & sistrip::invalid32_;
-      unsigned int temp1 = buffer_u32[i*2+1] & sistrip::invalid32_;
+      unsigned int temp0 = buffer_u32[i*2] & 0xFFFFFFFF;
+      unsigned int temp1 = buffer_u32[i*2+1] & 0xFFFFFFFF;
       if ( !temp0 && !temp1 ) { empty++; }
       else { 
 	if ( empty ) { 
