@@ -1,0 +1,26 @@
+module SiStripDigiSourceVR = SiStripTrivialDigiSource 
+{
+    untracked bool   TestDistribution = false       
+    untracked double MeanOccupancy    = 1.0                     
+    untracked double RmsOccupancy     = 0.1             
+    untracked bool   FedRawDataMode   = true
+}
+
+module SiStripDigiToRawVR = SiStripDigiToRawModule {
+    string           InputModuleLabel = "SiStripDigiSourceVR"
+    string           InputDigiLabel   = ""
+    untracked string FedReadoutMode   = "VIRGIN_RAW"
+}
+
+module SiStripDigisVR = SiStripRawToDigiModule 
+{
+    untracked string ProductLabel = "SiStripDigiToRawVR"
+}
+
+module ValidateSiStripDigisVR = SiStripDigiValidator {
+    untracked InputTag Collection1    = SiStripDigiSourceVR
+    untracked InputTag Collection2    = SiStripDigisVR:VirginRaw
+    untracked bool     FedRawDataMode = true
+}
+
+sequence vr = { SiStripDigiSourceVR, SiStripDigiToRawVR, SiStripDigisVR, ValidateSiStripDigisVR } 

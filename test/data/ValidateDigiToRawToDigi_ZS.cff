@@ -1,0 +1,26 @@
+module SiStripDigiSourceZS = SiStripTrivialDigiSource 
+{
+    untracked bool   TestDistribution = false       
+    untracked double MeanOccupancy    = 1.0                     
+    untracked double RmsOccupancy     = 0.1             
+    untracked bool   FedRawDataMode   = false
+}
+
+module SiStripDigiToRawZS = SiStripDigiToRawModule {
+    string           InputModuleLabel = "SiStripDigiSourceZS"
+    string           InputDigiLabel   = ""
+    untracked string FedReadoutMode   = "ZERO_SUPPRESSED"
+}
+
+module SiStripDigisZS = SiStripRawToDigiModule 
+{
+    untracked string ProductLabel = "SiStripDigiToRawZS"
+}
+
+module ValidateSiStripDigisZS = SiStripDigiValidator {
+    untracked InputTag Collection1    = SiStripDigiSourceZS
+    untracked InputTag Collection2    = SiStripDigisZS:ZeroSuppressed
+    untracked bool     FedRawDataMode = false
+}
+
+sequence zs = { SiStripDigiSourceZS, SiStripDigiToRawZS, SiStripDigisZS, ValidateSiStripDigisZS } 
