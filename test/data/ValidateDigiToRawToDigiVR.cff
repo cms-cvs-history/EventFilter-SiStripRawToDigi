@@ -1,0 +1,8 @@
+// Virgin Raw
+replace SiStripDigiSource.FedRawDataMode    = true
+replace SiStripDigiSource.UseFedKey         = false
+replace SiStripDigiToRaw.FedReadoutMode     = "VIRGIN_RAW"
+replace SiStripDigiToRaw.UseFedKey          = false
+replace SiStripDigis.UseFedKey              = false
+replace ValidateSiStripDigis.Collection2    = SiStripDigis:VirginRaw
+replace ValidateSiStripDigis.FedRawDataMode = true

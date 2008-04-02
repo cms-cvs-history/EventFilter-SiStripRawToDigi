@@ -1,0 +1,8 @@
+// Processed Raw
+replace SiStripDigiSource.FedRawDataMode    = true
+replace SiStripDigiSource.UseFedKey         = false
+replace SiStripDigiToRaw.FedReadoutMode     = "PROCESSED_RAW"
+replace SiStripDigiToRaw.UseFedKey          = false
+replace SiStripDigis.UseFedKey              = false
+replace ValidateSiStripDigis.Collection2    = SiStripDigis:ProcessedRaw
+replace ValidateSiStripDigis.FedRawDataMode = true

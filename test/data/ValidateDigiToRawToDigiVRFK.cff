@@ -1,0 +1,8 @@
+// Virgin Raw using FED key
+replace SiStripDigiSource.FedRawDataMode    = true
+replace SiStripDigiSource.UseFedKey         = true
+replace SiStripDigiToRaw.FedReadoutMode     = "VIRGIN_RAW"
+replace SiStripDigiToRaw.UseFedKey          = true
+replace SiStripDigis.UseFedKey              = true
+replace ValidateSiStripDigis.Collection2    = SiStripDigis:VirginRaw
+replace ValidateSiStripDigis.FedRawDataMode = true
