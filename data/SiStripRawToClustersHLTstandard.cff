@@ -1,6 +1,6 @@
 # raw-to-digi module
 include "EventFilter/SiStripRawToDigi/data/SiStripDigis.cfi"
-replace SiStripDigis.ProductLabel = "rawDataCollector"
+replace siStripDigis.ProductLabel = "rawDataCollector"
 
 # zero-suppressor module for raw modes
 include "RecoLocalTracker/SiStripZeroSuppression/data/SiStripZeroSuppression.cfi"
@@ -9,10 +9,10 @@ include "RecoLocalTracker/SiStripZeroSuppression/data/SiStripZeroSuppression.cfi
 #include "RecoLocalTracker/SiStripClusterizer/data/SiStripClusterizer_RealData.cfi"
 include "RecoLocalTracker/SiStripClusterizer/data/SiStripClusterizer.cfi"
 replace siStripClusters.DigiProducersList = {
-    { string DigiProducer = "SiStripDigis" string DigiLabel    = "ZeroSuppressed" },
+    { string DigiProducer = "siStripDigis" string DigiLabel    = "ZeroSuppressed" },
     { string DigiProducer = "siStripZeroSuppression" string DigiLabel    = "VirginRaw" },
     { string DigiProducer = "siStripZeroSuppression" string DigiLabel    = "ProcessedRaw" },
     { string DigiProducer = "siStripZeroSuppression" string DigiLabel    = "ScopeMode" }
 }
 
-sequence SiStripRawToClusters = { SiStripDigis, siStripZeroSuppression, siStripClusters }
+sequence SiStripRawToClusters = { siStripDigis, siStripZeroSuppression, siStripClusters }

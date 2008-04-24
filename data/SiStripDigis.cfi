@@ -1,4 +1,4 @@
-module SiStripDigis = SiStripRawToDigiModule 
+module siStripDigis = SiStripRawToDigiModule 
 {
     untracked string ProductLabel = "rawDataCollector"
     untracked bool CreateDigis = true
