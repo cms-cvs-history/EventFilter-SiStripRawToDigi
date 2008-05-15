@@ -1,17 +1,5 @@
 <library file=stubs/*.cc name=testEventFilterSiStripRawToDigi>
-  <use name=FWCore/Framework>
-  <use name=SimGeneral/HepPDTRecord>
-  <use name=SimDataFormats/HepMCProduct>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/JetReco>
-  <use name=DataFormats/METReco>
-  <use name=DataFormats/TrackReco>
-  <use name=DataFormats/BTauReco>
-  <use name=DataFormats/EgammaCandidates>
-  <use name=DataFormats/EgammaReco>
-  <use name=DataFormats/TauReco>
   <use name=boost>
-  <use name=root>
 </library>
 
 <library file=plugins/*.cc name=testEventFilterSiStripRawToDigiPlugins>
