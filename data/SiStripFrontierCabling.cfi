@@ -1,7 +1,0 @@
-
-es_source SiStripDBCabling = PoolDBESSource {  
-    using CondDBSetup
-    string connect = "frontier://FrontierDev/CMS_COND_STRIP"
-    string timetype = "runnumber"
-    VPSet toGet = {{ string record="SiStripFedCablingRcd" string tag="CSA07_SiStripFedCabling" }}
-}

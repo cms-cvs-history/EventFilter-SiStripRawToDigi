@@ -16,7 +16,6 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/PluginManager>
   <use name=rootcore>
-  <use name=clhep>
   <lib name=testEventFilterSiStripRawToDigi>
   <flags EDM_PLUGIN=1>
 </library>
