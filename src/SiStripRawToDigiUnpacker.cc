@@ -403,7 +403,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   if ( ! zs_work_registry_.empty() ) {
         std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
         std::vector< edm::DetSet<SiStripDigi> > sorted_and_merged;
-        sorted_and_merged.reserve(  std::min(zs_work_registry_.size(), 17000u) );
+        sorted_and_merged.reserve(  std::min(zs_work_registry_.size(), size_t(17000)) );
 
         bool errorInData = false;
         std::vector<DetSet_SiStripDig_registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
@@ -445,7 +445,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       std::sort( virgin_work_registry_.begin(), virgin_work_registry_.end() );
 
       std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( std::min(virgin_work_registry_.size(), 17000u) );
+      sorted_and_merged.reserve( std::min(virgin_work_registry_.size(), size_t(17000)) );
 
       bool errorInData = false;
       std::vector<DetSet_SiStripDig_registry>::iterator it = virgin_work_registry_.begin(), it2, end = virgin_work_registry_.end();
@@ -487,7 +487,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
 
       std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( std::min(proc_work_registry_.size(), 17000u) );
+      sorted_and_merged.reserve( std::min(proc_work_registry_.size(), size_t(17000)) );
 
       bool errorInData = false;
       std::vector<DetSet_SiStripDig_registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
