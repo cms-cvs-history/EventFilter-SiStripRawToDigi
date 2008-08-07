@@ -174,7 +174,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
    
     // Check if EventSummary ("trigger FED info") needs updating
     if ( first_fed ) {
-      updateEventSummary( fedEvent_, summary );
+      //updateEventSummary( fedEvent_, summary ); //@@ temporarily suppress statements from SiStripEventSummary!
       first_fed = false;
     }
     
