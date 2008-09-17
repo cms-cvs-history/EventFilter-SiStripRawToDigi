@@ -330,12 +330,16 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
         int fed9uIterOffset = (mode == sistrip::FED_ZERO_SUPPR ? 7 : 2); // offset to start decoding from
 	try{ 
+	  uint16_t last_strip = 0;
+	  uint16_t strips = useFedKey_ ? 256 : 256 * iconn->nApvPairs();
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
 	  for (Fed9U::Fed9UEventIterator i = fed_iter+fed9uIterOffset; i.size() > 0; /**/) {
 	    unsigned char first_strip = *i++; // first strip of cluster
 	    unsigned char width = *i++;       // cluster width in strips 
 	    for ( uint16_t istr = 0; istr < width; istr++) {
 	      uint16_t strip = ipair*256 + first_strip + istr;
+	      if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { continue; } // check for corrupt FED data
+	      last_strip = strip;
 	      zs_work_digis_.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
 	      *i++; // Iterate to next sample
 	    }
