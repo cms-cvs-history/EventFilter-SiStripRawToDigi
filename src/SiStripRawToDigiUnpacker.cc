@@ -330,34 +330,39 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
         int fed9uIterOffset = (mode == sistrip::FED_ZERO_SUPPR ? 7 : 2); // offset to start decoding from
 	try{ 
+	  bool corrupt = false;
 #ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
-	  uint16_t last_strip = 0;
+	  int16_t last_strip = -1;
 	  uint16_t strips = useFedKey_ ? 256 : 256 * iconn->nApvPairs();
 #endif
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
-	  for (Fed9U::Fed9UEventIterator i = fed_iter+fed9uIterOffset; i.size() > 0; /**/) {
+	  Fed9U::Fed9UEventIterator i = fed_iter + fed9uIterOffset; 
+	  while ( i.size() > 0 && !corrupt ) {
 	    unsigned char first_strip = *i++; // first strip of cluster
 	    unsigned char width = *i++;       // cluster width in strips 
-	    for ( uint16_t istr = 0; istr < width; istr++) {
+	    uint16_t istr = 0; 
+	    while ( istr < width && !corrupt ) {
 	      uint16_t strip = ipair*256 + first_strip + istr;
 #ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
-	      if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { // check for corrupt FED data
-		if ( edm::isDebugEnabled() ) {
-		  std::stringstream ss;
-		  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-		     << " Corrupt FED data found for FED id " << *ifed
-		     << " and channel " << iconn->fedCh()
-		     << "!  present strip: " << strip
-		     << "  last strip: " << last_strip
-		     << "  detector strips: " << strips;
-		  edm::LogWarning(mlRawToDigi_) << ss.str();
-		}
-		continue; 
+	      if ( !( strip < strips && strip > last_strip ) ) { // check for corrupt FED data
+		// 		if ( edm::isDebugEnabled() ) {
+		// 		  std::stringstream ss;
+		// 		  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+		// 		     << " Corrupt FED data found for FED id " << *ifed
+		// 		     << " and channel " << iconn->fedCh()
+		// 		     << "!  present strip: " << strip
+		// 		     << "  last strip: " << last_strip
+		// 		     << "  detector strips: " << strips;
+		// 		  edm::LogWarning(mlRawToDigi_) << ss.str();
+		// 		}
+		corrupt = true; 
+		break;
 	      } 
 	      last_strip = strip;
 #endif
 	      zs_work_digis_.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
 	      *i++; // Iterate to next sample
+	      istr++;
 	    }
 	  }
 	} catch(...) { 
