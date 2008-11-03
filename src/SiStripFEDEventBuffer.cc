@@ -222,7 +222,6 @@ SiStripFEDEventBuffer::SiStripFEDEventBuffer(const FEDRawData& fedBuffer, bool a
     //set the address of the start of the data for the first channel using the length from the feHeader object
     payloadPointer = getPointerToDataAfterTrackerSpecialHeader()+feHeader_->lengthInBytes();
   } else {
-    feHeader_ = NULL;
     payloadPointer = getPointerToDataAfterTrackerSpecialHeader();
     if (!allowBadBuffer) {
       std::ostringstream ss;
@@ -234,10 +233,22 @@ SiStripFEDEventBuffer::SiStripFEDEventBuffer(const FEDRawData& fedBuffer, bool a
       throw cms::Exception("SiStripFEDBuffer") << ss;
     }
   }
-  lastValidChannel_ = 0;
+  //check if FE units are present in data
+  //only possible for FullDebug header
+  const SiStripFEDFullDebugHeader* fdHeader = dynamic_cast<const SiStripFEDFullDebugHeader*>(feHeader_.get());
+  if (fdHeader) {
+    for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
+      if (fdHeader->fePresent(iFE)) fePresent_[iFE] = true;
+      else fePresent_[iFE] = false;
+    }
+  } else {
+    memset(fePresent_,true,SISTRIP_FEUNITS_PER_FED);
+  }
+  //set up pointer to payload
   payloadLength_ = getPointerToByteAfterEndOfPayload()-payloadPointer;
   payload_ = SiStripFEDPayload(payloadPointer);
   //try to find channels
+  lastValidChannel_ = 0;
   try {
     findChannels();
   } catch (const cms::Exception& e) {
@@ -251,21 +262,22 @@ SiStripFEDEventBuffer::SiStripFEDEventBuffer(const FEDRawData& fedBuffer, bool a
 
 SiStripFEDEventBuffer::~SiStripFEDEventBuffer()
 {
-  if (feHeader_) delete feHeader_;
 }
 
 void SiStripFEDEventBuffer::findChannels()
 {
   size_t offsetBeginningOfChannel = 0;
   for (size_t i = 0; i < SISTRIP_CHANNELS_PER_FED; i++) {
-    //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
-    if (!feEnabled(i/SISTRIP_CHANNELS_PER_FEUNIT)) {
-      channelOffsets_.insert(channelOffsets_.end(),size_t(SISTRIP_CHANNELS_PER_FEUNIT),size_t(-1));
-      i += SISTRIP_CHANNELS_PER_FEUNIT-1;
-      lastValidChannel_ += SISTRIP_CHANNELS_PER_FEUNIT;
-      continue;
+    if (i % SISTRIP_FEUNITS_PER_FED) {
+      uint8_t fe = i/SISTRIP_CHANNELS_PER_FEUNIT;
+      //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
+      if (!feEnabled(fe) || !fePresent(fe)) {
+        channelOffsets_.insert(channelOffsets_.end(),size_t(SISTRIP_CHANNELS_PER_FEUNIT),size_t(-1));
+        i += SISTRIP_CHANNELS_PER_FEUNIT-1;
+        lastValidChannel_ += SISTRIP_CHANNELS_PER_FEUNIT;
+        continue;
+      }
     }
-    //if FE unit is enabled
     //check that channel length bytes fit into buffer
     if (offsetBeginningOfChannel+2 >= payloadLength_) {
       throw cms::Exception("SiStripFEDBuffer") << "Channel " << uint16_t(i) << " does not fit into buffer. "
@@ -344,19 +356,29 @@ void SiStripFEDEventBuffer::findChannels()
 //   }
 // }
 
+uint8_t SiStripFEDEventBuffer::nFEUnitsEnabled() const
+{
+  uint8_t result = 0;
+  for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
+    if (feEnabled(iFE) && fePresent(iFE)) result++;
+  }
+  return result;
+}
+
 bool SiStripFEDEventBuffer::doChecks() const
 {
   //check that all channels were unpacked properly
   if (lastValidChannel_ != SISTRIP_CHANNELS_PER_FED) return false;
   //do checks from base class
   if (!SiStripFEDBufferBase::doChecks()) return false;
+  if (!checkMajorityAddresses()) return false;
   return true;
 }
 
 bool SiStripFEDEventBuffer::doCorruptBufferChecks() const
 {
   return ( checkCRC() &&
-           checkChannelLengths() &&
+           checkChannelLengthsMatchBufferLength() &&
            checkChannelPacketCodes() &&
            //checkClusterLengths() &&
            checkFEUnitLengths() );
@@ -364,12 +386,22 @@ bool SiStripFEDEventBuffer::doCorruptBufferChecks() const
            //checkFEUnitAPVAddressCorrect() );
 }
 
+bool SiStripFEDEventBuffer::checkMajorityAddresses() const
+{
+  for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
+    if (!feEnabled(iFE) || !fePresent(iFE)) continue;
+    if (majorityAddressErrorForFEUnit(iFE)) return false;
+  }
+  return true;
+}
+
 bool SiStripFEDEventBuffer::checkAllChannelStatusBits() const
 {
   for (uint8_t iCh = 0; iCh < SISTRIP_CHANNELS_PER_FED; iCh++) {
     //if FE unit is disabled then skip all channels on it
-    if (!feEnabled(iCh/SISTRIP_CHANNELS_PER_FED)) {
-      iCh += SISTRIP_CHANNELS_PER_FEUNIT-1;
+    uint8_t fe = iCh/SISTRIP_CHANNELS_PER_FEUNIT;
+    if (!feEnabled(fe) || !fePresent(fe)) {
+      iCh += SISTRIP_CHANNELS_PER_FEUNIT;
       continue;
     }
     //channel is bad then return false
@@ -395,7 +427,7 @@ bool SiStripFEDEventBuffer::checkChannelLengthsMatchBufferLength() const
   //find channel length
   //find last enabled FE unit
   uint8_t lastEnabledFeUnit = 7;
-  while (!feEnabled(lastEnabledFeUnit)) lastEnabledFeUnit--;
+  while (!feEnabled(lastEnabledFeUnit) || !fePresent(lastEnabledFeUnit)) lastEnabledFeUnit--;
   //last channel is last channel on last enabled FE unit
   const size_t offsetLastChannel = channelOffsets_[internalFEDChannelNum(lastEnabledFeUnit,SISTRIP_CHANNELS_PER_FEUNIT-1)];
   const size_t offsetEndOfChannelData = offsetLastChannel+lengthFromChannelOffset(offsetLastChannel);
@@ -412,34 +444,39 @@ bool SiStripFEDEventBuffer::checkChannelLengthsMatchBufferLength() const
   }
 }
 
-bool SiStripFEDEventBuffer::checkChannelPacketCodes() const
+uint8_t SiStripFEDEventBuffer::getCorrectPacketCode() const
 {
-  //if mode is ZS Lite then retyurn true since check can't be done since packet code is missing
-  //for other modes get the correct code
-  //if the mode is not valid then return false
-  uint8_t correctPacketCode = 0x00;
   switch (readoutMode()) {
-  case SISTRIP_READOUT_MODE_ZERO_SUPPRESSED_LITE:
-    return true;
   case SISTRIP_READOUT_MODE_SCOPE:
-    correctPacketCode = SISTRIP_PACKET_CODE_SCOPE;
+    return SISTRIP_PACKET_CODE_SCOPE;
     break;
   case SISTRIP_READOUT_MODE_VIRGIN_RAW:
-    correctPacketCode = SISTRIP_PACKET_CODE_VIRGIN_RAW;
+    return SISTRIP_PACKET_CODE_VIRGIN_RAW;
     break;
   case SISTRIP_READOUT_MODE_PROC_RAW:
-    correctPacketCode = SISTRIP_PACKET_CODE_PROC_RAW;
+    return SISTRIP_PACKET_CODE_PROC_RAW;
     break;
   case SISTRIP_READOUT_MODE_ZERO_SUPPRESSED:
-    correctPacketCode = SISTRIP_PACKET_CODE_ZERO_SUPPRESSED;
+    return SISTRIP_PACKET_CODE_ZERO_SUPPRESSED;
     break;
+  case SISTRIP_READOUT_MODE_ZERO_SUPPRESSED_LITE:
   default:
-    return false;
+    return 0;
   }
+}
+
+bool SiStripFEDEventBuffer::checkChannelPacketCodes() const
+{
+  //if mode is ZS Lite then return true since check can't be done since packet code is missing
+  //for other modes get the correct code
+  //if the mode is not valid then return false
+  uint8_t correctPacketCode = getCorrectPacketCode();
+  if (!correctPacketCode) return true;
   for (uint8_t iCh = 0; iCh < SISTRIP_CHANNELS_PER_FED; iCh++) {
     //if FE unit is disabled then skip all channels on it
-    if (!feEnabled(iCh/SISTRIP_CHANNELS_PER_FED)) {
-      iCh += SISTRIP_CHANNELS_PER_FEUNIT-1;
+    uint8_t fe = iCh/SISTRIP_CHANNELS_PER_FEUNIT;
+    if (!feEnabled(fe) || !fePresent(fe)) {
+      iCh += SISTRIP_CHANNELS_PER_FEUNIT;
       continue;
     }
     //only check enabled, working channels
@@ -465,17 +502,21 @@ bool SiStripFEDEventBuffer::checkChannelPacketCode(const uint8_t internalFEDChan
 bool SiStripFEDEventBuffer::checkFEUnitLengths() const
 {
   //check can only be done for full debug headers
-  const SiStripFEDFullDebugHeader* fdHeader = dynamic_cast<const SiStripFEDFullDebugHeader*>(feHeader_);
+  const SiStripFEDFullDebugHeader* fdHeader = dynamic_cast<const SiStripFEDFullDebugHeader*>(feHeader_.get());
   if (!fdHeader) return true;
-  //get golden address
-  const uint8_t goldenAddress = apveAddress();
-  //check all enabled FE units
+  //check lengths for enabled FE units
   for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
-    if (!feEnabled(iFE)) continue;
-    //if address is bad then return false
-    if (fdHeader->getFEUnitMajorityAddress(iFE) != goldenAddress) return false;
+    if (!feEnabled(iFE) || !fePresent(iFE)) continue;
+    //get length from channels
+    uint16_t lengthFromChannels = 0;
+    for (uint8_t iCh = 0; iCh < SISTRIP_CHANNELS_PER_FEUNIT; iCh++) {
+      lengthFromChannels += channelLength(iFE,iCh);
+    }
+    //round to nearest 64bit word
+    if (lengthFromChannels % 8) lengthFromChannels = (lengthFromChannels & ~0x7) + 7;
+    if (lengthFromChannels != fdHeader->getFEPayloadLength(iFE)) return false;
   }
-  //if no bad addresses were found then return true
+  //if no errors were encountered then return true
   return true;
 }
 
@@ -483,12 +524,26 @@ std::string SiStripFEDEventBuffer::checkSummary() const
 {
   std::stringstream summary;
   summary << SiStripFEDBufferBase::checkSummary();
+  summary << "Check FE unit majority addresses: " << ( checkMajorityAddresses() ? "passed" : "FAILED" ) << std::endl;
+  if (!checkMajorityAddresses()) {
+    summary << "FEs with majority address error: ";
+    unsigned int badFEs = 0;
+    for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
+      if (!feEnabled(iFE)) continue;
+      if (majorityAddressErrorForFEUnit(iFE)) {
+        summary << uint16_t(iFE) << " ";
+        badFEs++;
+      }
+    }
+    summary << std::endl;
+    summary << "Number of FE Units with bad addresses: " << badFEs << std::endl;
+  }
   summary << "Check channel status bits: " << ( checkAllChannelStatusBits() ? "passed" : "FAILED" ) << std::endl;
   if (!checkAllChannelStatusBits()) {
     summary << "Channels with errors: ";
     unsigned int badChannels = 0;
     for (uint8_t iCh = 0; iCh < SISTRIP_CHANNELS_PER_FED; iCh++) {
-      if (!feEnabled(iCh/SISTRIP_CHANNELS_PER_FED)) continue;
+      if (!feEnabled(iCh/SISTRIP_CHANNELS_PER_FEUNIT)) continue;
       if (!checkStatusBits(iCh)) {
         summary << uint16_t(iCh) << " ";
         badChannels++;
@@ -499,6 +554,14 @@ std::string SiStripFEDEventBuffer::checkSummary() const
   }
   summary << "Check channel lengths match buffer length: " << ( checkChannelLengthsMatchBufferLength() ? "passed" : "FAILED" ) << std::endl;
   summary << "Check channel packet codes: " << ( checkChannelPacketCodes() ? "passed" : "FAILED" ) << std::endl;
+  if (!checkChannelPacketCodes()) {
+    summary << "Channels with bad packet codes: ";
+    for (uint8_t iCh = 0; iCh < SISTRIP_CHANNELS_PER_FED; iCh++) {
+      if (!feEnabled(iCh/SISTRIP_CHANNELS_PER_FEUNIT) || !fePresent(iCh/SISTRIP_CHANNELS_PER_FEUNIT)) continue;
+      if (!checkChannelPacketCode(iCh,getCorrectPacketCode()))
+        summary << uint16_t(iCh) << " ";
+    }
+  }
   //summary << "Check cluster lengths: " << ( checkClusterLengths() ? "passed" : "FAILED" ) << std::endl;
   //summary << "Check FE unit lengths: " << ( checkFEUnitLenghts() ? "passed" : "FAILED" ) << std::endl;
   //summary << "Check FE unit APV addresses match APVe: " << ( checkFEUnitAPVAddresses() ? "passed" : "FAILED" ) << std::endl;
@@ -648,15 +711,6 @@ bool SiStripFEDBufferBase::checkSourceIDIsSiStrip() const
            (daqSourceID() <= FEDNumbering::getSiStripFEDIds().second) );
 }
 
-bool SiStripFEDBufferBase::checkMajorityAddresses() const
-{
-  for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
-    if (!feEnabled(iFE)) continue;
-    if (majorityAddressErrorForFEUnit(iFE)) return false;
-  }
-  return true;
-}
-
 bool SiStripFEDBufferBase::doChecks() const
 {
   return (doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks());
@@ -669,20 +723,6 @@ std::string SiStripFEDBufferBase::checkSummary() const
   summary << "Check header format valid: " << ( checkHeaderType() ? "passed" : "FAILED" ) << std::endl;
   summary << "Check readout mode valid: " << ( checkReadoutMode() ? "passed" : "FAILED" ) << std::endl;
   summary << "Check APVe address valid: " << ( checkAPVEAddressValid() ? "passed" : "FAILED" ) << std::endl;
-  summary << "Check FE unit majority addresses: " << ( checkMajorityAddresses() ? "passed" : "FAILED" ) << std::endl;
-  if (!checkMajorityAddresses()) {
-    summary << "FEs with majority address error: ";
-    unsigned int badFEs = 0;
-    for (uint8_t iFE = 0; iFE < SISTRIP_FEUNITS_PER_FED; iFE++) {
-      if (!feEnabled(iFE)) continue;
-      if (majorityAddressErrorForFEUnit(iFE)) {
-        summary << uint16_t(iFE) << " ";
-        badFEs++;
-      }
-    }
-    summary << std::endl;
-    summary << "Number of FE Units with bad addresses: " << badFEs << std::endl;
-  }
   summary << "Check for FE unit buffer overflows: " << ( checkNoFEOverflows() ? "passed" : "FAILED" ) << std::endl;
   summary << "Check for S-Link CRC errors: " << ( checkNoSlinkCRCError() ? "passed" : "FAILED" ) << std::endl;
   summary << "Check for S-Link transmission error: " << ( checkNoSLinkTransmissionError() ? "passed" : "FAILED" ) << std::endl;

@@ -235,7 +235,7 @@ public:
   inline uint8_t apveAddress() const { return specialHeader_.apveAddress(); }
   inline bool majorityAddressErrorForFEUnit(uint8_t internalFEUnitNum) const { return specialHeader_.majorityAddressErrorForFEUnit(internalFEUnitNum); }
   inline bool feEnabled(uint8_t internalFEUnitNum) const { return specialHeader_.feEnabled(internalFEUnitNum); }
-  uint8_t nFEUnitsEnabled() const;
+  virtual uint8_t nFEUnitsEnabled() const;
   inline bool feOverflow(uint8_t internalFEUnitNum) const { return specialHeader_.feOverflow(internalFEUnitNum); }
   inline bool feGood(uint8_t internalFEUnitNum) const { return ( !majorityAddressErrorForFEUnit(internalFEUnitNum) && !feOverflow(internalFEUnitNum) ); }
   inline SiStripFEDStatusRegister fedStatusRegister() const { return specialHeader_.fedStatusRegister(); }
@@ -257,7 +257,6 @@ public:
   inline bool checkHeaderType() const { return (headerType() != SISTRIP_HEADER_TYPE_INVALID); }
   inline bool checkReadoutMode() const { return (readoutMode() != SISTRIP_READOUT_MODE_INVALID); }
   inline bool checkAPVEAddressValid() const { return (apveAddress() <= SISTRIP_APV_MAX_ADDRESS); }
-  bool checkMajorityAddresses() const;
   inline bool checkNoFEOverflows() const { return !specialHeader_.getFEOverflowRegister(); }
   //methods to check daq header and trailer
   inline bool checkNoSlinkCRCError() const { return !daqTrailer_.slinkCRCError(); }
@@ -285,7 +284,7 @@ class SiStripFEDFEHeader
 {
 public:
   //factory function: allocates new SiStripFEDFEHeader derrivative of appropriate type
-  inline static SiStripFEDFEHeader* newFEHeader(SiStripFEDHeaderType headerType, const uint8_t* headerBuffer);
+  inline static std::auto_ptr<SiStripFEDFEHeader> newFEHeader(SiStripFEDHeaderType headerType, const uint8_t* headerBuffer);
   virtual ~SiStripFEDFEHeader();
   //the length of the header
   virtual size_t lengthInBytes() const = 0;
@@ -326,7 +325,9 @@ public:
   virtual bool checkStatusBits(uint8_t internalFEDChannelNum, uint8_t apvNum) const;
   virtual void print(std::ostream& os) const;
   
+  inline bool fePresent(uint8_t internalFEUnitNum) const { return (getFEPayloadLength(internalFEUnitNum) != 0); }
   inline uint8_t getFEUnitMajorityAddress(uint8_t internalFEUnitNum) const { return feWord(internalFEUnitNum)[9]; }
+  inline uint16_t getFEPayloadLength(uint8_t internalFEUnitNum) const { return ( feWord(internalFEUnitNum)[14] + (feWord(internalFEUnitNum)[15]<<8) ); }
   inline uint32_t getBEStatusRegister() const { return get32BitWordFrom(feWord(0)+10); }
   inline uint32_t getDAQRegister() const { return get32BitWordFrom(feWord(7)+10); }
   inline uint32_t getDAQRegister2() const { return get32BitWordFrom(feWord(6)+10); }
@@ -394,7 +395,7 @@ public:
   //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
   SiStripFEDEventBuffer(const FEDRawData& fedBuffer, bool allowBadBuffer = false);
   virtual ~SiStripFEDEventBuffer();
-  inline const SiStripFEDFEHeader* feHeader() const { return feHeader_; }
+  inline const SiStripFEDFEHeader* feHeader() const { return feHeader_.get(); }
   //check that channel is on enabled FE Unit and has no errors
   inline bool channelGood(uint8_t internalFEDChannelNum) const;
   bool channelGood(uint8_t internalFEUnitNum, uint8_t internalChannelNum) const
@@ -408,6 +409,7 @@ public:
     { return channelLength(internalFEDChannelNum(internalFEUnitNum,internalChannelNum)); }
 
   //functions to check buffer. All return true if there is no problem.
+  bool checkMajorityAddresses() const;
   //minimum checks to do before using buffer
   virtual bool doChecks() const;
   
@@ -438,16 +440,21 @@ public:
   
   const SiStripFEDPayload& payload() const { return payload_; }
   size_t payloadLength() const { return payloadLength_; }
+  
+  virtual uint8_t nFEUnitsEnabled() const;
 private:
+  inline bool fePresent(uint8_t internalFEUnitNum) const { return fePresent_[internalFEUnitNum]; }
+  uint8_t getCorrectPacketCode() const;
   inline uint16_t lengthFromChannelOffset(const size_t channelOffset) const;
   void findChannels();
   //check packet code is some value for a particular channel. channel data must be present
   bool checkChannelPacketCode(const uint8_t internalFEDChannelNum, const uint8_t correctPacketCode) const;
   std::vector<size_t> channelOffsets_;
-  const SiStripFEDFEHeader* feHeader_;
+  std::auto_ptr<const SiStripFEDFEHeader> feHeader_;
   SiStripFEDPayload payload_;
   uint16_t payloadLength_;
   uint8_t lastValidChannel_;
+  bool fePresent_[SISTRIP_FEUNITS_PER_FED];
 };
 
 //
@@ -487,6 +494,7 @@ bool SiStripFEDEventBuffer::channelGood(uint8_t internalFEDChannelNum) const
 {
   return ( (internalFEDChannelNum <= lastValidChannel_) &&
            feGood(internalFEDChannelNum/SISTRIP_CHANNELS_PER_FEUNIT) &&
+           fePresent(internalFEDChannelNum/SISTRIP_CHANNELS_PER_FEUNIT) &&
            checkStatusBits(internalFEDChannelNum) );
 }
 
@@ -559,16 +567,16 @@ uint16_t SiStripTrackerSpecialHeader::getFEDStatusRegister() const
 
 //SiStripFEDFEHeader
 
-SiStripFEDFEHeader* SiStripFEDFEHeader::newFEHeader(SiStripFEDHeaderType headerType, const uint8_t* headerBuffer)
+std::auto_ptr<SiStripFEDFEHeader> SiStripFEDFEHeader::newFEHeader(SiStripFEDHeaderType headerType, const uint8_t* headerBuffer)
 {
   switch (headerType) {
   case SISTRIP_HEADER_TYPE_FULL_DEBUG:
-    return new SiStripFEDFullDebugHeader(headerBuffer);
+    return std::auto_ptr<SiStripFEDFEHeader>(new SiStripFEDFullDebugHeader(headerBuffer));
   case SISTRIP_HEADER_TYPE_APV_ERROR:
-    return new SiStripFEDAPVErrorHeader(headerBuffer);
+    return std::auto_ptr<SiStripFEDFEHeader>(new SiStripFEDAPVErrorHeader(headerBuffer));
   default:
     //TODO: throw exception
-    return NULL;
+    return std::auto_ptr<SiStripFEDFEHeader>();
   }
 }
 
