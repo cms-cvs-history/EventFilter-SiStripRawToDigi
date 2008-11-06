@@ -68,6 +68,7 @@ namespace sistrip {
   
       //detailed checks
       bool checkCRC() const { return ( checkNoSlinkCRCError() && (calcCRC()==daqCRC()) ); }
+      bool checkMajorityAddresses() const;
       //methods to check tracker special header
       bool checkBufferFormat() const { return (bufferFormat() != BUFFER_FORMAT_INVALID); }
       bool checkHeaderType() const { return (headerType() != HEADER_TYPE_INVALID); }
@@ -138,7 +139,6 @@ namespace sistrip {
 	{ return channel(internalFEDChannelNum(internalFEUnitNum,internalChannelNum)); }
 
       //functions to check buffer. All return true if there is no problem.
-      bool checkMajorityAddresses() const;
       //minimum checks to do before using buffer
       virtual bool doChecks() const;
   
@@ -276,7 +276,7 @@ namespace sistrip {
 
   //FEDChannel
 
-  FEDChannel::FEDChannel(const uint8_t* data, size_t offset)
+  inline FEDChannel::FEDChannel(const uint8_t* data, size_t offset)
     : data_(data),
     offset_(offset)
     {
