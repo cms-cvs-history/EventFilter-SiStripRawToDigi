@@ -6,6 +6,7 @@ module FedChannelDigis = SiStripRawToDigiModule
     untracked int32 AppendedBytes = 0
     untracked int32 FedBufferDumpFreq = 0
     untracked int32 FedEventDumpFreq = 0
+    untracked bool UseDaqRegister = true
     untracked bool UseFedKey = true
     untracked int32 TriggerFedId = -1
     untracked bool Quiet = false

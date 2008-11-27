@@ -5,6 +5,7 @@ module siStripDigis = SiStripRawToDigiModule
     untracked int32 AppendedBytes = 0
     untracked int32 FedBufferDumpFreq = 0
     untracked int32 FedEventDumpFreq = 0
+    untracked bool UseDaqRegister = false
     untracked bool UseFedKey = false
     untracked int32 TriggerFedId = 0
 }
