@@ -1,4 +1,0 @@
-module FEDRawDataAnalyzer = SiStripFEDRawDataAnalyzer {
-    untracked string ProductLabel = "source"
-    untracked string ProductInstance = ""
-}
