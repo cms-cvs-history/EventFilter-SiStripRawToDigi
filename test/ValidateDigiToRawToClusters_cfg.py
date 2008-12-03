@@ -10,6 +10,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("CalibTracker.Configuration.SiStrip_FakeConditions_cff")
 
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+
 process.load("CalibTracker.SiStripConnectivity.SiStripRegionConnectivity_cfi")
 
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
@@ -40,6 +42,6 @@ process.siStripClusters.DigiProducersList = cms.VPSet(cms.PSet(
     DigiLabel = cms.string('ZeroSuppressed'),
     DigiProducer = cms.string('siStripDigis')
 ))
-process.SiStripRawToClustersFacility.FedRawData = 'SiStripDigiToRaw'
+process.SiStripRawToClustersFacility.FedRawData = cms.InputTag("SiStripDigiToRaw","")
 process.siStripClustersDSV.SiStripRefGetter = 'SiStripRoI'
 
