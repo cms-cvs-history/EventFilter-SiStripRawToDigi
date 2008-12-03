@@ -1,3 +1,7 @@
+
+/// module RawToDigiModule -> old Fed9UUtils tkonline sw unpacking libs
+/// module SiStripRawToDigiModule -> new SistripFEDBuffer CMSSW unpacking libs
+
 module siStripDigis = SiStripRawToDigiModule 
 {
     untracked string ProductLabel = "rawDataCollector"

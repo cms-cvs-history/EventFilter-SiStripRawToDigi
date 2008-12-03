@@ -1,10 +1,12 @@
 
-include "CommonTools/SiStripClusterization/data/SiStripClusterization.cfi"
+include "RecoLocalTracker/SiStripClusterizer/data/SiStripClusterization.cfi"
+
+/// module RawToClusters -> old Fed9UUtils tkonline sw unpacking libs
+/// module SiStripRawToClusters -> new SistripFEDBuffer CMSSW unpacking libs
 
 module SiStripRawToClustersFacility = SiStripRawToClusters {
 
-    untracked string ProductLabel = "rawDataCollector"
-    untracked string ProductInstance = ""
+    InputTag FedRawData = rawDataCollector
     using SiStripClusterization
 }
 
