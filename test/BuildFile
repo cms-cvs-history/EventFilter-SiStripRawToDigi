@@ -1,7 +1,3 @@
-<library file=stubs/*.cc name=testEventFilterSiStripRawToDigi>
-  <use name=boost>
-</library>
-
 <library file=plugins/*.cc name=testEventFilterSiStripRawToDigiPlugins>
   <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/Records>
@@ -16,6 +12,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/PluginManager>
   <use name=rootcore>
+  <use name=EventFilter/SiStripRawToDigi>
   <lib name=testEventFilterSiStripRawToDigi>
   <flags EDM_PLUGIN=1>
 </library>
