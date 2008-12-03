@@ -1,0 +1,5 @@
+module ValidateSiStripClusters = SiStripClusterValidator 
+{
+    untracked InputTag Collection1 = siStripClusters
+    untracked InputTag Collection2 = siStripClustersDSV
+}
