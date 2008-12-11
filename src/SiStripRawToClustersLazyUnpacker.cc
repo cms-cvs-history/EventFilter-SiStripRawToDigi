@@ -68,16 +68,13 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	// Retrieve FED raw data for given FED
 	const FEDRawData& input = raw_->FEDData( static_cast<int>(iconn->fedId()) );
 	
-	//@@ TEMP FIX DUE TO FED SW AND DAQ INCOMPATIBLE FORMATS (32-BIT WORD SWAPPED)
-	FEDRawData& temp = const_cast<FEDRawData&>( input ); 
-	FEDRawData output;
-	rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), temp, output );
-	temp.resize( output.size() );
-	memcpy( temp.data(), output.data(), output.size() ); //@@ edit event data!!!
-
+	// Handle 32-bit swapped data (and locate start of FED buffer within raw data)
+	FEDRawData output; 
+	rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), input, output );
+	
 	// Recast data to suit Fed9UEvent
-	Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
-	Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
+	Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
+	Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
 	
 	// Check on FEDRawData pointer
 	if ( !data_u32 ) {
