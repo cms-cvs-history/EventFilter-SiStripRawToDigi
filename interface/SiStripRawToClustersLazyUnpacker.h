@@ -24,6 +24,7 @@
 
 //stl
 #include <vector>
+#include <list>
 
 //#define USE_FED9U_EVENT_STREAMLINE
 
@@ -63,7 +64,10 @@ class SiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster
 
   //RawToDigi
   SiStripRawToDigiUnpacker rawToDigi_;
-
+  
+  // Cache of buffers pointed to by FED9UEvent
+  std::list<FEDRawData> fedRawData_;
+  
 };
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripRawToClustersLazyUnpacker_H

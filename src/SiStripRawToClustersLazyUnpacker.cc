@@ -14,8 +14,9 @@ SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStrip
   regions_(&(regioncabling.getRegionCabling())),
   clusterizer_(&clustfact),
   fedEvents_(),
-  rawToDigi_(0,0,0,0,0)
-
+  rawToDigi_(0,0,0,0,0),
+  fedRawData_()
+  
 {
 #ifdef USE_FED9U_EVENT_STREAMLINE
   fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEventStreamLine*>(0));
@@ -68,16 +69,13 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	// Retrieve FED raw data for given FED
 	const FEDRawData& input = raw_->FEDData( static_cast<int>(iconn->fedId()) );
 	
-	//@@ TEMP FIX DUE TO FED SW AND DAQ INCOMPATIBLE FORMATS (32-BIT WORD SWAPPED)
-	FEDRawData& temp = const_cast<FEDRawData&>( input ); 
-	FEDRawData output;
-	rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), temp, output );
-	temp.resize( output.size() );
-	memcpy( temp.data(), output.data(), output.size() ); //@@ edit event data!!!
-
+	// Cache new correctly-ordered FEDRawData object (to maintain scope for Fed9UEvent)
+	fedRawData_.push_back( FEDRawData() );
+	rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), input, fedRawData_.back() );
+	
 	// Recast data to suit Fed9UEvent
-	Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
-	Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
+	Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( fedRawData_.back().data() ) );
+	Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( fedRawData_.back().size() / 4 ); 
 	
 	// Check on FEDRawData pointer
 	if ( !data_u32 ) {
