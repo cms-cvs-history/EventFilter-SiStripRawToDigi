@@ -1,8 +1,8 @@
 
 include "RecoLocalTracker/SiStripClusterizer/data/SiStripClusterization.cfi"
 
-/// module RawToClusters -> old Fed9UUtils tkonline sw unpacking libs
-/// module SiStripRawToClusters -> new SistripFEDBuffer CMSSW unpacking libs
+/// module SiStripRawToClusters -> old Fed9UUtils tkonline sw unpacking libs
+/// module RawToClusters -> new SistripFEDBuffer CMSSW unpacking libs
 
 module SiStripRawToClustersFacility = SiStripRawToClusters {
 
