@@ -1,8 +1,0 @@
-include "CondCore/DBCommon/data/CondDBSetup.cfi"
-
-es_source SiStripDBCabling = PoolDBESSource { 
-    using CondDBSetup
-    string connect = "sqlite_fip:CondCore/SQLiteData/data/sistripfedcablingCSA07.db"
-    string timetype = "runnumber"
-    VPSet toGet = {{ string record = "SiStripFedCablingRcd" string tag = "SiStripFedCabling_v1" }}
-}
