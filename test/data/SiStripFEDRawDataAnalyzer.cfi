@@ -1,3 +1,0 @@
-module FEDRawDataAnalyzer = SiStripFEDRawDataAnalyzer {
-    InputTag InputLabel = source
-}

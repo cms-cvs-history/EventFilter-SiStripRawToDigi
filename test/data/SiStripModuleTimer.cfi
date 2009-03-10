@@ -1,4 +1,0 @@
-module ModuleTimer = SiStripModuleTimer
-{
-    untracked vstring ModuleLabels = {}
-}

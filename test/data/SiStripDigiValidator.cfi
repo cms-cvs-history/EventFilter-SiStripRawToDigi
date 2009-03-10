@@ -1,6 +1,0 @@
-module DigiValidator = SiStripDigiValidator 
-{
-    untracked InputTag Collection1 = SiStripDigiSource
-    untracked InputTag Collection2 = SiStripDigis:ZeroSuppressed
-    untracked bool FedRawDataMode = false
-}

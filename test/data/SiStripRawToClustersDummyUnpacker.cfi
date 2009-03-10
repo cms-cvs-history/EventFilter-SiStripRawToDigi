@@ -1,5 +1,0 @@
-module SiStripUnpacker = SiStripRawToClustersDummyUnpacker 
-{
-    InputTag SiStripLazyGetter = SiStripRawToClustersFacility
-    InputTag SiStripRefGetter = siStripClusters
-}

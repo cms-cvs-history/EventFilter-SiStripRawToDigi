@@ -1,4 +1,0 @@
-// Zero Suppressed
-replace SiStripDigiToRaw.InputModuleLabel = "DigiSource"  
-replace SiStripDigiToRaw.InputDigiLabel = "" 
-replace siStripDigis.ProductLabel = SiStripDigiToRaw

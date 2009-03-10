@@ -1,3 +1,0 @@
-module DigiAnalyzer = SiStripDigiAnalyzer {
-    string InputModuleLabel = "siStripDigis"
-}

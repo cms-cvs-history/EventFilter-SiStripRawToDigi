@@ -1,6 +1,0 @@
-module siStripClustersDSV = SiStripClustersDSVBuilder 
-{
-    InputTag SiStripLazyGetter = "SiStripRawToClustersFacility"
-    InputTag SiStripRefGetter = "siStripClusters"
-    untracked bool DetSetVectorNew = true
-}
