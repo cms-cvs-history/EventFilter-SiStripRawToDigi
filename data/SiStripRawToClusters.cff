@@ -1,9 +1,0 @@
-
-# raw-to-clusters facility
-include "EventFilter/SiStripRawToDigi/data/SiStripRawToClusters.cfi"
-
-# raw-to-clusters regions of interest module
-module siStripClusters = SiStripRoI from "EventFilter/SiStripRawToDigi/data/SiStripRawToClustersRoI.cfi"
-
-sequence SiStripRawToClusters = {SiStripRawToClustersFacility, siStripClusters}
-
