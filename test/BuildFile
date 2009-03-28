@@ -13,6 +13,5 @@
   <use name=FWCore/PluginManager>
   <use name=rootcore>
   <use name=EventFilter/SiStripRawToDigi>
-  <lib name=testEventFilterSiStripRawToDigi>
   <flags EDM_PLUGIN=1>
 </library>
