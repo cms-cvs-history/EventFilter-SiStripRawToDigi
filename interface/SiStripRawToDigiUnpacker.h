@@ -37,7 +37,7 @@ namespace sistrip {
     
     /// constructor
     RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key,
-                       bool unpack_bad_channels );
+                       bool unpack_bad_channels, bool mark_missing_feds );
     
     /// default constructor
     ~RawToDigiUnpacker();
@@ -111,6 +111,7 @@ namespace sistrip {
     int16_t triggerFedId_;
     bool useFedKey_;
     bool unpackBadChannels_;
+    bool markMissingFeds_;
     
     /// other values
     uint32_t event_;

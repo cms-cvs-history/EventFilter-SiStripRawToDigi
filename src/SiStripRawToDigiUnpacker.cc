@@ -20,13 +20,14 @@
 namespace sistrip {
 
   RawToDigiUnpacker::RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id,
-                                        bool using_fed_key, bool unpack_bad_channels ) :
+                                        bool using_fed_key, bool unpack_bad_channels, bool mark_missing_feds ) :
     headerBytes_( appended_bytes ),
     fedBufferDumpFreq_( fed_buffer_dump_freq ),
     fedEventDumpFreq_( fed_event_dump_freq ),
     triggerFedId_( trigger_fed_id ),
     useFedKey_( using_fed_key ),
     unpackBadChannels_( unpack_bad_channels ),
+    markMissingFeds_( mark_missing_feds ),
     event_(0),
     once_(true),
     first_(true),
@@ -119,7 +120,10 @@ namespace sistrip {
 	  edm::LogVerbatim(sistrip::mlRawToDigi_) << ss.str();
 	}
       }
-    
+      
+      // get the cabling connections for this FED
+      const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
+
       // Check on FEDRawData pointer
       if ( !input.data() ) {
 	if ( edm::isDebugEnabled() ) {
@@ -128,6 +132,12 @@ namespace sistrip {
 	    << " NULL pointer to FEDRawData for FED id " 
 	    << *ifed;
 	}
+        // Mark FED modules as bad
+        std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+        for ( ; iconn != conns.end(); iconn++ ) {
+          if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
+          detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+        }
 	continue;
       }	
     
@@ -139,12 +149,15 @@ namespace sistrip {
 	    << " FEDRawData has zero size for FED id " 
 	    << *ifed;
 	}
+        // Mark FED modules as bad
+        std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+        for ( ; iconn != conns.end(); iconn++ ) {
+          if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
+          detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+        }
 	continue;
       }
       
-      // get the cabling connections for this FED
-      const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
-
       // construct FEDBuffer
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
