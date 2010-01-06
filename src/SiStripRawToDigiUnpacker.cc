@@ -56,6 +56,8 @@ namespace sistrip {
 
     // Clear working areas and registries
     cleanupWorkVectors();
+    // Reserve space in bad module list
+    detids.reserve(100);
   
     // Check if FEDs found in cabling map and event data
     if ( edm::isDebugEnabled() ) {
@@ -133,6 +135,7 @@ namespace sistrip {
 	    << *ifed;
 	}
         // Mark FED modules as bad
+        detids.reserve(detids.size()+conns.size());
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
         for ( ; iconn != conns.end(); iconn++ ) {
           if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
