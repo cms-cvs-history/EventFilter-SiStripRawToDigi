@@ -32,8 +32,7 @@ namespace sistrip {
     once_(true),
     first_(true),
     useDaqRegister_(false),
-    quiet_(true),
-    extractCm_(false)
+    quiet_(true)
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
@@ -53,7 +52,7 @@ namespace sistrip {
     }
   }
 
-  void RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& detids, RawDigis& cm_values ) {
+  void RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& detids ) {
 
     // Clear working areas and registries
     cleanupWorkVectors();
@@ -126,7 +125,7 @@ namespace sistrip {
       
       // get the cabling connections for this FED
       const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
-    
+
       // Check on FEDRawData pointer
       if ( !input.data() ) {
 	if ( edm::isDebugEnabled() ) {
@@ -154,13 +153,12 @@ namespace sistrip {
 	    << *ifed;
 	}
         // Mark FED modules as bad
-        detids.reserve(detids.size()+conns.size());
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
         for ( ; iconn != conns.end(); iconn++ ) {
           if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
           detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
         }
-        continue;
+	continue;
       }
       
       // construct FEDBuffer
@@ -266,23 +264,16 @@ namespace sistrip {
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 
 	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
-
+	
 	  regItem.length = zs_work_digis_.size() - regItem.index;
 	  if (regItem.length > 0) {
 	    regItem.first = zs_work_digis_[regItem.index].strip();
 	    zs_work_registry_.push_back(regItem);
 	  }
-	  
-	  // Common mode values
-	  Registry regItem2( key, 2*ipair, cm_work_digis_.size(), 2 );
-	  cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(0) ) );
-	  cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(1) ) );
-	  cm_work_registry_.push_back( regItem2 );
-
-	}
+	} 
 
 	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
-
+	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
 	  /// create unpacker
@@ -296,7 +287,6 @@ namespace sistrip {
 	    regItem.first = zs_work_digis_[regItem.index].strip();
 	    zs_work_registry_.push_back(regItem);
 	  }
-
 	} 
      
 	else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
@@ -417,7 +407,7 @@ namespace sistrip {
     }
 
     // update DetSetVectors
-    update(scope_mode, virgin_raw, proc_raw, zero_suppr, cm_values);
+    update(scope_mode, virgin_raw, proc_raw, zero_suppr);
 
     // increment event counter
     event_++;
@@ -429,7 +419,7 @@ namespace sistrip {
     cleanupWorkVectors();
   }
 
-  void RawToDigiUnpacker::update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, RawDigis& common_mode ) {
+  void RawToDigiUnpacker::update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr ) {
   
     if ( ! zs_work_registry_.empty() ) {
       std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
@@ -632,76 +622,14 @@ namespace sistrip {
       edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
       scope_mode.swap( scope_mode_dsv );
     }
-
-    // Populate DetSetVector with Common Mode values 
-    if ( extractCm_ ) {
-
-      // Populate final DetSetVector container with VR data 
-      if ( !cm_work_registry_.empty() ) {
-
-	std::sort( cm_work_registry_.begin(), cm_work_registry_.end() );
-    
-	std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-	sorted_and_merged.reserve( std::min(cm_work_registry_.size(), size_t(17000)) );
-    
-	bool errorInData = false;
-	std::vector<Registry>::iterator it = cm_work_registry_.begin(), it2, end = cm_work_registry_.end();
-	while (it < end) {
-	  sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
-	  std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
-      
-	  bool isDetOk = true; 
-	  // first count how many digis we have
-	  int maxFirstStrip = it->first;
-	  for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
-	    // duplicated APV or data corruption. DO NOT 'break' here!
-	    if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } 
-	    maxFirstStrip = it2->first;                           
-	  }
-	  if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
-	  
-	  // make room for 2 * (max_apv_pair + 1) Common mode values
-	  digis.resize(maxFirstStrip + 2);
-	  // push them in
-	  for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
-	    // data corruption. DO NOT 'break' here
-	    if (it->length != 2)  { isDetOk = false; continue; } 
-	    std::copy( & cm_work_digis_[it2->index], & cm_work_digis_[it2->index + it2->length], & digis[it2->first] );
-	  }
-	  if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
-	  it = it2;
-	}
-    
-	// output error
-	if (errorInData) edm::LogWarning("CorruptData") << "Some modules contained corrupted common mode data, and have been skipped in unpacking\n"; 
-    
-	// check sorting
-	if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
-	  // this is an error in the code: i DID sort it already!
-	  throw cms::Exception("Bug Found") 
-	    << "Container must be already sorted!\nat " 
-	    << __FILE__ 
-	    << ", line " 
-	    << __LINE__ 
-	    <<"\n";
-	}
-    
-	// make output DetSetVector
-	edm::DetSetVector<SiStripRawDigi> common_mode_dsv( sorted_and_merged, true ); 
-	common_mode.swap( common_mode_dsv );
-      }
-      
-    }
-    
   }
-  
+
   void RawToDigiUnpacker::cleanupWorkVectors() {
     // Clear working areas and registries
     zs_work_registry_.clear();      zs_work_digis_.clear();
     virgin_work_registry_.clear();  virgin_work_digis_.clear();
     proc_work_registry_.clear();    proc_work_digis_.clear();
     scope_work_registry_.clear();   scope_work_digis_.clear();
-    cm_work_registry_.clear();      cm_work_digis_.clear();
   }
 
   void RawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers, SiStripEventSummary& summary, const uint32_t& event ) {
