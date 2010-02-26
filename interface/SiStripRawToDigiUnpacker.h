@@ -57,6 +57,8 @@ namespace sistrip {
     /// EventSummary update request -> not yet implemented for FEDBuffer class
     inline void useDaqRegister( bool );
     
+    inline void doFullCorruptBufferChecks( bool );
+    
   private:
     
     /// fill DetSetVectors using registries
@@ -119,6 +121,7 @@ namespace sistrip {
     bool first_;
     bool useDaqRegister_;
     bool quiet_;
+    bool doFullCorruptBufferChecks_;
     
     /// registries
     std::vector<Registry> zs_work_registry_;
@@ -167,6 +170,7 @@ void sistrip::RawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
 
 void sistrip::RawToDigiUnpacker::useDaqRegister( bool use ) { useDaqRegister_ =  use; }
 
+void sistrip::RawToDigiUnpacker::doFullCorruptBufferChecks( bool do_full_corrupt_buffer_checks ) { doFullCorruptBufferChecks_ = do_full_corrupt_buffer_checks; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

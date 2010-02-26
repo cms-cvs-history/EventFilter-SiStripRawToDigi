@@ -32,7 +32,8 @@ namespace sistrip {
     once_(true),
     first_(true),
     useDaqRegister_(false),
-    quiet_(true)
+    quiet_(true),
+    doFullCorruptBufferChecks_(false)
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
@@ -167,7 +168,10 @@ namespace sistrip {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
         if (!buffer->doChecks()) {
           if (!unpackBadChannels_ || !buffer->checkNoFEOverflows() )
-            throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << *ifed << ".";
+            throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID " << *ifed << ".";
+        }
+        if (doFullCorruptBufferChecks_ && !buffer->doCorruptBufferChecks()) {
+          throw cms::Exception("FEDBuffer") << "FED corrupt buffer check fails for FED ID " << *ifed << ".";
         }
       }
       catch (const cms::Exception& e) { 
@@ -258,13 +262,24 @@ namespace sistrip {
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
-	  /// create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
-	
-	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-
-	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
-	
+          try {
+	    /// create unpacker
+	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
+	    
+	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
+            
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+          } catch (const cms::Exception& e) {
+            if ( edm::isDebugEnabled() ) {
+              edm::LogWarning(sistrip::mlRawToDigi_)
+                << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+                << " Clusters are not ordered for FED "
+                << *ifed << " channel " << iconn->fedCh();
+            }
+            detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+            continue;
+          }
+	    
 	  regItem.length = zs_work_digis_.size() - regItem.index;
 	  if (regItem.length > 0) {
 	    regItem.first = zs_work_digis_[regItem.index].strip();
@@ -276,11 +291,22 @@ namespace sistrip {
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
-	  /// create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
-	
-	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+          try {
+	    /// create unpacker
+	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
+	    
+	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+          } catch (const cms::Exception& e) {
+            if ( edm::isDebugEnabled() ) {
+              edm::LogWarning(sistrip::mlRawToDigi_)
+                << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+                << " Clusters are not ordered for FED "
+                << *ifed << " channel " << iconn->fedCh();
+            }
+            detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+            continue;
+          }
 	
 	  regItem.length = zs_work_digis_.size() - regItem.index;
 	  if (regItem.length > 0) {

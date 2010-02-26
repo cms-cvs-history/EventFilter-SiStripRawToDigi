@@ -9,6 +9,7 @@ FedChannelDigis = cms.EDProducer("SiStripRawToDigiModule",
     UnpackBadChannels = cms.bool(False),
     MarkModulesOnMissingFeds = cms.bool(True),
     TriggerFedId      = cms.int32(-1),
+    DoAllCorruptBufferChecks = cms.bool(False),
     #FedEventDumpFreq  = cms.untracked.int32(0),
     #FedBufferDumpFreq = cms.untracked.int32(0),
     #Quiet             = cms.untracked.bool(False)
