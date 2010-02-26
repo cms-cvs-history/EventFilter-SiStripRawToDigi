@@ -274,7 +274,8 @@ namespace sistrip {
               edm::LogWarning(sistrip::mlRawToDigi_)
                 << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
                 << " Clusters are not ordered for FED "
-                << *ifed << " channel " << iconn->fedCh();
+                << *ifed << " channel " << iconn->fedCh()
+                << ": " << e.what();
             }
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;
@@ -302,7 +303,8 @@ namespace sistrip {
               edm::LogWarning(sistrip::mlRawToDigi_)
                 << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
                 << " Clusters are not ordered for FED "
-                << *ifed << " channel " << iconn->fedCh();
+                << *ifed << " channel " << iconn->fedCh()
+                << ": " << e.what();
             }
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;
