@@ -9,7 +9,7 @@ process = cms.Process("DigiToRawToDigi")
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_5_2_patch2/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V24-v1/0005/22A9A9F8-A524-DF11-9AA6-0030487CD700.root',
+    '/store/relval/CMSSW_3_5_2/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0015/FA48FEA0-191E-DF11-9B68-003048679076.root'
     )
     )
 
@@ -21,7 +21,7 @@ process.Tracer = cms.Service("Tracer")
 
 # ---- Conditions ----
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V24::All"
+process.GlobalTag.globaltag = "MC_3XY_V21::All"
 
 # ---- DigiToRaw ----
 process.load("EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi")
